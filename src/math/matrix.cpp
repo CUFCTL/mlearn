@@ -24,6 +24,28 @@
 const precision_t EPSILON = 1e-16;
 
 /**
+ * Create a connection to the GPU.
+ */
+void gpu_init()
+{
+#ifdef __NVCC__
+	magma_int_t stat = magma_init();
+	assert(stat == MAGMA_SUCCESS);
+#endif
+}
+
+/**
+ * Close the connection to the GPU.
+ */
+void gpu_finalize()
+{
+#ifdef __NVCC__
+	magma_int_t stat = magma_finalize();
+	assert(stat == MAGMA_SUCCESS);
+#endif
+}
+
+/**
  * Allocate memory on the GPU.
  *
  * @param size

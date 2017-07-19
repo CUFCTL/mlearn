@@ -15,10 +15,6 @@
 #include "logger.h"
 #include "matrix.h"
 
-#ifdef __NVCC__
-	#include "magma_v2.h"
-#endif
-
 #define ANSI_RED    "\x1b[31m"
 #define ANSI_BOLD   "\x1b[1m"
 #define ANSI_GREEN  "\x1b[32m"
@@ -919,10 +915,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-#ifdef __NVCC__
-	magma_int_t stat = magma_init();
-	assert(stat == MAGMA_SUCCESS);
-#endif
+	gpu_init();
 
 	// run tests
 	test_func_t tests[] = {
@@ -962,10 +955,7 @@ int main(int argc, char **argv)
 		std::cout << "\n";
 	}
 
-#ifdef __NVCC__
-	stat = magma_finalize();
-	assert(stat == MAGMA_SUCCESS);
-#endif
+	gpu_finalize();
 
 	return 0;
 }

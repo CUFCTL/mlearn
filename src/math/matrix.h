@@ -13,6 +13,9 @@
 #include <iostream>
 #include "image.h"
 
+void gpu_init();
+void gpu_finalize();
+
 typedef float precision_t;
 
 #define ELEM(M, i, j) (M)._data_cpu[(j) * (M)._rows + (i)]
