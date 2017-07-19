@@ -1,0 +1,37 @@
+# object files
+*.o
+*.pyc
+
+# executables
+*.exe
+face-rec
+test-image
+test-matrix
+
+# folders
+datasets
+
+# image files
+*.gif
+*.jpg
+*.jpeg
+*.pgm
+*.ppm
+
+# data, log files
+*.dat
+*.log
+*.mat
+*.out
+*.txt
+
+# archives
+*.tar
+*.tgz
+
+# miscellaneous
+*~
+*.asv
+*.swp
+.DS_Store
+.tags*
