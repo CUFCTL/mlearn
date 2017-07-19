@@ -6,7 +6,7 @@
 #ifndef LDA_H
 #define LDA_H
 
-#include "feature.h"
+#include "feature/feature.h"
 
 class LDALayer : public FeatureLayer {
 private:

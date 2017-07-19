@@ -4,8 +4,8 @@
  * Implementation of the dataset type.
  */
 #include <dirent.h>
-#include "dataset.h"
-#include "logger.h"
+#include "data/dataset.h"
+#include "util/logger.h"
 
 /**
  * Get whether an entry is a file, excluding "." and "..".

@@ -4,7 +4,7 @@
  * Library of helpful math functions.
  */
 #include <cmath>
-#include "math_utils.h"
+#include "math/math_utils.h"
 
 /**
  * Determine the max of two integers.

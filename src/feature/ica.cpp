@@ -4,11 +4,11 @@
  * Implementation of ICA (Hyvarinen, 1999).
  */
 #include <cmath>
-#include "ica.h"
-#include "logger.h"
-#include "math_utils.h"
-#include "pca.h"
-#include "timer.h"
+#include "feature/ica.h"
+#include "feature/pca.h"
+#include "math/math_utils.h"
+#include "util/logger.h"
+#include "util/timer.h"
 
 typedef Matrix (*ica_nonl_func_t)(const Matrix& , const Matrix& );
 

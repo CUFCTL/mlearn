@@ -6,10 +6,10 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "classifier.h"
-#include "dataset.h"
-#include "feature.h"
-#include "matrix.h"
+#include "classifier/classifier.h"
+#include "data/dataset.h"
+#include "feature/feature.h"
+#include "math/matrix.h"
 
 typedef struct {
 	float error_rate;

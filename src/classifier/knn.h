@@ -6,8 +6,8 @@
 #ifndef KNN_H
 #define KNN_H
 
-#include "classifier.h"
-#include "matrix_utils.h"
+#include "classifier/classifier.h"
+#include "math/matrix_utils.h"
 
 class KNNLayer : public ClassifierLayer {
 private:

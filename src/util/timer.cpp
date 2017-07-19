@@ -4,8 +4,8 @@
  * Implementation of the timer.
  */
 #include <cassert>
-#include "logger.h"
-#include "timer.h"
+#include "util/logger.h"
+#include "util/timer.h"
 
 /**
  * Global timer object.

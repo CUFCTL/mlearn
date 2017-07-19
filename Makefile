@@ -11,19 +11,22 @@ else
 NVCC = g++
 endif
 
-# define library paths
+# define include paths
 CUDADIR     ?= /usr/local/cuda
 MAGMADIR    ?= $(HOME)/software/magma-2.2.0
 OPENBLASDIR ?= $(HOME)/software/OpenBLAS-0.2.19
+SRCDIR      = src
 
 # define compiler flags, libraries
-LIBS      = -lm
-CXXFLAGS  = -std=c++11 \
-            -I$(OPENBLASDIR)/include
+LDFLAGS   = -shared -lm
+CXXFLAGS  = -std=c++11 -fPIC \
+            -I$(OPENBLASDIR)/include \
+            -I$(SRCDIR)
 NVCCFLAGS = -std=c++11 \
             -I$(CUDADIR)/include \
             -I$(MAGMADIR)/include \
             -I$(OPENBLASDIR)/include \
+            -I$(SRCDIR) \
             -Wno-deprecated-gpu-targets
 
 ifeq ($(DEBUG), 1)
@@ -35,37 +38,32 @@ NVCCFLAGS += -O3 -Xcompiler -Wno-unused-result
 endif
 
 ifeq ($(GPU), 1)
-LIBS      += -L$(MAGMADIR)/lib -lmagma \
+LDFLAGS   += -L$(MAGMADIR)/lib -lmagma \
              -L$(CUDADIR)/lib64 -lcudart -lcublas \
              -L$(OPENBLASDIR)/lib -lopenblas
 else
-LIBS      += -L$(OPENBLASDIR)/lib -lopenblas
+LDFLAGS   += -L$(OPENBLASDIR)/lib -lopenblas
 NVCCFLAGS = $(CXXFLAGS)
 endif
 
 # define binary targets
-OBJDIR = obj
-OBJS = $(addprefix $(OBJDIR)/, \
-	bayes.o \
-	dataset.o \
-	ica.o \
-	identity.o \
-	image.o \
-	knn.o \
-	lda.o \
-	logger.o \
-	main.o \
-	math_utils.o \
-	matrix.o \
-	matrix_utils.o \
-	model.o \
-	pca.o \
-	timer.o )
+OBJS = $(addprefix $(SRCDIR)/, \
+	classifier/bayes.o \
+	classifier/knn.o \
+	data/dataset.o \
+	data/image.o \
+	feature/ica.o \
+	feature/identity.o \
+	feature/lda.o \
+	feature/pca.o \
+	math/math_utils.o \
+	math/matrix.o \
+	math/matrix_utils.o \
+	model/model.o \
+	util/logger.o \
+	util/timer.o )
 
-BINS = \
-	face-rec \
-	test-image \
-	test-matrix
+BINS = libmlearn.so
 
 all: echo $(BINS)
 
@@ -74,27 +72,18 @@ echo:
 	$(info GPU       = $(GPU))
 	$(info CXX       = $(CXX))
 	$(info NVCC      = $(NVCC))
-	$(info LIBS      = $(LIBS))
+	$(info LDFLAGS   = $(LDFLAGS))
 	$(info CXXFLAGS  = $(CXXFLAGS))
 	$(info NVCCFLAGS = $(NVCCFLAGS))
 
-$(OBJDIR):
-	mkdir -p $(OBJDIR)
-
-$(OBJDIR)/%.o: src/%.cpp src/%.h | $(OBJDIR)
+%.o: %.cpp %.h
 	$(NVCC) $(NVCCFLAGS) -c -o $@ $<
 
-$(OBJDIR)/%.o: src/%.cpp | $(OBJDIR)
+%.o: %.cpp
 	$(NVCC) $(NVCCFLAGS) -c -o $@ $<
 
-face-rec: $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
-
-test-image: $(addprefix $(OBJDIR)/, image.o logger.o math_utils.o matrix.o test_image.o)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
-
-test-matrix: $(addprefix $(OBJDIR)/, logger.o math_utils.o matrix.o test_matrix.o)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+libmlearn.so: $(OBJS)
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -rf $(OBJDIR) $(BINS) gmon.out
+	rm -rf $(OBJS) $(BINS) gmon.out

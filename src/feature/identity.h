@@ -6,7 +6,7 @@
 #ifndef IDENTITY_H
 #define IDENTITY_H
 
-#include "feature.h"
+#include "feature/feature.h"
 
 class IdentityLayer : public FeatureLayer {
 public:

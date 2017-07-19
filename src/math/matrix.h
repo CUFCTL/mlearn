@@ -11,7 +11,7 @@
 
 #include <fstream>
 #include <iostream>
-#include "image.h"
+#include "data/image.h"
 
 void gpu_init();
 void gpu_finalize();

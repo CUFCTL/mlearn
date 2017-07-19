@@ -4,10 +4,10 @@
  * Implementation of the model type.
  */
 #include <iomanip>
-#include "image.h"
-#include "logger.h"
-#include "model.h"
-#include "timer.h"
+#include "data/image.h"
+#include "model/model.h"
+#include "util/logger.h"
+#include "util/timer.h"
 
 /**
  * Construct a model.

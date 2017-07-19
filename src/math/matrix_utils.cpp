@@ -5,7 +5,7 @@
  */
 #include <cassert>
 #include <cmath>
-#include "matrix_utils.h"
+#include "math/matrix_utils.h"
 
 /**
  * Compute the COS distance between two column vectors.

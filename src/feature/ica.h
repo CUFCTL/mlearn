@@ -6,7 +6,7 @@
 #ifndef ICA_H
 #define ICA_H
 
-#include "feature.h"
+#include "feature/feature.h"
 
 enum class ICANonl {
 	none,

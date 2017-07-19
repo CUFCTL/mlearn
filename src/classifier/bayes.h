@@ -6,7 +6,7 @@
 #ifndef BAYES_H
 #define BAYES_H
 
-#include "classifier.h"
+#include "classifier/classifier.h"
 
 class BayesLayer : public ClassifierLayer {
 public:

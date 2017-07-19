@@ -4,8 +4,8 @@
  * Implementation of the k-nearest neighbors classifier.
  */
 #include <algorithm>
-#include "knn.h"
-#include "logger.h"
+#include "classifier/knn.h"
+#include "util/logger.h"
 
 typedef struct {
 	DataLabel label;

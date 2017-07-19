@@ -9,9 +9,9 @@
 #include <cstring>
 #include <iomanip>
 #include <random>
-#include "logger.h"
-#include "math_utils.h"
-#include "matrix.h"
+#include "math/matrix.h"
+#include "math/math_utils.h"
+#include "util/logger.h"
 
 #if defined(__NVCC__)
 	#include <cuda_runtime.h>

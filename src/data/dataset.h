@@ -9,7 +9,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "matrix.h"
+#include "math/matrix.h"
 
 typedef std::string DataLabel;
 

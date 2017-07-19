@@ -3,11 +3,11 @@
  *
  * Implementation of LDA (Belhumeur et al., 1996; Zhao et al., 1998).
  */
-#include "lda.h"
-#include "logger.h"
-#include "matrix_utils.h"
-#include "pca.h"
-#include "timer.h"
+#include "feature/lda.h"
+#include "feature/pca.h"
+#include "math/matrix_utils.h"
+#include "util/logger.h"
+#include "util/timer.h"
 
 /**
  * Construct an LDA layer.

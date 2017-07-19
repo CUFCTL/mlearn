@@ -6,7 +6,7 @@
 #ifndef PCA_H
 #define PCA_H
 
-#include "feature.h"
+#include "feature/feature.h"
 
 class PCALayer : public FeatureLayer {
 private:

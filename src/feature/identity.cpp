@@ -3,8 +3,8 @@
  *
  * Implementation of identity feature layer.
  */
-#include "identity.h"
-#include "logger.h"
+#include "feature/identity.h"
+#include "util/logger.h"
 
 /**
  * Compute the features for an identity layer.

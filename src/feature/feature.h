@@ -7,8 +7,8 @@
 #define FEATURE_H
 
 #include <vector>
-#include "dataset.h"
-#include "matrix.h"
+#include "data/dataset.h"
+#include "math/matrix.h"
 
 class FeatureLayer {
 public:

@@ -7,8 +7,8 @@
 #define MATRIX_UTILS_H
 
 #include <vector>
-#include "dataset.h"
-#include "matrix.h"
+#include "data/dataset.h"
+#include "math/matrix.h"
 
 typedef precision_t (*dist_func_t)(const Matrix&, int, const Matrix&, int);
 

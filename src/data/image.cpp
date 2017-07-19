@@ -9,8 +9,8 @@
  */
 #include <cctype>
 #include <fstream>
-#include "image.h"
-#include "logger.h"
+#include "data/image.h"
+#include "util/logger.h"
 
 /**
  * Construct an image.
