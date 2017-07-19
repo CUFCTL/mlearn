@@ -1,6 +1,7 @@
 # define build parameters
 DEBUG ?= 0
 GPU   ?= 0
+INSTALL_PREFIX ?= .
 
 # define compiler suite
 CXX  = g++
@@ -84,6 +85,23 @@ echo:
 
 libmlearn.so: $(OBJS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
+
+install: all
+	mkdir -p $(INSTALL_PREFIX)/include/classifier
+	mkdir -p $(INSTALL_PREFIX)/include/data
+	mkdir -p $(INSTALL_PREFIX)/include/feature
+	mkdir -p $(INSTALL_PREFIX)/include/math
+	mkdir -p $(INSTALL_PREFIX)/include/model
+	mkdir -p $(INSTALL_PREFIX)/include/util
+	mkdir -p $(INSTALL_PREFIX)/lib
+	cp $(SRCDIR)/classifier/*.h $(INSTALL_PREFIX)/include/classifier
+	cp $(SRCDIR)/data/*.h $(INSTALL_PREFIX)/include/data
+	cp $(SRCDIR)/feature/*.h $(INSTALL_PREFIX)/include/feature
+	cp $(SRCDIR)/math/*.h $(INSTALL_PREFIX)/include/math
+	cp $(SRCDIR)/model/*.h $(INSTALL_PREFIX)/include/model
+	cp $(SRCDIR)/util/*.h $(INSTALL_PREFIX)/include/util
+	cp $(SRCDIR)/mlearn.h $(INSTALL_PREFIX)/include
+	cp $(BINS) $(INSTALL_PREFIX)/lib
 
 clean:
 	rm -rf $(OBJS) $(BINS) gmon.out

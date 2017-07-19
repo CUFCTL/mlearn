@@ -4,8 +4,7 @@
  * Test suite for the image library.
  */
 #include <iostream>
-#include "image.h"
-#include "matrix.h"
+#include <mlearn.h>
 
 int main(int argc, char **argv)
 {

@@ -11,9 +11,7 @@
 #include <getopt.h>
 #include <iomanip>
 #include <iostream>
-
-#include "logger.h"
-#include "matrix.h"
+#include <mlearn.h>
 
 #define ANSI_RED    "\x1b[31m"
 #define ANSI_BOLD   "\x1b[1m"

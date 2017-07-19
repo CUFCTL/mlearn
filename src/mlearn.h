@@ -7,7 +7,7 @@
 #define MLEARN_H
 
 #include "classifier/bayes.h"
-#include "classifiar/knn.h"
+#include "classifier/knn.h"
 
 #include "data/dataset.h"
 
