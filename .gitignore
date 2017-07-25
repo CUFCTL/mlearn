@@ -9,7 +9,7 @@ test-image
 test-matrix
 
 # folders
-datasets
+build
 
 # image files
 *.gif
@@ -23,7 +23,6 @@ datasets
 *.log
 *.mat
 *.out
-*.txt
 
 # archives
 *.tar
