@@ -8,6 +8,8 @@
 
 #include "feature/feature.h"
 
+namespace ML {
+
 enum class ICANonl {
 	none,
 	pow3,
@@ -38,5 +40,7 @@ public:
 
 	void print();
 };
+
+}
 
 #endif

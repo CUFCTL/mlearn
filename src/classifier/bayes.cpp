@@ -9,6 +9,8 @@
 #include "math/matrix_utils.h"
 #include "util/logger.h"
 
+namespace ML {
+
 /**
  * Construct a Bayes classifier.
  */
@@ -80,4 +82,6 @@ std::vector<DataLabel> BayesLayer::predict(const Matrix& X, const std::vector<Da
 void BayesLayer::print()
 {
 	log(LL_VERBOSE, "Bayes");
+}
+
 }

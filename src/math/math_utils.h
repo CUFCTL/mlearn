@@ -6,10 +6,14 @@
 #ifndef MATH_UTILS_H
 #define MATH_UTILS_H
 
+namespace ML {
+
 int max(int x, int y);
 int min(int x, int y);
 float pow2(float x);
 float pow3(float x);
 float sechf(float x);
+
+}
 
 #endif

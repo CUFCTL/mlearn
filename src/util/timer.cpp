@@ -7,6 +7,8 @@
 #include "util/logger.h"
 #include "util/timer.h"
 
+namespace ML {
+
 /**
  * Global timer object.
  */
@@ -86,4 +88,6 @@ void timer_print(void)
 			iter->duration);
 	}
 	log(LL_VERBOSE, "");
+}
+
 }

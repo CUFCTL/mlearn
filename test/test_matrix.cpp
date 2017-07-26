@@ -13,6 +13,8 @@
 #include <iostream>
 #include <mlearn.h>
 
+using namespace ML;
+
 #define ANSI_RED    "\x1b[31m"
 #define ANSI_BOLD   "\x1b[1m"
 #define ANSI_GREEN  "\x1b[32m"

@@ -9,6 +9,8 @@
 #include "classifier/classifier.h"
 #include "math/matrix_utils.h"
 
+namespace ML {
+
 class KNNLayer : public ClassifierLayer {
 private:
 	int k;
@@ -26,5 +28,7 @@ public:
 
 	void print();
 };
+
+}
 
 #endif

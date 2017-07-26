@@ -8,6 +8,8 @@
 #include <ctime>
 #include "util/logger.h"
 
+namespace ML {
+
 logger_level_t LOGLEVEL = LL_INFO;
 
 /**
@@ -40,4 +42,6 @@ void log(logger_level_t level, const char *format, ...)
 
 		printf("\n");
 	}
+}
+
 }

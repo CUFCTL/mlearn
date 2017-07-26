@@ -21,6 +21,8 @@
 	#include <lapacke.h>
 #endif
 
+namespace ML {
+
 const precision_t EPSILON = 1e-16;
 
 /**
@@ -1131,4 +1133,6 @@ void swap(Matrix& A, Matrix& B)
 	std::swap(A._data_gpu, B._data_gpu);
 	std::swap(A._transposed, B._transposed);
 	std::swap(A.T, B.T);
+}
+
 }

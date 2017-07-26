@@ -6,6 +6,8 @@
 #include "feature/identity.h"
 #include "util/logger.h"
 
+namespace ML {
+
 /**
  * Compute the features for an identity layer.
  *
@@ -56,4 +58,6 @@ void IdentityLayer::load(std::ifstream& file)
 void IdentityLayer::print()
 {
 	log(LL_VERBOSE, "Identity");
+}
+
 }

@@ -10,6 +10,8 @@
 #include "data/dataset.h"
 #include "math/matrix.h"
 
+namespace ML {
+
 typedef precision_t (*dist_func_t)(const Matrix&, int, const Matrix&, int);
 
 precision_t m_dist_COS(const Matrix& A, int i, const Matrix& B, int j);
@@ -21,5 +23,7 @@ std::vector<Matrix> m_class_means(const std::vector<Matrix>& X_c);
 std::vector<Matrix> m_class_scatters(const std::vector<Matrix>& X_c, const std::vector<Matrix>& U);
 Matrix m_scatter_between(const std::vector<Matrix>& X_c, const std::vector<Matrix>& U);
 Matrix m_scatter_within(const std::vector<Matrix>& X_c, const std::vector<Matrix>& U);
+
+}
 
 #endif

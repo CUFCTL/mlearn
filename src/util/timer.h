@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+namespace ML {
+
 typedef struct {
 	std::string name;
 	int level;
@@ -26,5 +28,7 @@ typedef struct {
 void timer_push(const std::string& name);
 float timer_pop(void);
 void timer_print(void);
+
+}
 
 #endif

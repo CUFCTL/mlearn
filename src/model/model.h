@@ -11,6 +11,8 @@
 #include "feature/feature.h"
 #include "math/matrix.h"
 
+namespace ML {
+
 typedef struct {
 	float error_rate;
 	float train_time;
@@ -46,5 +48,7 @@ public:
 
 	void print_stats();
 };
+
+}
 
 #endif

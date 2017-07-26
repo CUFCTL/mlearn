@@ -8,6 +8,8 @@
 
 #include "feature/feature.h"
 
+namespace ML {
+
 class IdentityLayer : public FeatureLayer {
 public:
 	void compute(const Matrix& X, const std::vector<DataEntry>& y, int c);
@@ -18,5 +20,7 @@ public:
 
 	void print();
 };
+
+}
 
 #endif

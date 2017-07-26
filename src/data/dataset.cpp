@@ -7,6 +7,8 @@
 #include "data/dataset.h"
 #include "util/logger.h"
 
+namespace ML {
+
 /**
  * Get whether an entry is a file, excluding "." and "..".
  *
@@ -264,4 +266,6 @@ void Dataset::print() const
 		log(LL_VERBOSE, "%-8s  %s", entry.label.c_str(), entry.name.c_str());
 	}
 	log(LL_VERBOSE, "");
+}
+
 }

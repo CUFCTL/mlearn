@@ -11,6 +11,8 @@
 #include <vector>
 #include "math/matrix.h"
 
+namespace ML {
+
 typedef std::string DataLabel;
 
 typedef struct {
@@ -39,5 +41,7 @@ public:
 
 	void print() const;
 };
+
+}
 
 #endif

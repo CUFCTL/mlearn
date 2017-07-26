@@ -8,6 +8,8 @@
 
 #include "classifier/classifier.h"
 
+namespace ML {
+
 class BayesLayer : public ClassifierLayer {
 public:
 	BayesLayer();
@@ -21,5 +23,7 @@ public:
 
 	void print();
 };
+
+}
 
 #endif

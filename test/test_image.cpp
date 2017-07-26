@@ -6,6 +6,8 @@
 #include <iostream>
 #include <mlearn.h>
 
+using namespace ML;
+
 int main(int argc, char **argv)
 {
 	if ( argc != 3 ) {

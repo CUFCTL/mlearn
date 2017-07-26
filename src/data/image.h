@@ -8,6 +8,8 @@
 
 #include <string>
 
+namespace ML {
+
 class Image {
 private:
 	int _channels;
@@ -29,5 +31,7 @@ public:
 	void load(const std::string& path);
 	void save(const std::string& path);
 };
+
+}
 
 #endif

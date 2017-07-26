@@ -10,6 +10,8 @@
 #include "data/dataset.h"
 #include "math/matrix.h"
 
+namespace ML {
+
 class ClassifierLayer {
 public:
 	virtual ~ClassifierLayer() {};
@@ -23,5 +25,7 @@ public:
 
 	virtual void print() = 0;
 };
+
+}
 
 #endif

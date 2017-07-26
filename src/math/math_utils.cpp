@@ -6,6 +6,8 @@
 #include <cmath>
 #include "math/math_utils.h"
 
+namespace ML {
+
 /**
  * Determine the max of two integers.
  *
@@ -59,4 +61,6 @@ float pow3(float x)
 float sechf(float x)
 {
     return 1.0f / coshf(x);
+}
+
 }

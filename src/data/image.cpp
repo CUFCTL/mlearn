@@ -12,6 +12,8 @@
 #include "data/image.h"
 #include "util/logger.h"
 
+namespace ML {
+
 /**
  * Construct an image.
  */
@@ -155,4 +157,6 @@ void Image::save(const std::string& path)
 	file.write(reinterpret_cast<char *>(this->_pixels), num);
 
 	file.close();
+}
+
 }

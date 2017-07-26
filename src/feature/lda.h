@@ -8,6 +8,8 @@
 
 #include "feature/feature.h"
 
+namespace ML {
+
 class LDALayer : public FeatureLayer {
 private:
 	int n1;
@@ -26,5 +28,7 @@ public:
 
 	void print();
 };
+
+}
 
 #endif

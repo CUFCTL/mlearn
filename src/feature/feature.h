@@ -10,6 +10,8 @@
 #include "data/dataset.h"
 #include "math/matrix.h"
 
+namespace ML {
+
 class FeatureLayer {
 public:
 	virtual ~FeatureLayer() {};
@@ -22,5 +24,7 @@ public:
 
 	virtual void print() = 0;
 };
+
+}
 
 #endif

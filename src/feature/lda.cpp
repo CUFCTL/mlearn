@@ -9,6 +9,8 @@
 #include "util/logger.h"
 #include "util/timer.h"
 
+namespace ML {
+
 /**
  * Construct an LDA layer.
  *
@@ -122,4 +124,6 @@ void LDALayer::print()
 	log(LL_VERBOSE, "LDA");
 	log(LL_VERBOSE, "  %-20s  %10d", "n1", this->n1);
 	log(LL_VERBOSE, "  %-20s  %10d", "n2", this->n2);
+}
+
 }

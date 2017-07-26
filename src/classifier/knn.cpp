@@ -7,6 +7,8 @@
 #include "classifier/knn.h"
 #include "util/logger.h"
 
+namespace ML {
+
 typedef struct {
 	DataLabel label;
 	precision_t dist;
@@ -141,4 +143,6 @@ void KNNLayer::print()
 	log(LL_VERBOSE, "kNN");
 	log(LL_VERBOSE, "  %-20s  %10d", "k", this->k);
 	log(LL_VERBOSE, "  %-20s  %10s", "dist", dist_name);
+}
+
 }

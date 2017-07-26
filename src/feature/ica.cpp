@@ -10,6 +10,8 @@
 #include "util/logger.h"
 #include "util/timer.h"
 
+namespace ML {
+
 typedef Matrix (*ica_nonl_func_t)(const Matrix& , const Matrix& );
 
 /**
@@ -335,4 +337,6 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 	}
 
 	return W_mix;
+}
+
 }

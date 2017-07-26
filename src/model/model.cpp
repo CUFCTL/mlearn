@@ -9,6 +9,8 @@
 #include "util/logger.h"
 #include "util/timer.h"
 
+namespace ML {
+
 /**
  * Construct a model.
  *
@@ -193,4 +195,6 @@ void Model::print_stats()
 		<< std::setw(12) << std::setprecision(3) << this->_stats.train_time
 		<< std::setw(12) << std::setprecision(3) << this->_stats.test_time
 		<< "\n";
+}
+
 }

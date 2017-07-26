@@ -7,6 +7,8 @@
 #include <cmath>
 #include "math/matrix_utils.h"
 
+namespace ML {
+
 /**
  * Compute the COS distance between two column vectors.
  *
@@ -231,4 +233,6 @@ Matrix m_scatter_within(const std::vector<Matrix>& X_c, const std::vector<Matrix
 	}
 
 	return S_w;
+}
+
 }

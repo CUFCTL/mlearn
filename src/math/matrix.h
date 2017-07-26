@@ -13,6 +13,8 @@
 #include <iostream>
 #include "data/image.h"
 
+namespace ML {
+
 void gpu_init();
 void gpu_finalize();
 
@@ -109,5 +111,7 @@ inline Matrix operator*(Matrix A, precision_t c) { return (A *= c); }
 inline Matrix operator*(precision_t c, Matrix A) { return (A *= c); }
 inline Matrix operator/(Matrix A, precision_t c) { return (A /= c); }
 inline std::ostream& operator<<(std::ostream& os, const Matrix& M) { M.print(os); return os; }
+
+}
 
 #endif
