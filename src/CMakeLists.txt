@@ -3,17 +3,34 @@
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 # external libraries
+set(OPENBLASDIR "$ENV{HOME}/software/OpenBLAS-0.2.19")
 add_library(openblas SHARED IMPORTED)
 set_target_properties(openblas PROPERTIES
-	IMPORTED_LOCATION "$ENV{HOME}/software/OpenBLAS-0.2.19/lib/libopenblas.so"
-	INTERFACE_INCLUDE_DIRECTORIES "$ENV{HOME}/software/OpenBLAS-0.2.19/include"
+	IMPORTED_LOCATION "${OPENBLASDIR}/lib/libopenblas.so"
+	INTERFACE_INCLUDE_DIRECTORIES "${OPENBLASDIR}/include"
 )
+
+set(MAGMADIR "$ENV{HOME}/software/magma-2.2.0")
+add_library(magma SHARED IMPORTED)
+set_target_properties(magma PROPERTIES
+	IMPORTED_LOCATION "${MAGMADIR}/lib/libmagma.so"
+	INTERFACE_INCLUDE_DIRECTORIES "${MAGMADIR}/include"
+)
+include_directories("${MAGMADIR}/include")
 
 # build mlearn library
 file(GLOB_RECURSE mlearn_src ${CMAKE_SOURCE_DIR}/src/*.cpp)
-add_library(mlearn SHARED ${mlearn_src})
 
-target_link_libraries(mlearn openblas)
+if ( GPU STREQUAL "1" )
+	set_source_files_properties(${mlearn_src} PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
+
+	cuda_add_library(mlearn SHARED ${mlearn_src})
+	cuda_add_cublas_to_target(mlearn)
+	target_link_libraries(mlearn openblas magma)
+else ()
+	add_library(mlearn SHARED ${mlearn_src})
+	target_link_libraries(mlearn openblas)
+endif ()
 
 # install libmlearn.so
 install(

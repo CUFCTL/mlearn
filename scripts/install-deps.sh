@@ -12,11 +12,12 @@ for BIN in $BINS; do
 done
 
 # initialize directories, build parameters
-CUDADIR=/usr/local/cuda
 INSTALL_PREFIX=$HOME/software
-MAGMADIR=$INSTALL_PREFIX/magma-2.2.0
-OPENBLASDIR=$INSTALL_PREFIX/OpenBLAS-0.2.19
 NUM_JOBS=$(nproc)
+
+export CUDADIR=/usr/local/cuda
+export MAGMADIR=$INSTALL_PREFIX/magma-2.2.0
+export OPENBLASDIR=$INSTALL_PREFIX/OpenBLAS-0.2.19
 
 mkdir -p $MAGMADIR $OPENBLASDIR
 
@@ -56,7 +57,7 @@ echo
 echo "export CUDADIR=$CUDADIR"
 echo "export MAGMADIR=$MAGMADIR"
 echo "export OPENBLASDIR=$OPENBLASDIR"
-echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$MAGMADIR/lib:$OPENBLASDIR/lib"
+echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MAGMADIR/lib:\$OPENBLASDIR/lib"
 echo
 echo "And update your environment:"
 echo

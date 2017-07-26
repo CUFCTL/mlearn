@@ -8,16 +8,18 @@ Clone this repository and install dependencies by running `install-deps.sh`.
 
 ## Usage
 
-To build library:
+To build library and tests:
 ```
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=. -DGPU=1
 make install
 ```
 
-To build and run tests:
+To run tests:
 ```
-cd test
-make
+cd build/test
 
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib test_image
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib test_matrix
+./test_image [infile] [outfile]
+./test_matrix
 ```
