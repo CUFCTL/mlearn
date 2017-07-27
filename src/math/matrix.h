@@ -11,6 +11,7 @@
 
 #include <fstream>
 #include <iostream>
+#include "data/genome.h"
 #include "data/image.h"
 
 namespace ML {
@@ -60,6 +61,8 @@ public:
 
 	void gpu_read();
 	void gpu_write();
+
+	void genome_read(int i, const Genome& genome);
 
 	void image_read(int i, const Image& image);
 	void image_write(int i, Image& image);
