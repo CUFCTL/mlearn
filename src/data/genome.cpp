@@ -6,18 +6,20 @@
  * The following formats are supported:
  * - RNA-seq data extracted to binary file
  */
-#include <cctype>
+#include <cassert>
 #include <fstream>
 #include "data/genome.h"
 #include "util/logger.h"
+
+namespace ML {
 
 /**
  * Construct a genome.
  */
 Genome::Genome()
 {
-	this->_gene_count = 0;
-	this->_expr_lvls = nullptr;
+	this->_num_genes = 0;
+	this->_values = nullptr;
 }
 
 /**
@@ -25,26 +27,85 @@ Genome::Genome()
  */
 Genome::~Genome()
 {
-	delete this->_expr_lvls;
+	delete this->_values;
 }
 
 /**
- * Load RNA-seq data from a binary file
+ * Load a genome sample into a column of a data matrix.
+ *
+ * @param X
+ * @param i
+ */
+void Genome::to_matrix(Matrix& X, int i) const
+{
+	assert(X.rows() == this->size());
+
+	for ( int j = 0; j < X.rows(); j++ ) {
+		X.elem(j, i) = this->_values[j];
+	}
+}
+
+/**
+ * Load a genome sample from a column of a data matrix.
+ *
+ * @param X
+ * @param i
+ */
+void Genome::from_matrix(Matrix& X, int i)
+{
+	assert(X.rows() == this->size());
+
+	for ( int j = 0; j < X.rows(); j++ ) {
+		this->_values[j] = X.elem(j, i);
+	}
+}
+
+/**
+ * Load a genome sample from a binary file.
  *
  * @param path
  */
-void Genome::load_rna_seq(const std::string& path)
+void Genome::load(const std::string& path)
 {
 	std::ifstream file(path, std::ifstream::in);
 
+	// determine the size of the genome sample
 	std::streampos fsize = file.tellg();
-    file.seekg(0, std::ios::end);
-    fsize = file.tellg() - fsize;
-
-    this->_gene_count = (int)fsize / sizeof(float);
-    this->_expr_lvls = new float[this->_gene_count];
-
+	file.seekg(0, std::ios::end);
+	fsize = file.tellg() - fsize;
 	file.seekg(0);
-	file.read(reinterpret_cast<char *>(this->_expr_lvls), this->_gene_count * sizeof(float));
+
+	// verify that the genome sizes are equal (if reloading)
+	int num = (int)fsize / sizeof(float);
+
+	if ( this->_values == nullptr ) {
+		this->_values = new float[num];
+	}
+	else if ( num != this->size() ) {
+		log(LL_ERROR, "error: unequal sizes on genome reload\n");
+		exit(1);
+	}
+
+	this->_num_genes = num;
+
+	// read genome data
+	file.read(reinterpret_cast<char *>(this->_values), this->_num_genes * sizeof(float));
+
 	file.close();
+}
+
+/**
+ * Save a genome sample to a binary file.
+ *
+ * @param path
+ */
+void Genome::save(const std::string& path)
+{
+	std::ofstream file(path, std::ofstream::out);
+
+	file.write(reinterpret_cast<char *>(this->_values), this->_num_genes);
+
+	file.close();
+}
+
 }

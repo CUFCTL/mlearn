@@ -1,7 +1,7 @@
 /**
  * @file test_image.cpp
  *
- * Test suite for the image library.
+ * Test suite for the image data type.
  */
 #include <iostream>
 #include <mlearn.h>
@@ -22,11 +22,12 @@ int main(int argc, char **argv)
 	Image image;
 	image.load(FILENAME_IN);
 
-	Matrix x("x", image.channels() * image.width() * image.height(), 1);
-	x.image_read(0, image);
+	Matrix x("x", image.size(), 1);
+
+	image.to_matrix(x, 0);
 
 	// map a column vector to an image
-	x.image_write(0, image);
+	image.from_matrix(x, 0);
 	image.save(FILENAME_OUT);
 
 	return 0;

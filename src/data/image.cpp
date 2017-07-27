@@ -7,6 +7,7 @@
  * - binary PGM (P5)
  * - binary PPM (P6)
  */
+#include <cassert>
 #include <cctype>
 #include <fstream>
 #include "data/image.h"
@@ -32,6 +33,36 @@ Image::Image()
 Image::~Image()
 {
 	delete[] this->_pixels;
+}
+
+/**
+ * Load an image into a column of a data matrix.
+ *
+ * @param X
+ * @param i
+ */
+void Image::to_matrix(Matrix& X, int i) const
+{
+	assert(X.rows() == this->size());
+
+	for ( int j = 0; j < X.rows(); j++ ) {
+		X.elem(j, i) = (precision_t) this->_pixels[j];
+	}
+}
+
+/**
+ * Load an image from a column of a data matrix.
+ *
+ * @param X
+ * @param i
+ */
+void Image::from_matrix(Matrix& X, int i)
+{
+	assert(X.rows() == this->size());
+
+	for ( int j = 0; j < X.rows(); j++ ) {
+		this->_pixels[j] = (unsigned char) X.elem(j, i);
+	}
 }
 
 /**
@@ -100,13 +131,12 @@ void Image::load(const std::string& path)
 	file.get();
 
 	// verify that image sizes are equal (if reloading)
-	int num1 = channels * width * height;
-	int num2 = this->_channels * this->_width * this->_height;
+	int num = channels * width * height;
 
 	if ( this->_pixels == nullptr ) {
-		this->_pixels = new unsigned char[num1];
+		this->_pixels = new unsigned char[num];
 	}
-	else if ( num1 != num2 ) {
+	else if ( num != this->size() ) {
 		log(LL_ERROR, "error: unequal sizes on image reload\n");
 		exit(1);
 	}
@@ -117,7 +147,7 @@ void Image::load(const std::string& path)
 	this->_max_value = max_value;
 
 	// read pixel data
-	file.read(reinterpret_cast<char *>(this->_pixels), num1);
+	file.read(reinterpret_cast<char *>(this->_pixels), num);
 
 	file.close();
 }

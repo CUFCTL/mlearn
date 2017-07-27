@@ -6,22 +6,27 @@
 #ifndef GENOME_H
 #define GENOME_H
 
-#include <string>
-#include <vector>
+#include "data/datatype.h"
 
-class Genome {
+namespace ML {
+
+class Genome : public DataType {
 private:
-	int _gene_count;
-	float *_expr_lvls;
+	int _num_genes;
+	float *_values;
 
 public:
 	Genome();
 	~Genome();
 
-	inline int gene_count() const { return this->_gene_count; }
-	inline float elem(int i) const { return this->_expr_lvls[i]; }
+	inline int size() const { return this->_num_genes; }
+	void to_matrix(Matrix& X, int i) const;
+	void from_matrix(Matrix& X, int i);
 
-	void load_rna_seq(const std::string& path);
+	void load(const std::string& path);
+	void save(const std::string& path);
 };
+
+}
 
 #endif

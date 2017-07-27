@@ -10,6 +10,8 @@
 #include "classifier/knn.h"
 
 #include "data/dataset.h"
+#include "data/genome.h"
+#include "data/image.h"
 
 #include "feature/ica.h"
 #include "feature/identity.h"

@@ -9,14 +9,10 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "data/datatype.h"
 #include "math/matrix.h"
 
 namespace ML {
-
-enum class DataType {
-	Image,
-	Genome
-};
 
 typedef std::string DataLabel;
 
@@ -39,7 +35,7 @@ public:
 	inline const std::vector<DataLabel>& labels() const { return this->_labels; }
 	inline const std::vector<DataEntry>& entries() const { return this->_entries; }
 
-	Matrix load_data(DataType type) const;
+	Matrix load_data(DataType *type) const;
 
 	void save(std::ofstream& file);
 	void load(std::ifstream& file);

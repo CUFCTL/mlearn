@@ -159,49 +159,22 @@ Dataset::Dataset()
  *
  * @param type
  */
-Matrix Dataset::load_data(DataType type) const
+Matrix Dataset::load_data(DataType *type) const
 {
-	Matrix X;
+	// get the size of the first sample
+	type->load(this->_path + "/" + this->_entries[0].name);
 
-	if ( type == DataType::Image ) {
-		// get the image size from the first image
-		Image image;
-		image.load(this->_path + "/" + this->_entries[0].name);
+	// construct data matrix
+	int m = type->size();
+	int n = this->_entries.size();
+	Matrix X = Matrix("X", m, n);
 
-		// construct data matrix
-		int m = image.channels() * image.height() * image.width();
-		int n = this->_entries.size();
-		X = Matrix("X", m, n);
+	// map each sample to a column in X
+	type->to_matrix(X, 0);
 
-		// map each image to a column in X
-		X.image_read(0, image);
-
-		for ( int i = 1; i < n; i++ ) {
-			Image image;
-			image.load(this->_path + "/" + this->_entries[i].name);
-
-			X.image_read(i, image);
-		}
-	}
-	else if ( type == DataType::Genome ) {
-		// get the genome size from the first genome
-		Genome genome;
-		genome.load_rna_seq(this->_path + "/" + this->_entries[0].name);
-
-		// construct data matrix
-		int m = genome.gene_count();
-		int n = this->_entries.size();
-		X = Matrix("X", m, n);
-
-		// map each genome to a column in X
-		X.genome_read(0, genome);
-
-		for ( int i = 1; i < n; i++ ) {
-			Genome genome;
-			genome.load_rna_seq(this->_path + "/" + this->_entries[i].name);
-
-			X.genome_read(i, genome);
-		}
+	for ( int i = 1; i < n; i++ ) {
+		type->load(this->_path + "/" + this->_entries[i].name);
+		type->to_matrix(X, i);
 	}
 
 	return X;

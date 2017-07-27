@@ -11,8 +11,6 @@
 
 #include <fstream>
 #include <iostream>
-#include "data/genome.h"
-#include "data/image.h"
 
 namespace ML {
 
@@ -62,16 +60,11 @@ public:
 	void gpu_read();
 	void gpu_write();
 
-	void genome_read(int i, const Genome& genome);
-
-	void image_read(int i, const Image& image);
-	void image_write(int i, Image& image);
-
 	// getter functions
 	inline const char * name() const { return this->_name; }
 	inline int rows() const { return this->_rows; }
 	inline int cols() const { return this->_cols; }
-	inline precision_t elem(int i, int j) const { return ELEM(*this, i, j); }
+	inline precision_t& elem(int i, int j) const { return ELEM(*this, i, j); }
 
 	precision_t determinant() const;
 	Matrix diagonalize(const char *name) const;

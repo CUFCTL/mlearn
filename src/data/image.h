@@ -6,11 +6,11 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <string>
+#include "data/datatype.h"
 
 namespace ML {
 
-class Image {
+class Image : public DataType {
 private:
 	int _channels;
 	int _width;
@@ -22,11 +22,9 @@ public:
 	Image();
 	~Image();
 
-	inline int channels() const { return this->_channels; }
-	inline int width() const { return this->_width; }
-	inline int height() const { return this->_height; }
-	inline int max_value() const { return this->_max_value; }
-	inline unsigned char& elem(int i) const { return this->_pixels[i]; }
+	int size() const { return _channels * _width * _height; }
+	void to_matrix(Matrix& X, int i) const;
+	void from_matrix(Matrix& X, int i);
 
 	void load(const std::string& path);
 	void save(const std::string& path);

@@ -32,11 +32,14 @@ private:
 	// classifier layer
 	ClassifierLayer *_classifier;
 
+	// data type
+	DataType *_type;
+
 	// performance, accuracy stats
 	model_stats_t _stats;
 
 public:
-	Model(FeatureLayer *feature, ClassifierLayer *classifier);
+	Model(FeatureLayer *feature, ClassifierLayer *classifier, DataType *type);
 	~Model();
 
 	void save(const std::string& path);
