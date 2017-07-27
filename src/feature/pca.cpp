@@ -1,5 +1,5 @@
 /**
- * @file pca.cpp
+ * @file feature/pca.cpp
  *
  * Implementation of PCA (Turk and Pentland, 1991).
  */

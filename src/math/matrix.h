@@ -1,5 +1,5 @@
 /**
- * @file matrix.h
+ * @file math/matrix.h
  *
  * Interface definitions for the matrix type.
  *

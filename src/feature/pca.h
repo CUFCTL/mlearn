@@ -1,5 +1,5 @@
 /**
- * @file pca.h
+ * @file feature/pca.h
  *
  * Interface definitions for the PCA feature layer.
  */

@@ -1,5 +1,5 @@
 /**
- * @file bayes.h
+ * @file classifier/bayes.h
  *
  * Interface definitions for the naive Bayes classifier.
  */

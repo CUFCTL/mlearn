@@ -1,5 +1,5 @@
 /**
- * @file matrix.cpp
+ * @file math/matrix.cpp
  *
  * Implementation of the matrix library.
  */

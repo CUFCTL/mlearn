@@ -1,5 +1,5 @@
 /**
- * @file image.cpp
+ * @file data/image.cpp
  *
  * Implementation of the image type.
  *

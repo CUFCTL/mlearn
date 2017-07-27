@@ -1,5 +1,5 @@
 /**
- * @file identity.h
+ * @file feature/identity.h
  *
  * Interface definitions for the identity feature layer.
  */

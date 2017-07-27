@@ -1,5 +1,5 @@
 /**
- * @file dataset.h
+ * @file data/dataset.h
  *
  * Interface definitions for the dataset type.
  */

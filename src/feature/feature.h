@@ -1,5 +1,5 @@
 /**
- * @file feature.h
+ * @file feature/feature.h
  *
  * Interface definitions for the abstract feature layer.
  */

@@ -1,5 +1,5 @@
 /**
- * @file lda.h
+ * @file feature/lda.h
  *
  * Interface definitions for the LDA feature layer.
  */

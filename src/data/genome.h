@@ -1,5 +1,5 @@
 /**
- * @file genome.h
+ * @file data/genome.h
  *
  * Interface definitions for RNA-seq data (GTEx dataset).
  */

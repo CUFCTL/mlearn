@@ -1,5 +1,5 @@
 /**
- * @file genome.cpp
+ * @file data/genome.cpp
  *
  * Implementation of the genome type.
  *

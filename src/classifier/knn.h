@@ -1,5 +1,5 @@
 /**
- * @file knn.h
+ * @file classifier/knn.h
  *
  * Interface definitions for the kNN classifier.
  */

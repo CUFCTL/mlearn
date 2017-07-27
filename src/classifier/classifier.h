@@ -1,5 +1,5 @@
 /**
- * @file classifier.h
+ * @file classifier/classifier.h
  *
  * Interface definitions for the abstract classifier layer.
  */

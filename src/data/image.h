@@ -1,5 +1,5 @@
 /**
- * @file image.h
+ * @file data/image.h
  *
  * Interface definitions for the image type.
  */

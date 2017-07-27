@@ -1,5 +1,5 @@
 /**
- * @file matrix_utils.cpp
+ * @file math/matrix_utils.cpp
  *
  * Library of helpful matrix functions.
  */

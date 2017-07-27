@@ -1,5 +1,5 @@
 /**
- * @file bayes.cpp
+ * @file classifier/bayes.cpp
  *
  * Implementation of the naive Bayes classifier.
  */

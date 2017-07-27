@@ -1,5 +1,5 @@
 /**
- * @file ica.cpp
+ * @file feature/ica.cpp
  *
  * Implementation of ICA (Hyvarinen, 1999).
  */

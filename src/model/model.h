@@ -1,5 +1,5 @@
 /**
- * @file model.h
+ * @file model/model.h
  *
  * Interface definitions for the model type.
  */

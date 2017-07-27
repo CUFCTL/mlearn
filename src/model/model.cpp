@@ -1,5 +1,5 @@
 /**
- * @file model.cpp
+ * @file model/model.cpp
  *
  * Implementation of the model type.
  */

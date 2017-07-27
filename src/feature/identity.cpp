@@ -1,5 +1,5 @@
 /**
- * @file identity.cpp
+ * @file feature/identity.cpp
  *
  * Implementation of identity feature layer.
  */

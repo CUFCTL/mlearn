@@ -1,5 +1,5 @@
 /**
- * @file math_utils.h
+ * @file math/math_utils.h
  *
  * Library of helpful math functions.
  */

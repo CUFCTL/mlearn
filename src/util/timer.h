@@ -1,5 +1,5 @@
 /**
- * @file timer.h
+ * @file util/timer.h
  *
  * Interface definitions for the timer.
  */

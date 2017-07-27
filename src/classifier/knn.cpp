@@ -1,5 +1,5 @@
 /**
- * @file knn.cpp
+ * @file classifier/knn.cpp
  *
  * Implementation of the k-nearest neighbors classifier.
  */
