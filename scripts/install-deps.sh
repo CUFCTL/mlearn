@@ -52,13 +52,4 @@ cd ..
 rm -rf magma-2.2.0.tar.gz magma-2.2.0
 
 # complete installation
-echo "Installation complete. Please add the following lines to ~/.bashrc:"
-echo
-echo "export CUDADIR=$CUDADIR"
-echo "export MAGMADIR=$MAGMADIR"
-echo "export OPENBLASDIR=$OPENBLASDIR"
-echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MAGMADIR/lib:\$OPENBLASDIR/lib"
-echo
-echo "And update your environment:"
-echo
-echo "source ~/.bashrc"
+echo "Installation complete."
