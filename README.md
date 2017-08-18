@@ -18,6 +18,7 @@ Classification
 - Naive Bayes
 
 Clustering (TODO)
+- k-means
 - Gaussian mixture models
 
 ## Installation
