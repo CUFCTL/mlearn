@@ -1,31 +1,26 @@
 /**
- * @file model/model.cpp
+ * @file model/classificationmodel.cpp
  *
- * Implementation of the model type.
+ * Implementation of the classification model.
  */
 #include <iomanip>
-#include "data/image.h"
-#include "model/model.h"
+#include "model/classificationmodel.h"
 #include "util/logger.h"
 #include "util/timer.h"
 
 namespace ML {
 
 /**
- * Construct a model.
+ * Construct a classification model.
  *
  * @param feature
  * @param classifier
- * @param type
  */
-Model::Model(FeatureLayer *feature, ClassifierLayer *classifier, DataType *type)
+ClassificationModel::ClassificationModel(FeatureLayer *feature, ClassifierLayer *classifier)
 {
 	// initialize layers
 	this->_feature = feature;
 	this->_classifier = classifier;
-
-	// initialize data type
-	this->_type = type;
 
 	// initialize stats
 	this->_stats.error_rate = 0.0f;
@@ -44,7 +39,7 @@ Model::Model(FeatureLayer *feature, ClassifierLayer *classifier, DataType *type)
 /**
  * Destruct a model.
  */
-Model::~Model()
+ClassificationModel::~ClassificationModel()
 {
 	delete this->_feature;
 	delete this->_classifier;
@@ -55,7 +50,7 @@ Model::~Model()
  *
  * @param path
  */
-void Model::save(const std::string& path)
+void ClassificationModel::save(const std::string& path)
 {
 	std::ofstream file(path, std::ofstream::out);
 
@@ -72,7 +67,7 @@ void Model::save(const std::string& path)
  *
  * @param path
  */
-void Model::load(const std::string& path)
+void ClassificationModel::load(const std::string& path)
 {
 	std::ifstream file(path, std::ifstream::in);
 
@@ -89,7 +84,7 @@ void Model::load(const std::string& path)
  *
  * @param train_set
  */
-void Model::train(const Dataset& train_set)
+void ClassificationModel::train(const Dataset& train_set)
 {
 	timer_push("Training");
 
@@ -100,7 +95,7 @@ void Model::train(const Dataset& train_set)
 		train_set.labels().size());
 
 	// get data matrix X
-	Matrix X = train_set.load_data(this->_type);
+	Matrix X = train_set.load_data();
 
 	// subtract mean from X
 	this->_mean = X.mean_column("m");
@@ -122,7 +117,7 @@ void Model::train(const Dataset& train_set)
  *
  * @param test_set
  */
-std::vector<DataLabel> Model::predict(const Dataset& test_set)
+std::vector<DataLabel> ClassificationModel::predict(const Dataset& test_set)
 {
 	timer_push("Prediction");
 
@@ -131,7 +126,7 @@ std::vector<DataLabel> Model::predict(const Dataset& test_set)
 		test_set.labels().size());
 
 	// compute projected test images
-	Matrix X_test = test_set.load_data(this->_type);
+	Matrix X_test = test_set.load_data();
 	X_test.subtract_columns(this->_mean);
 
 	Matrix P_test = this->_feature->project(X_test);
@@ -158,7 +153,7 @@ std::vector<DataLabel> Model::predict(const Dataset& test_set)
  * @param test_set
  * @param Y_pred
  */
-void Model::validate(const Dataset& test_set, const std::vector<DataLabel>& Y_pred)
+void ClassificationModel::validate(const Dataset& test_set, const std::vector<DataLabel>& Y_pred)
 {
 	// compute error rate
 	int num_errors = 0;
@@ -192,7 +187,7 @@ void Model::validate(const Dataset& test_set, const std::vector<DataLabel>& Y_pr
 /**
  * Print a model's performance and accuracy statistics.
  */
-void Model::print_stats()
+void ClassificationModel::print_stats()
 {
 	std::cout
 		<< std::setw(12) << std::setprecision(3) << this->_stats.error_rate

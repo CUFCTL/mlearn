@@ -4,6 +4,7 @@
  * Implementation of the dataset type.
  */
 #include <dirent.h>
+#include <fstream>
 #include "data/dataset.h"
 #include "util/logger.h"
 
@@ -78,11 +79,12 @@ void write_string(const std::string& str, std::ofstream& file)
 }
 
 /**
- * Construct a dataset from a directory. Each file in
- * the directory is treated as an observation.
+ * Construct a dataset from a file or a directory.
  *
- * If the data are labeled, the filename should be
- * formatted as follows:
+ * If path is a directory, each file in the
+ * directory is treated as an observation. If
+ * the data are labeled, the filename for each
+ * observation should be formatted as follows:
  *
  * "<class>_<...>"
  *
@@ -90,91 +92,160 @@ void write_string(const std::string& str, std::ofstream& file)
  * file without separate label data, and to group the
  * entries by label.
  *
+ * If the path is a file, each line should be an observation
+ * with the features followed by the label.
+ *
+ * @param type
  * @param path
+ * @param is_labeled
  */
-Dataset::Dataset(const std::string& path, bool is_labeled)
+Dataset::Dataset(DataType *type, const std::string& path, bool is_labeled)
 {
+	this->_type = type;
 	this->_path = path;
 
-	// get list of files
-	struct dirent **files;
-	int num_entries = scandir(this->_path.c_str(), &files, is_file, alphasort);
+	if ( type != nullptr ) {
+		// get list of files
+		struct dirent **files;
+		int num_entries = scandir(this->_path.c_str(), &files, is_file, alphasort);
 
-	if ( num_entries <= 0 ) {
-		perror("scandir");
-		exit(1);
+		if ( num_entries <= 0 ) {
+			perror("scandir");
+			exit(1);
+		}
+
+		// construct entries
+		for ( int i = 0; i < num_entries; i++ ) {
+			// construct entry name
+			std::string name(files[i]->d_name);
+
+			// construct label name
+			DataLabel label = is_labeled
+				? name.substr(0, name.find_first_of('_'))
+				: "";
+
+			// append entry
+			this->_entries.push_back(DataEntry {
+				label,
+				name
+			});
+		}
+
+		// construct labels
+		if ( is_labeled ) {
+			for ( const DataEntry& entry : this->_entries ) {
+				// search labels for label name
+				size_t j = 0;
+				while ( j < this->_labels.size() && this->_labels[j] != entry.label ) {
+					j++;
+				}
+
+				// append label if not found
+				if ( j == this->_labels.size() ) {
+					this->_labels.push_back(entry.label);
+				}
+			}
+		}
+
+		// clean up
+		for ( int i = 0; i < num_entries; i++ ) {
+			free(files[i]);
+		}
+		free(files);
 	}
+	else {
+		std::ifstream file(this->_path, std::ifstream::in);
 
-	// construct entries
-	for ( int i = 0; i < num_entries; i++ ) {
-		// construct entry name
-		std::string name(files[i]->d_name);
+		int m;
+		int n;
+		file >> n >> m;
 
-		// construct label name
-		DataLabel label = is_labeled
-			? name.substr(0, name.find_first_of('_'))
-			: "";
-
-		// append entry
-		this->_entries.push_back(DataEntry {
-			label,
-			name
-		});
-	}
-
-	// construct labels
-	if ( is_labeled ) {
-		for ( const DataEntry& entry : this->_entries ) {
-			// search labels for label name
-			size_t j = 0;
-			while ( j < this->_labels.size() && this->_labels[j] != entry.label ) {
-				j++;
+		// construct entries
+		for ( int i = 0; i < n; i++ ) {
+			// skip data
+			precision_t data;
+			for ( int j = 0; j < m; j++ ) {
+				file >> data;
 			}
 
-			// append label if not found
-			if ( j == this->_labels.size() ) {
-				this->_labels.push_back(entry.label);
+			// construct entry
+			std::string name = std::to_string(i);
+			DataLabel label;
+
+			if ( is_labeled ) {
+				file >> label;
+			}
+
+			// append entry
+			this->_entries.push_back(DataEntry {
+				label,
+				name
+			});
+		}
+
+		// construct labels
+		if ( is_labeled ) {
+			for ( const DataEntry& entry : this->_entries ) {
+				// search labels for label name
+				size_t j = 0;
+				while ( j < this->_labels.size() && this->_labels[j] != entry.label ) {
+					j++;
+				}
+
+				// append label if not found
+				if ( j == this->_labels.size() ) {
+					this->_labels.push_back(entry.label);
+				}
 			}
 		}
 	}
-
-	// clean up
-	for ( int i = 0; i < num_entries; i++ ) {
-		free(files[i]);
-	}
-	free(files);
-}
-
-/**
- * Construct an empty dataset.
- */
-Dataset::Dataset()
-{
 }
 
 /**
  * Load the data matrix X for a dataset. Each column
  * in X is an observation. Every observation in X must
  * have the same dimensionality.
- *
- * @param type
  */
-Matrix Dataset::load_data(DataType *type) const
+Matrix Dataset::load_data() const
 {
-	// get the size of the first sample
-	type->load(this->_path + "/" + this->_entries[0].name);
+	Matrix X;
 
-	// construct data matrix
-	int m = type->size();
-	int n = this->_entries.size();
-	Matrix X = Matrix("X", m, n);
+	if ( this->_type != nullptr ) {
+		// get the size of the first sample
+		this->_type->load(this->_path + "/" + this->_entries[0].name);
 
-	// map each sample to a column in X
-	type->to_matrix(X, 0);
+		// construct data matrix
+		int m = this->_type->size();
+		int n = this->_entries.size();
+		X = Matrix("X", m, n);
 
-	for ( int i = 1; i < n; i++ ) {
-		type->load(this->_path + "/" + this->_entries[i].name);
-		type->to_matrix(X, i);
+		// map each sample to a column in X
+		this->_type->to_matrix(X, 0);
+
+		for ( int i = 1; i < n; i++ ) {
+			this->_type->load(this->_path + "/" + this->_entries[i].name);
+			this->_type->to_matrix(X, i);
+		}
+	}
+	else {
+		std::ifstream file(this->_path, std::ifstream::in);
+
+		// construct data matrix
+		int m;
+		int n;
+		file >> n >> m;
+		X = Matrix("X", m, n);
+
+		// map each sample (line) to a column in X
+		for ( int i = 0; i < n; i++ ) {
+			for ( int j = 0; j < m; j++ ) {
+				file >> X.elem(j, i);
+			}
+
+			// skip label
+			DataLabel label;
+			file >> label;
+		}
 	}
 
 	return X;
@@ -245,24 +316,24 @@ void Dataset::load(std::ifstream& file)
 void Dataset::print() const
 {
 	// print path
-	log(LL_VERBOSE, "path: %s", this->_path.c_str());
-	log(LL_VERBOSE, "");
+	log(LL_INFO, "path: %s", this->_path.c_str());
+	log(LL_INFO, "");
 
 	// print labels
-	log(LL_VERBOSE, "%d classes", this->_labels.size());
+	log(LL_INFO, "%d classes", this->_labels.size());
 
 	for ( const DataLabel& label : this->_labels ) {
-		log(LL_VERBOSE, "%s", label.c_str());
+		log(LL_INFO, "%s", label.c_str());
 	}
-	log(LL_VERBOSE, "");
+	log(LL_INFO, "");
 
 	// print entries
-	log(LL_VERBOSE, "%d entries", this->_entries.size());
+	log(LL_INFO, "%d entries", this->_entries.size());
 
 	for ( const DataEntry& entry : this->_entries ) {
-		log(LL_VERBOSE, "%-8s  %s", entry.label.c_str(), entry.name.c_str());
+		log(LL_INFO, "%-8s  %s", entry.label.c_str(), entry.name.c_str());
 	}
-	log(LL_VERBOSE, "");
+	log(LL_INFO, "");
 }
 
 }

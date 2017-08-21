@@ -1,10 +1,10 @@
 /**
- * @file model/model.h
+ * @file model/classificationmodel.h
  *
- * Interface definitions for the model type.
+ * Interface definitions for the classification model.
  */
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef CLASSIFICATIONMODEL_H
+#define CLASSIFICATIONMODEL_H
 
 #include "classifier/classifier.h"
 #include "data/dataset.h"
@@ -19,7 +19,7 @@ typedef struct {
 	float test_time;
 } model_stats_t;
 
-class Model {
+class ClassificationModel {
 private:
 	// input data
 	Dataset _train_set;
@@ -32,15 +32,12 @@ private:
 	// classifier layer
 	ClassifierLayer *_classifier;
 
-	// data type
-	DataType *_type;
-
 	// performance, accuracy stats
 	model_stats_t _stats;
 
 public:
-	Model(FeatureLayer *feature, ClassifierLayer *classifier, DataType *type);
-	~Model();
+	ClassificationModel(FeatureLayer *feature, ClassifierLayer *classifier);
+	~ClassificationModel();
 
 	void save(const std::string& path);
 	void load(const std::string& path);

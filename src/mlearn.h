@@ -18,7 +18,7 @@
 #include "feature/lda.h"
 #include "feature/pca.h"
 
-#include "model/model.h"
+#include "model/classificationmodel.h"
 
 #include "util/logger.h"
 #include "util/timer.h"
