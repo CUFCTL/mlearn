@@ -13,24 +13,12 @@ namespace ML {
 /**
  * Construct a clustering model.
  *
- * @param clusters
- * @param clustering
+ * @param layers
  */
-ClusteringModel::ClusteringModel(const std::vector<int>& clusters, ClusteringLayer *clustering)
+ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& layers)
 {
-	// initialize hyperparameters
-	this->_clusters = clusters;
-
 	// initialize layers
-	this->_clustering = clustering;
-}
-
-/**
- * Destruct a model.
- */
-ClusteringModel::~ClusteringModel()
-{
-	delete this->_clustering;
+	this->_layers = layers;
 }
 
 /**
@@ -45,25 +33,23 @@ std::vector<int> ClusteringModel::run(const Dataset& input)
 	log(LL_VERBOSE, "Input: %d samples, %d classes",
 		input.entries().size(),
 		input.labels().size());
+	log(LL_VERBOSE, "");
 
 	// get data matrix X
 	Matrix X = input.load_data();
 
 	// perform clustering on X
-	std::vector<std::vector<int>> models;
-
-	for ( int k : this->_clusters ) {
-		std::vector<int> model = this->_clustering->compute(X, k);
-
-		models.push_back(model);
+	for ( ClusteringLayer *layer : this->_layers ) {
+		layer->compute(X);
+		layer->print();
 	}
 
 	// select the best model
-	std::vector<int> Y_pred = models[0];
+	int index = 0;
 
-	log(LL_VERBOSE, "");
+	log(LL_INFO, "selecting model %d", index);
 
-	return Y_pred;
+	return this->_layers[index]->output();
 }
 
 }

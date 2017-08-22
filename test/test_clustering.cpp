@@ -12,23 +12,28 @@ using namespace ML;
 int main(int argc, char **argv)
 {
 	if ( argc < 2 ) {
-		std::cerr << "usage: ./test-clustering [clusters...]\n";
+		std::cerr << "usage: ./test-clustering [k...]\n";
 		exit(1);
 	}
 
 	const char *filename = "test/data/iris.train";
-	std::vector<int> clusters;
+	std::vector<int> values;
 
 	for ( int i = 1; i < argc; i++ ) {
-		clusters.push_back(atoi(argv[i]));
+		values.push_back(atoi(argv[i]));
 	}
 
 	// load input dataset
 	Dataset input_data(nullptr, filename);
 
 	// create clustering model
-	ClusteringLayer *clustering = new KMeansLayer();
-	ClusteringModel model(clusters, clustering);
+	std::vector<ClusteringLayer *> layers;
+
+	for ( int k : values ) {
+		layers.push_back(new KMeansLayer(k));
+	}
+
+	ClusteringModel model(layers);
 
 	// perform clustering on input data
 	std::vector<int> Y_pred = model.run(input_data);

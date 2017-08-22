@@ -15,7 +15,12 @@ class ClusteringLayer {
 public:
 	virtual ~ClusteringLayer() {};
 
-	virtual std::vector<int> compute(const Matrix& X, int k) = 0;
+	virtual void compute(const Matrix& X) = 0;
+
+	virtual std::vector<int> output() const = 0;
+	virtual precision_t error() const = 0;
+
+	virtual void print() const = 0;
 };
 
 }
