@@ -9,6 +9,8 @@
 #include "classifier/bayes.h"
 #include "classifier/knn.h"
 
+#include "clustering/kmeans.h"
+
 #include "data/dataset.h"
 #include "data/genome.h"
 #include "data/image.h"
@@ -19,6 +21,7 @@
 #include "feature/pca.h"
 
 #include "model/classificationmodel.h"
+#include "model/clusteringmodel.h"
 
 #include "util/logger.h"
 #include "util/timer.h"

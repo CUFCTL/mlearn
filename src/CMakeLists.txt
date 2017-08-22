@@ -50,6 +50,7 @@ install(
 install(
 	DIRECTORY
 		${CMAKE_SOURCE_DIR}/src/classifier
+		${CMAKE_SOURCE_DIR}/src/clustering
 		${CMAKE_SOURCE_DIR}/src/data
 		${CMAKE_SOURCE_DIR}/src/feature
 		${CMAKE_SOURCE_DIR}/src/math
