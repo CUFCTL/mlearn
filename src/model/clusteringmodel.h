@@ -7,6 +7,7 @@
 #define CLUSTERINGMODEL_H
 
 #include "clustering/clustering.h"
+#include "clustering/criterion.h"
 #include "data/dataset.h"
 
 namespace ML {
@@ -16,10 +17,10 @@ private:
 	// layers
 	// InitLayer *_init;
 	std::vector<ClusteringLayer *> _layers;
-	// CriterionLayer *_criterion;
+	CriterionLayer *_criterion;
 
 public:
-	ClusteringModel(const std::vector<ClusteringLayer *>& layers);
+	ClusteringModel(const std::vector<ClusteringLayer *>& layers, CriterionLayer *criterion);
 	~ClusteringModel() {};
 
 	std::vector<int> run(const Dataset& input);

@@ -14,11 +14,13 @@ namespace ML {
  * Construct a clustering model.
  *
  * @param layers
+ * @param criterion
  */
-ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& layers)
+ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& layers, CriterionLayer *criterion)
 {
 	// initialize layers
 	this->_layers = layers;
+	this->_criterion = criterion;
 }
 
 /**
@@ -38,18 +40,32 @@ std::vector<int> ClusteringModel::run(const Dataset& input)
 	// get data matrix X
 	Matrix X = input.load_data();
 
-	// perform clustering on X
+	// run and evaluate each clustering layer
+	std::vector<float> values;
+
 	for ( ClusteringLayer *layer : this->_layers ) {
 		layer->compute(X);
 		layer->print();
+
+		float value = this->_criterion->compute(layer);
+		values.push_back(value);
+
+		log(LL_INFO, "criterion value: %f", value);
+		log(LL_INFO, "");
 	}
 
-	// select the best model
-	int index = 0;
+	// select the layer with the lowest criterion value
+	size_t min_index = 0;
 
-	log(LL_INFO, "selecting model %d", index);
+	for ( size_t i = 0; i < values.size(); i++ ) {
+		if ( values[i] < values[min_index] ) {
+			min_index = i;
+		}
+	}
 
-	return this->_layers[index]->output();
+	log(LL_INFO, "selecting model %d", min_index);
+
+	return this->_layers[min_index]->output();
 }
 
 }

@@ -13,16 +13,20 @@ namespace ML {
 class KMeansLayer : public ClusteringLayer {
 private:
 	int _k;
+	precision_t _log_likelihood;
+	int _num_parameters;
+	int _num_samples;
 	std::vector<int> _output;
-	precision_t _error;
 
 public:
 	KMeansLayer(int k);
 
 	void compute(const Matrix& X);
 
+	precision_t log_likelihood() const { return this->_log_likelihood; };
+	int num_parameters() const { return this->_num_parameters; };
+	int num_samples() const { return this->_num_samples; };
 	inline std::vector<int> output() const { return this->_output; };
-	inline precision_t error() const { return this->_error; };
 
 	void print() const;
 };

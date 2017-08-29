@@ -28,12 +28,13 @@ int main(int argc, char **argv)
 
 	// create clustering model
 	std::vector<ClusteringLayer *> layers;
-
 	for ( int k : values ) {
 		layers.push_back(new KMeansLayer(k));
 	}
 
-	ClusteringModel model(layers);
+	CriterionLayer *criterion = new BICLayer();
+
+	ClusteringModel model(layers, criterion);
 
 	// perform clustering on input data
 	std::vector<int> Y_pred = model.run(input_data);

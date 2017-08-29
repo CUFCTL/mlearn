@@ -17,8 +17,10 @@ public:
 
 	virtual void compute(const Matrix& X) = 0;
 
+	virtual precision_t log_likelihood() const = 0;
+	virtual int num_parameters() const = 0;
+	virtual int num_samples() const = 0;
 	virtual std::vector<int> output() const = 0;
-	virtual precision_t error() const = 0;
 
 	virtual void print() const = 0;
 };

@@ -4,6 +4,7 @@
  * Implementation of k-means clustering.
  */
 #include <cstdlib>
+#include <cmath>
 #include "clustering/kmeans.h"
 #include "math/matrix_utils.h"
 #include "util/logger.h"
@@ -84,16 +85,37 @@ void KMeansLayer::compute(const Matrix& X)
 		}
 	}
 
-	// compute error
-	precision_t error = 0;
+	// compute log-likelihood
+	precision_t L = 0;
 
-	for ( int i = 0; i < X.cols(); i++ ) {
-		error += m_dist_L2(X, i, means[y[i]], 0);
+	for ( int i = 0; i < this->_k; i++ ) {
+		// estimate variance for cluster i
+		precision_t variance = 0;
+		int R_n = 0;
+
+		for ( int j = 0; j < X.cols(); j++ ) {
+			if ( y[j] == i ) {
+				variance += m_dist_L2(X, j, means[i], 0);
+				R_n++;
+			}
+		}
+
+		variance /= R_n - 1;
+
+		// compute log-likelihood for cluster i
+		int K = this->_k;
+		int M = X.rows();
+		int R = X.cols();
+		precision_t L_i = -R_n / 2 * logf(2 * M_PI) - R_n * M / 2 * logf(variance) - (R_n - K) / 2 + R_n * logf(R_n) - R_n * logf(R);
+
+		L += L_i;
 	}
 
 	// save outputs
+	this->_log_likelihood = L;
+	this->_num_parameters = this->_k * X.rows() + this->_k;
+	this->_num_samples = X.cols();
 	this->_output = y;
-	this->_error = error;
 }
 
 /**
@@ -103,7 +125,6 @@ void KMeansLayer::print() const
 {
 	log(LL_INFO, "k-means");
 	log(LL_INFO, "  k: %d", this->_k);
-	log(LL_INFO, "  error: %f", this->_error);
 	log(LL_INFO, "");
 }
 

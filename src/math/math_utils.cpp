@@ -9,28 +9,6 @@
 namespace ML {
 
 /**
- * Determine the max of two integers.
- *
- * @param x
- * @param y
- */
-int max(int x, int y)
-{
-	return x > y ? x : y;
-}
-
-/**
- * Determine the min of two integers.
- *
- * @param x
- * @param y
- */
-int min(int x, int y)
-{
-	return x < y ? x : y;
-}
-
-/**
  * Compute the second power (square) of a number.
  *
  * @param x
