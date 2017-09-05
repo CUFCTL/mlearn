@@ -17,7 +17,7 @@ Classification
 - k-Nearest Neighbors
 - Naive Bayes
 
-Clustering (TODO)
+Clustering
 - k-means
 - Gaussian mixture models
 
@@ -53,4 +53,9 @@ To include this library in your project, you need to add the library folder to `
 ```
 export MLEARNDIR=$HOME/software/libmlearn
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MLEARNDIR/lib
+
+export OPENBLASDIR=$HOME/software/OpenBLAS-0.2.19
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OPENBLASDIR/lib
 ```
+
+Append the above lines to `~/.bashrc` for ease of use.
