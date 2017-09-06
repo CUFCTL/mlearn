@@ -42,11 +42,10 @@ make install -j $(nproc)
 
 To run tests:
 ```
-cd build/test
-
-./test_genome [infile] [outfile]
-./test_image [infile] [outfile]
-./test_matrix
+bin/test-classification
+bin/test-clustering [k ...]
+bin/test-data [type] [infile] [outfile]
+bin/test-matrix
 ```
 
 To include this library in your project, you need to add the library folder to `LD_LIBRARY_PATH`:
