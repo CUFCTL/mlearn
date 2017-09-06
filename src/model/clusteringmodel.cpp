@@ -65,6 +65,8 @@ std::vector<int> ClusteringModel::run(const Dataset& input)
 
 	log(LL_INFO, "selecting model %d", min_index);
 
+	timer_pop();
+
 	return this->_layers[min_index]->output();
 }
 

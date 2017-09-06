@@ -10,6 +10,7 @@
 #include "classifier/knn.h"
 
 #include "clustering/bic.h"
+#include "clustering/gmm.h"
 #include "clustering/kmeans.h"
 
 #include "data/dataset.h"
