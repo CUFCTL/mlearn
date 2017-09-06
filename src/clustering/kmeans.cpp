@@ -8,6 +8,7 @@
 #include "clustering/kmeans.h"
 #include "math/matrix_utils.h"
 #include "util/logger.h"
+#include "util/timer.h"
 
 namespace ML {
 
@@ -29,9 +30,12 @@ KMeansLayer::KMeansLayer(int k)
  */
 void KMeansLayer::compute(const Matrix& X)
 {
+	timer_push("k-means");
+
 	std::vector<int> y(X.cols());
 
-	// initialization step (Forgy)
+	timer_push("initialize means");
+
 	std::vector<Matrix> means;
 
 	for ( int i = 0; i < this->_k; i++ ) {
@@ -40,8 +44,11 @@ void KMeansLayer::compute(const Matrix& X)
 		means.push_back(X(j, j + 1));
 	}
 
+	timer_pop();
+
 	while ( true ) {
-		// assignment step
+		timer_push("assignment step");
+
 		std::vector<int> y_next(X.cols());
 
 		for ( int i = 0; i < X.cols(); i++ ) {
@@ -60,14 +67,16 @@ void KMeansLayer::compute(const Matrix& X)
 			y_next[i] = min_index;
 		}
 
-		// check for convergence
+		timer_pop();
+
 		if ( y == y_next ) {
 			break;
 		}
 
 		y = y_next;
 
-		// update step
+		timer_push("update step");
+
 		for ( int i = 0; i < this->_k; i++ ) {
 			Matrix mean = Matrix::zeros("", X.rows(), 1);
 			int num = 0;
@@ -83,9 +92,12 @@ void KMeansLayer::compute(const Matrix& X)
 
 			means[i] = mean;
 		}
+
+		timer_pop();
 	}
 
-	// compute log-likelihood
+	timer_push("compute log-likelihood");
+
 	precision_t L = 0;
 
 	for ( int i = 0; i < this->_k; i++ ) {
@@ -111,11 +123,15 @@ void KMeansLayer::compute(const Matrix& X)
 		L += L_i;
 	}
 
+	timer_pop();
+
 	// save outputs
 	this->_log_likelihood = L;
 	this->_num_parameters = this->_k * X.rows() + this->_k;
 	this->_num_samples = X.cols();
 	this->_output = y;
+
+	timer_pop();
 }
 
 /**

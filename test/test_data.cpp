@@ -36,6 +36,10 @@ int main(int argc, char **argv)
 	else if ( args.data_type == "image" ) {
 		sample = new Image();
 	}
+	else {
+		std::cerr << "error: data type must be 'genome' or 'image'\n";
+		exit(1);
+	}
 
 	// map the sample to a column vector
 	sample->load(args.infile);

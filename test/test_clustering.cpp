@@ -9,27 +9,46 @@
 
 using namespace ML;
 
+typedef struct {
+	std::string filename;
+	std::string layer_type;
+	int k;
+} args_t;
+
 int main(int argc, char **argv)
 {
-	if ( argc < 2 ) {
-		std::cerr << "usage: ./test-clustering [k...]\n";
+	gpu_init();
+
+	// parse command-line arguments
+	if ( argc < 3 ) {
+		std::cerr << "usage: ./test-clustering [method] [k]\n";
 		exit(1);
 	}
 
-	const char *filename = "test/data/iris.train";
-	std::vector<int> values;
+	args_t args = {
+		"test/data/iris.train",
+		argv[1],
+		atoi(argv[2])
+	};
 
-	for ( int i = 1; i < argc; i++ ) {
-		values.push_back(atoi(argv[i]));
-	}
+	// set loglevel
+	LOGLEVEL = LL_VERBOSE;
 
 	// load input dataset
-	Dataset input_data(nullptr, filename);
+	Dataset input_data(nullptr, args.filename);
 
 	// create clustering model
 	std::vector<ClusteringLayer *> layers;
-	for ( int k : values ) {
-		layers.push_back(new KMeansLayer(k));
+
+	if ( args.layer_type == "gmm" ) {
+		layers.push_back(new GMMLayer(args.k));
+	}
+	else if ( args.layer_type == "k-means" ) {
+		layers.push_back(new KMeansLayer(args.k));
+	}
+	else {
+		std::cerr << "error: method must be 'gmm' or 'k-means'\n";
+		exit(1);
 	}
 
 	CriterionLayer *criterion = new BICLayer();
@@ -51,6 +70,12 @@ int main(int argc, char **argv)
 			entry.label.c_str(),
 			y_pred);
 	}
+	log(LL_INFO, "");
+
+	// print timing results
+	timer_print();
+
+	gpu_finalize();
 
 	return 0;
 }

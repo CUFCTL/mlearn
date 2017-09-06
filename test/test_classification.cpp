@@ -11,6 +11,8 @@ using namespace ML;
 
 int main(int argc, char **argv)
 {
+	gpu_init();
+
 	if ( argc != 1 ) {
 		std::cerr << "usage: ./test-classification\n";
 		exit(1);
@@ -18,6 +20,9 @@ int main(int argc, char **argv)
 
 	const char *train_filename = "test/data/iris.train";
 	const char *test_filename = "test/data/iris.test";
+
+	// set loglevel
+	LOGLEVEL = LL_VERBOSE;
 
 	// load train set, test set
 	Dataset train_set(nullptr, train_filename);
@@ -45,6 +50,12 @@ int main(int argc, char **argv)
 
 		log(LL_INFO, "%-12s -> %-4s", entry.name.c_str(), y_pred.c_str());
 	}
+	log(LL_INFO, "");
+
+	// print timing results
+	timer_print();
+
+	gpu_finalize();
 
 	return 0;
 }
