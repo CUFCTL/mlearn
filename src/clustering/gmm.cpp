@@ -60,7 +60,7 @@ Matrix GMMLayer::pdf(const Matrix& X, const parameter_t& theta)
 		Matrix S_inv = theta.S[j].inverse("");
 
 		for ( int i = 0; i < n; i++ ) {
-			h.elem(i, j) = gaussian(X(i, i + 1), theta.mu[j], S_det, S_inv);
+			h.elem(i, j) = gaussian(X(i), theta.mu[j], S_det, S_inv);
 		}
 	}
 
@@ -115,7 +115,7 @@ parameter_t GMMLayer::init_random(const Matrix& X, int num_init)
 		// choose k means randomly from data
 		for ( int j = 0; j < this->_k; j++ ) {
 			int i = lrand48() % n;
-			theta_test.mu.push_back(X(i, i + 1));
+			theta_test.mu.push_back(X(i));
 		}
 
 		// compute conditional probabilities (using nearest neighbor)
@@ -153,7 +153,7 @@ parameter_t GMMLayer::init_random(const Matrix& X, int num_init)
 
 			for ( int i = 0; i < n; i++ ) {
 				if ( c.elem(i, j) > 0 ) {
-					Matrix x_i = X(i, i + 1) - theta_test.mu[j];
+					Matrix x_i = X(i) - theta_test.mu[j];
 					Matrix W_ji = x_i * TRAN(x_i);
 
 					W_ji *= c.elem(i, j);
@@ -231,7 +231,7 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, parameter_t& theta)
 		// compute mu_j = sum(c_ij * x_i, i=1:n) / n_j
 		Matrix sum = Matrix::zeros("mu_k", d, 1);
 		for ( int i = 0; i < n; i++ ) {
-			sum += c.elem(i, j) * X(i, i + 1);
+			sum += c.elem(i, j) * X(i);
 		}
 
 		theta.mu[j] = sum / n_j;
@@ -240,7 +240,7 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, parameter_t& theta)
 		Matrix W_j = Matrix::zeros("S_j", d, d);
 
 		for ( int i = 0; i < n; i++ ) {
-			Matrix x_i = X(i, i + 1) - theta.mu[j];
+			Matrix x_i = X(i) - theta.mu[j];
 			Matrix W_ji = x_i * TRAN(x_i);
 
 			W_ji *= c.elem(i, j);

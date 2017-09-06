@@ -90,6 +90,7 @@ public:
 
 	// operators
 	inline Matrix operator()(int i, int j) const { return Matrix("", *this, i, j); }
+	inline Matrix operator()(int i) const { return (*this)(i, i + 1); }
 	inline Matrix& operator=(Matrix B) { swap(*this, B); return *this; }
 	inline Matrix& operator+=(const Matrix& B) { this->add(B); return *this; }
 	inline Matrix& operator-=(const Matrix& B) { this->subtract(B); return *this; }

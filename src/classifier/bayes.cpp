@@ -62,7 +62,7 @@ std::vector<DataLabel> BayesLayer::predict(const Matrix& X, const std::vector<Da
 
 		// compute the Bayes probability for each class
 		for ( size_t j = 0; j < C.size(); j++ ) {
-			precision_t p = bayes_prob(X_test(i, i + 1), U[j], S_inv[j]);
+			precision_t p = bayes_prob(X_test(i), U[j], S_inv[j]);
 
 			probs.push_back(p);
 		}

@@ -41,7 +41,7 @@ void KMeansLayer::compute(const Matrix& X)
 	for ( int i = 0; i < this->_k; i++ ) {
 		int j = lrand48() % X.cols();
 
-		means.push_back(X(j, j + 1));
+		means.push_back(X(j));
 	}
 
 	timer_pop();
@@ -83,7 +83,7 @@ void KMeansLayer::compute(const Matrix& X)
 
 			for ( int j = 0; j < X.cols(); j++ ) {
 				if ( y[j] == i ) {
-					mean += X(j, j + 1);
+					mean += X(j);
 					num++;
 				}
 			}
