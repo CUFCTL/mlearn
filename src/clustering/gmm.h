@@ -24,9 +24,9 @@ private:
 	int _num_samples;
 	std::vector<int> _output;
 
-	Matrix pdf(const Matrix& X, const parameter_t& theta);
+	Matrix pdf_all(const Matrix& X, const parameter_t& theta);
 	precision_t log_likelihood(const Matrix& X, const parameter_t& theta);
-	parameter_t init_random(const Matrix& X, int num_init);
+	parameter_t initialize(const Matrix& X, int num_init, bool small_em=false);
 	void E_step(const Matrix& X, const parameter_t& theta, Matrix& c);
 	void M_step(const Matrix& X, const Matrix& c, parameter_t& theta);
 

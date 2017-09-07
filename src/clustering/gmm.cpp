@@ -12,7 +12,13 @@
 
 namespace ML {
 
+const int INIT_SMALL_EM = false;
+const int INIT_NUM_ITER = 5;
+const precision_t INIT_EPSILON = 1e-2;
+
+const int NUM_INIT = 10;
 const int NUM_ITER = 200;
+const precision_t EPSILON = 1e-3;
 
 /**
  * Construct a GMM layer.
@@ -34,7 +40,7 @@ GMMLayer::GMMLayer(int k)
  * @param S_det
  * @param S_inv
  */
-precision_t gaussian(Matrix x, const Matrix& mu, precision_t S_det, const Matrix& S_inv)
+precision_t pdf(Matrix x, const Matrix& mu, precision_t S_det, const Matrix& S_inv)
 {
 	x -= mu;
 	Matrix temp = TRAN(x) * S_inv * x;
@@ -50,7 +56,7 @@ precision_t gaussian(Matrix x, const Matrix& mu, precision_t S_det, const Matrix
  * @param X
  * @param theta
  */
-Matrix GMMLayer::pdf(const Matrix& X, const parameter_t& theta)
+Matrix GMMLayer::pdf_all(const Matrix& X, const parameter_t& theta)
 {
 	int n = X.cols();
 	Matrix h(n, this->_k);
@@ -60,7 +66,7 @@ Matrix GMMLayer::pdf(const Matrix& X, const parameter_t& theta)
 		Matrix S_inv = theta.S[j].inverse();
 
 		for ( int i = 0; i < n; i++ ) {
-			h.elem(i, j) = gaussian(X(i), theta.mu[j], S_det, S_inv);
+			h.elem(i, j) = pdf(X(i), theta.mu[j], S_det, S_inv);
 		}
 	}
 
@@ -78,7 +84,7 @@ Matrix GMMLayer::pdf(const Matrix& X, const parameter_t& theta)
 precision_t GMMLayer::log_likelihood(const Matrix& X, const parameter_t& theta)
 {
 	int n = X.cols();
-	Matrix h = pdf(X, theta);
+	Matrix h = this->pdf_all(X, theta);
 
 	// compute L = sum(L_i, i=1:n)
 	precision_t L = 0;
@@ -97,78 +103,120 @@ precision_t GMMLayer::log_likelihood(const Matrix& X, const parameter_t& theta)
 }
 
 /**
- * Create a random initialization of parameters given
- * a data matrix X.
+ * Initialize a random parameter set by selecting k means randomly.
  *
  * @param X
- * @param num_init
+ * @param k
  */
-parameter_t GMMLayer::init_random(const Matrix& X, int num_init)
+parameter_t random_parameter(const Matrix& X, int k)
 {
 	int n = X.cols();
 	int d = X.rows();
 	parameter_t theta;
 
-	for ( int t = 0; t < num_init; t++ ) {
-		parameter_t theta_test;
+	// choose k means randomly from data
+	for ( int j = 0; j < k; j++ ) {
+		int i = lrand48() % n;
+		theta.mu.push_back(X(i));
+	}
 
-		// choose k means randomly from data
-		for ( int j = 0; j < this->_k; j++ ) {
-			int i = lrand48() % n;
-			theta_test.mu.push_back(X(i));
+	// compute conditional probabilities (using nearest neighbor)
+	Matrix c = Matrix::zeros(n, k);
+
+	for ( int i = 0; i < n; i++ ) {
+		int min_j = -1;
+		precision_t min_dist;
+
+		for ( int j = 0; j < k; j++ ) {
+			precision_t dist = m_dist_L2(X, i, theta.mu[j], 0);
+
+			if ( min_j == -1 || dist < min_dist ) {
+				min_j = j;
+				min_dist = dist;
+			}
 		}
 
-		// compute conditional probabilities (using nearest neighbor)
-		Matrix c = Matrix::zeros(n, this->_k);
+		c.elem(i, min_j) = 1;
+	}
+
+	// update mixture proportions, covariances
+	for ( int j = 0; j < k; j++ ) {
+		// compute n_j = sum(c_ij, i=1:n)
+		precision_t n_j = 0;
+		for ( int i = 0; i < n; i++ ) {
+			n_j += c.elem(i, j);
+		}
+
+		// compute p_j = sum(c_ij, i=1:n) / n
+		theta.p.push_back(n_j / n);
+
+		// compute S_j = W_j / n_j
+		Matrix W_j = Matrix::zeros(d, d);
 
 		for ( int i = 0; i < n; i++ ) {
-			int min_j = -1;
-			precision_t min_dist;
+			if ( c.elem(i, j) > 0 ) {
+				Matrix x_i = X(i) - theta.mu[j];
+				Matrix W_ji = x_i * TRAN(x_i);
 
-			for ( int j = 0; j < this->_k; j++ ) {
-				precision_t dist = m_dist_L2(X, i, theta_test.mu[j], 0);
-
-				if ( min_j == -1 || dist < min_dist ) {
-					min_j = j;
-					min_dist = dist;
-				}
+				W_ji *= c.elem(i, j);
+				W_j += W_ji;
 			}
-
-			c.elem(i, min_j) = 1;
 		}
 
-		// update parameters (except for mu)
-		for ( int j = 0; j < this->_k; j++ ) {
-			// compute n_j = sum(c_ij, i=1:n)
-			precision_t n_j = 0;
-			for ( int i = 0; i < n; i++ ) {
-				n_j += c.elem(i, j);
-			}
+		W_j /= n_j;
 
-			// compute p_j = sum(c_ij, i=1:n) / n
-			theta_test.p.push_back(n_j / n);
+		theta.S.push_back(W_j);
+	}
 
-			// compute S_j = W_j / n_j
-			Matrix W_j = Matrix::zeros(d, d);
+	return theta;
+}
 
-			for ( int i = 0; i < n; i++ ) {
-				if ( c.elem(i, j) > 0 ) {
-					Matrix x_i = X(i) - theta_test.mu[j];
-					Matrix W_ji = x_i * TRAN(x_i);
+/**
+ * Initialize a parameter set by selecting means randomly
+ * from the data. The best set is selected from several such
+ * sets by comparing the log-likelihood.
+ *
+ * If specified, the EM algorithm is run briefly on each
+ * parameter set before evaluating its log-likelihood.
+ *
+ * @param X
+ * @param num_init
+ * @param small_em
+ */
+parameter_t GMMLayer::initialize(const Matrix& X, int num_init, bool small_em)
+{
+	int n = X.cols();
+	parameter_t theta;
+	precision_t L_theta = 0;
 
-					W_ji *= c.elem(i, j);
-					W_j += W_ji;
+	for ( int t = 0; t < num_init; t++ ) {
+		parameter_t theta_test = random_parameter(X, this->_k);
+
+		if ( small_em ) {
+			// run the EM algorithm briefly
+			Matrix c(n, this->_k);
+			precision_t L0 = 0;
+
+			for ( int m = 0; m < INIT_NUM_ITER; m++ ) {
+				this->E_step(X, theta, c);
+				this->M_step(X, c, theta);
+
+				precision_t L1 = this->log_likelihood(X, theta);
+
+				if ( L0 != 0 && fabsf(L1 - L0) < INIT_EPSILON ) {
+					break;
 				}
+
+				L0 = L1;
 			}
-
-			W_j /= n_j;
-
-			theta_test.S.push_back(W_j);
 		}
 
-		// assign theta_test to theta if log-likelihood is greater
-		if ( t == 0 || log_likelihood(X, theta) < log_likelihood(X, theta_test) ) {
+		// keep theta_test if log-likelihood is greater
+		precision_t L_test = this->log_likelihood(X, theta_test);
+
+		if ( L_theta == 0 || L_theta < L_test ) {
 			theta = theta_test;
+			L_theta = L_test;
 		}
 	}
 
@@ -189,7 +237,7 @@ void GMMLayer::E_step(const Matrix& X, const parameter_t& theta, Matrix& c)
 {
 	// compute h_ij for each i,j
 	int n = X.cols();
-	Matrix h = pdf(X, theta);
+	Matrix h = this->pdf_all(X, theta);
 
 	// compute c_ij for each i,j
 	for ( int i = 0; i < n; i++ ) {
@@ -268,31 +316,40 @@ void GMMLayer::compute(const Matrix& X)
 
 	timer_push("initialize parameters");
 
-	int num_init = 1;
-	parameter_t theta = init_random(X, num_init);
+	parameter_t theta = this->initialize(X, NUM_INIT, INIT_SMALL_EM);
 
 	timer_pop();
 
-	timer_push("estimate parameters");
+	timer_push("run EM algorithm");
 
 	Matrix c(n, this->_k);
+	precision_t L0 = 0;
 
 	for ( int m = 0; m < NUM_ITER; m++ ) {
 		timer_push("E step");
 
-		E_step(X, theta, c);
+		this->E_step(X, theta, c);
 
 		timer_pop();
 
 		timer_push("M step");
 
-		M_step(X, c, theta);
+		this->M_step(X, c, theta);
 
 		timer_pop();
 
-		// TODO: check convergence of log-likelihood
-		// default epsilon is 10^-3
-		// can require both NUM_ITER iterations and convergence
+		timer_push("check for convergence");
+
+		precision_t L1 = this->log_likelihood(X, theta);
+
+		if ( L0 != 0 && fabsf(L1 - L0) < EPSILON ) {
+			log(LL_DEBUG, "converged after %d iteratinos", m + 1);
+			break;
+		}
+
+		L0 = L1;
+
+		timer_pop();
 	}
 
 	timer_pop();
@@ -318,7 +375,7 @@ void GMMLayer::compute(const Matrix& X)
 	timer_pop();
 
 	// save outputs
-	this->_log_likelihood = log_likelihood(X, theta);
+	this->_log_likelihood = this->log_likelihood(X, theta);
 	this->_num_parameters = this->_k * d + this->_k;
 	this->_num_samples = n;
 	this->_output = y;
