@@ -98,7 +98,7 @@ void ClassificationModel::train(const Dataset& train_set)
 	Matrix X = train_set.load_data();
 
 	// subtract mean from X
-	this->_mean = X.mean_column("m");
+	this->_mean = X.mean_column();
 
 	X.subtract_columns(this->_mean);
 

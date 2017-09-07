@@ -217,7 +217,7 @@ Matrix Dataset::load_data() const
 		// construct data matrix
 		int m = this->_type->size();
 		int n = this->_entries.size();
-		X = Matrix("X", m, n);
+		X = Matrix(m, n);
 
 		// map each sample to a column in X
 		this->_type->to_matrix(X, 0);
@@ -234,7 +234,7 @@ Matrix Dataset::load_data() const
 		int m;
 		int n;
 		file >> n >> m;
-		X = Matrix("X", m, n);
+		X = Matrix(m, n);
 
 		// map each sample (line) to a column in X
 		for ( int i = 0; i < n; i++ ) {

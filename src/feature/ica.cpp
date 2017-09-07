@@ -47,8 +47,8 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 	timer_push("subtract mean from input matrix");
 
 	// compute mixedsig = X', subtract mean column
-	Matrix mixedsig = X.transpose("mixedsig");
-	Matrix mixedmean = mixedsig.mean_column("mixedmean");
+	Matrix mixedsig = X.transpose();
+	Matrix mixedmean = mixedsig.mean_column();
 
 	mixedsig.subtract_columns(mixedmean);
 
@@ -63,7 +63,7 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 
 	Matrix D = pca.D;
 	D.elem_apply(sqrtf);
-	D = D.inverse(D.name());
+	D = D.inverse();
 
 	Matrix W_z = D * TRAN(pca.W);
 
@@ -83,13 +83,13 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 
 	// compute independent components
 	// icasig = W_mix * (mixedsig + mixedmean * ones(1, mixedsig.cols()))
-	Matrix icasig_temp1 = mixedmean * Matrix::ones("", 1, mixedsig.cols());
+	Matrix icasig_temp1 = mixedmean * Matrix::ones(1, mixedsig.cols());
 	icasig_temp1 += mixedsig;
 
 	Matrix icasig = W_mix * icasig_temp1;
 
 	// compute W_ica = icasig'
-	this->W = icasig.transpose("W_ica");
+	this->W = icasig.transpose();
 
 	timer_pop();
 
@@ -284,22 +284,22 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 		fpica_update = fpica_gauss;
 	}
 
-	Matrix B = Matrix::zeros("B", n2, n2);
-	Matrix W_mix = Matrix::zeros("W_mix", n2, W_z.cols());
+	Matrix B = Matrix::zeros(n2, n2);
+	Matrix W_mix = Matrix::zeros(n2, W_z.cols());
 
 	int i;
 	for ( i = 0; i < n2; i++ ) {
 		log(LL_VERBOSE, "      round %d", i + 1);
 
 		// initialize w as a Gaussian (0, 1) random vector
-		Matrix w = Matrix::random("w", n2, 1);
+		Matrix w = Matrix::random(n2, 1);
 
 		// compute w = w - B * B' * w, normalize w
 		w -= B * TRAN(B) * w;
 		w /= w.norm();
 
 		// initialize w0
-		Matrix w0 = Matrix::zeros("w0", w.rows(), w.cols());
+		Matrix w0 = Matrix::zeros(w.rows(), w.cols());
 
 		int j;
 		for ( j = 0; j < this->max_iter; j++ ) {

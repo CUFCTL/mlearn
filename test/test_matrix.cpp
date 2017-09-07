@@ -106,7 +106,7 @@ void assert_equal_matrix(const Matrix& A, const Matrix& B, const char *name)
  */
 void assert_matrix_value(const Matrix& M, precision_t *data, const char *name)
 {
-	Matrix M_test("M_test", M.rows(), M.cols(), data);
+	Matrix M_test(M.rows(), M.cols(), data);
 
 	assert_equal_matrix(M, M_test, name);
 }
@@ -122,7 +122,7 @@ void test_identity()
 		0, 0, 1, 0,
 		0, 0, 0, 1
 	};
-	Matrix I = Matrix::identity("I", 4);
+	Matrix I = Matrix::identity(4);
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << I;
@@ -142,7 +142,7 @@ void test_ones()
 		1, 1, 1, 1,
 		1, 1, 1, 1
 	};
-	Matrix X = Matrix::ones("X", 4, 4);
+	Matrix X = Matrix::ones(4, 4);
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << X;
@@ -162,7 +162,7 @@ void test_zeros()
 		0, 0, 0, 0,
 		0, 0, 0, 0
 	};
-	Matrix X = Matrix::zeros("X", 4, 4);
+	Matrix X = Matrix::zeros(4, 4);
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << X;
@@ -182,8 +182,8 @@ void test_copy()
 		 9,  7,  6, 12,
 		 4, 14, 15,  1
 	};
-	Matrix A("A", 4, 4, A_data);
-	Matrix C("C", A);
+	Matrix A(4, 4, A_data);
+	Matrix C(A);
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << A;
@@ -210,7 +210,7 @@ void test_copy_columns()
 		 7,  6,
 		14, 15
 	};
-	Matrix A("A", 4, 4, A_data);
+	Matrix A(4, 4, A_data);
 
 	int i = 1;
 	int j = 3;
@@ -234,13 +234,13 @@ void test_determinant()
 		-5,  2,  0,
 		 1,  0,  3
 	};
-	Matrix A("A", 3, 3, A_data);
+	Matrix A(3, 3, A_data);
 
 	precision_t det = A.determinant();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << A;
-		std::cout << "det(" << A.name() << ") = " << det << "\n";
+		std::cout << "det(A) = " << det << "\n";
 	}
 
 	assert_equal(det, -32, "det(A)");
@@ -261,8 +261,8 @@ void test_diagonalize()
 		0,  0,  0, -2,  0,
 		0,  0,  0,  0, -5
 	};
-	Matrix v("v", 1, 5, v_data);
-	Matrix D = v.diagonalize("D");
+	Matrix v(1, 5, v_data);
+	Matrix D = v.diagonalize();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << v;
@@ -295,11 +295,11 @@ void test_eigen()
 		0.0000, 0.0000, 0.8482, 0.0000,
 		0.0000, 0.0000, 0.0000, 2.5362
 	};
-	Matrix M("M", 4, 4, M_data);
+	Matrix M(4, 4, M_data);
 	Matrix V;
 	Matrix D;
 
-	M.eigen("V", "D", M.rows(), V, D);
+	M.eigen(M.rows(), V, D);
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << M;
@@ -336,15 +336,15 @@ void test_eigen2()
 		 0.0000,  1.0700,  0.0000,
 		 0.0000,  0.0000,  3.4864
 	};
-	Matrix A("A", 3, 3, A_data);
-	Matrix B("B", 3, 3, B_data);
+	Matrix A(3, 3, A_data);
+	Matrix B(3, 3, B_data);
 	Matrix V;
 	Matrix D;
 
-	Matrix B_inv = B.inverse("inv(B)");
+	Matrix B_inv = B.inverse();
 	Matrix J = B_inv * A;
 
-	J.eigen("V", "D", J.rows(), V, D);
+	J.eigen(J.rows(), V, D);
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << A;
@@ -372,8 +372,8 @@ void test_inverse()
 		0.1765,  0.1765,  0.0392,
 		0.0588,  0.0588, -0.0980
 	};
-	Matrix X("X", 3, 3, X_data);
-	Matrix Y = X.inverse("Y");
+	Matrix X(3, 3, X_data);
+	Matrix Y = X.inverse();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << X;
@@ -396,8 +396,8 @@ void test_mean_column()
 		0.6667,
 		2.3333
 	};
-	Matrix A("A", 2, 3, A_data);
-	Matrix m = A.mean_column("m");
+	Matrix A(2, 3, A_data);
+	Matrix m = A.mean_column();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << A;
@@ -421,8 +421,8 @@ void test_mean_row()
 	precision_t m_data[] = {
 		1.7500, 2.2500, 1.7500
 	};
-	Matrix A("A", 4, 3, A_data);
-	Matrix m = A.mean_row("m");
+	Matrix A(4, 3, A_data);
+	Matrix m = A.mean_row();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << A;
@@ -440,12 +440,12 @@ void test_norm()
 	precision_t v_data[] = {
 		-2, 3, 1
 	};
-	Matrix v("v", 1, 3, v_data);
+	Matrix v(1, 3, v_data);
 	precision_t n = v.norm();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << v;
-		std::cout << "norm(" << v.name() << ") = " << n << "\n";
+		std::cout << "norm(v) = " << n << "\n";
 	}
 
 	assert_equal(n, 3.7417, "norm(v)");
@@ -476,8 +476,8 @@ void test_product()
 		3, 3, 0, 0,
 		4, 4, 0, 0
 	};
-	Matrix A1("A1", 1, 4, A1_data);
-	Matrix B1("B1", 4, 1, B1_data);
+	Matrix A1(1, 4, A1_data);
+	Matrix B1(4, 1, B1_data);
 	Matrix C1 = A1 * B1;
 	Matrix C2 = B1 * A1;
 
@@ -505,8 +505,8 @@ void test_product()
 		24, 35, 114,
 		30, 52, 162
 	};
-	Matrix A2("A2", 2, 3, A2_data);
-	Matrix B2("B2", 3, 3, B2_data);
+	Matrix A2(2, 3, A2_data);
+	Matrix B2(3, 3, B2_data);
 	Matrix C3 = A2 * B2;
 
 	if ( LOGGER(LL_VERBOSE) ) {
@@ -526,13 +526,13 @@ void test_sum()
 	precision_t v_data[] = {
 		-2, 3, 1
 	};
-	Matrix v("v", 1, 3, v_data);
+	Matrix v(1, 3, v_data);
 	precision_t s = v.sum();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << v;
 
-		std::cout << "sum(" << v.name() << ") = " << s << "\n";
+		std::cout << "sum(v) = " << s << "\n";
 	}
 
 	assert_equal(s, 2, "sum(v)");
@@ -563,7 +563,7 @@ void test_svd()
 		-0.6414,  0.7672,
 		-0.7672, -0.6414
 	};
-	Matrix A("A", 4, 2, A_data);
+	Matrix A(4, 2, A_data);
 	Matrix U, S, V;
 
 	A.svd(U, S, V);
@@ -597,8 +597,8 @@ void test_transpose()
 		 3, 10,  6, 15,
 		13,  8, 12,  1
 	};
-	Matrix A("A", 4, 4, A_data);
-	Matrix B = A.transpose("B");
+	Matrix A(4, 4, A_data);
+	Matrix B = A.transpose();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << A;
@@ -625,8 +625,8 @@ void test_add()
 		5, 9,
 		2, 1
 	};
-	Matrix A("A", 2, 2, A_data1);
-	Matrix B("B", 2, 2, B_data);
+	Matrix A(2, 2, A_data1);
+	Matrix B(2, 2, B_data);
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << A;
@@ -665,8 +665,8 @@ void test_assign_column()
 		0,
 		0
 	};
-	Matrix A("A", 4, 4, A_data1);
-	Matrix B("B", 4, 1, B_data);
+	Matrix A(4, 4, A_data1);
+	Matrix B(4, 1, B_data);
 	int i = 2;
 	int j = 0;
 
@@ -704,8 +704,8 @@ void test_assign_row()
 	precision_t B_data[] = {
 		0, 0, 0, 0
 	};
-	Matrix A("A", 4, 4, A_data1);
-	Matrix B("B", 1, 4, B_data);
+	Matrix A(4, 4, A_data1);
+	Matrix B(1, 4, B_data);
 	int i = 2;
 	int j = 0;
 
@@ -736,7 +736,7 @@ void test_elem_apply()
 		1.0000, 0.0000, 1.4142,
 		1.7321, 1.0000, 2.0000
 	};
-	Matrix A("A", 2, 3, A_data1);
+	Matrix A(2, 3, A_data1);
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << A;
@@ -764,7 +764,7 @@ void test_elem_mult()
 		3, 0, 6,
 		9, 3, 12
 	};
-	Matrix A("A", 2, 3, A_data1);
+	Matrix A(2, 3, A_data1);
 	precision_t c = 3;
 
 	if ( LOGGER(LL_VERBOSE) ) {
@@ -797,8 +797,8 @@ void test_subtract()
 		5, 9,
 		2, 1
 	};
-	Matrix A("A", 2, 2, A_data1);
-	Matrix B("B", 2, 2, B_data);
+	Matrix A(2, 2, A_data1);
+	Matrix B(2, 2, B_data);
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << A;
@@ -834,8 +834,8 @@ void test_subtract_columns()
 		1,
 		1
 	};
-	Matrix M("M", 3, 4, M_data1);
-	Matrix a("a", 3, 1, a_data);;
+	Matrix M(3, 4, M_data1);
+	Matrix a(3, 1, a_data);;
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << M;
@@ -869,8 +869,8 @@ void test_subtract_rows()
 	precision_t a_data[] = {
 		0, 2, 1, 4
 	};
-	Matrix M("M", 3, 4, M_data1);
-	Matrix a("a", 1, 4, a_data);
+	Matrix M(3, 4, M_data1);
+	Matrix a(1, 4, a_data);
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << M;

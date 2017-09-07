@@ -51,7 +51,7 @@ std::vector<DataLabel> BayesLayer::predict(const Matrix& X, const std::vector<Da
 	std::vector<Matrix> S_inv;
 
 	for ( size_t i = 0; i < C.size(); i++ ) {
-		S_inv.push_back(S[i].inverse("S_i_inv"));
+		S_inv.push_back(S[i].inverse());
 	}
 
 	// compute label for each test vector

@@ -26,7 +26,6 @@ typedef precision_t (*elem_func_t)(precision_t);
 
 class Matrix {
 private:
-	const char *_name;
 	int _rows;
 	int _cols;
 	precision_t *_data_cpu;
@@ -37,19 +36,18 @@ public:
 	Matrix *T;
 
 	// constructor, destructor functions
-	Matrix(const char *name, int rows, int cols);
-	Matrix(const char *name, int rows, int cols, precision_t *data);
-	Matrix(const char *name, const Matrix& M, int i, int j);
-	Matrix(const char *name, const Matrix& M);
+	Matrix(int rows, int cols);
+	Matrix(int rows, int cols, precision_t *data);
+	Matrix(const Matrix& M, int i, int j);
 	Matrix(const Matrix& M);
 	Matrix(Matrix&& M);
 	Matrix();
 	~Matrix();
 
-	static Matrix identity(const char *name, int rows);
-	static Matrix ones(const char *name, int rows, int cols);
-	static Matrix random(const char *name, int rows, int cols);
-	static Matrix zeros(const char *name, int rows, int cols);
+	static Matrix identity(int rows);
+	static Matrix ones(int rows, int cols);
+	static Matrix random(int rows, int cols);
+	static Matrix zeros(int rows, int cols);
 
 	// I/O functions
 	void print(std::ostream& os) const;
@@ -61,22 +59,21 @@ public:
 	void gpu_write();
 
 	// getter functions
-	inline const char * name() const { return this->_name; }
 	inline int rows() const { return this->_rows; }
 	inline int cols() const { return this->_cols; }
 	inline precision_t& elem(int i, int j) const { return ELEM(*this, i, j); }
 
 	precision_t determinant() const;
-	Matrix diagonalize(const char *name) const;
-	void eigen(const char *V_name, const char *D_name, int n1, Matrix& V, Matrix& D) const;
-	Matrix inverse(const char *name) const;
-	Matrix mean_column(const char *name) const;
-	Matrix mean_row(const char *name) const;
+	Matrix diagonalize() const;
+	void eigen(int n1, Matrix& V, Matrix& D) const;
+	Matrix inverse() const;
+	Matrix mean_column() const;
+	Matrix mean_row() const;
 	precision_t norm() const;
-	Matrix product(const char *name, const Matrix& B) const;
+	Matrix product(const Matrix& B) const;
 	precision_t sum() const;
 	void svd(Matrix& U, Matrix& S, Matrix& V) const;
-	Matrix transpose(const char *name) const;
+	Matrix transpose() const;
 
 	// mutator functions
 	void add(const Matrix& B);
@@ -89,7 +86,7 @@ public:
 	void subtract_rows(const Matrix& a);
 
 	// operators
-	inline Matrix operator()(int i, int j) const { return Matrix("", *this, i, j); }
+	inline Matrix operator()(int i, int j) const { return Matrix(*this, i, j); }
 	inline Matrix operator()(int i) const { return (*this)(i, i + 1); }
 	inline Matrix& operator=(Matrix B) { swap(*this, B); return *this; }
 	inline Matrix& operator+=(const Matrix& B) { this->add(B); return *this; }
@@ -103,7 +100,7 @@ public:
 
 inline Matrix operator+(Matrix A, const Matrix& B) { return (A += B); }
 inline Matrix operator-(Matrix A, const Matrix& B) { return (A -= B); }
-inline Matrix operator*(const Matrix& A, const Matrix& B) { return A.product("", B); }
+inline Matrix operator*(const Matrix& A, const Matrix& B) { return A.product(B); }
 inline Matrix operator*(Matrix A, precision_t c) { return (A *= c); }
 inline Matrix operator*(precision_t c, Matrix A) { return (A *= c); }
 inline Matrix operator/(Matrix A, precision_t c) { return (A /= c); }

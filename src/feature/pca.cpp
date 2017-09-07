@@ -51,7 +51,7 @@ void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 		timer_push("compute eigendecomposition of L");
 
 		Matrix V;
-		L.eigen("V", "D", n1, V, this->D);
+		L.eigen(n1, V, this->D);
 
 		timer_pop();
 
@@ -70,7 +70,7 @@ void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 
 		timer_push("compute eigendecomposition of C");
 
-		C.eigen("W_pca", "D", n1, this->W, this->D);
+		C.eigen(n1, this->W, this->D);
 
 		timer_pop();
 	}

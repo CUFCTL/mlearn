@@ -111,13 +111,11 @@ magma_queue_t magma_queue()
 /**
  * Construct a matrix.
  *
- * @param name
  * @param rows
  * @param cols
  */
-Matrix::Matrix(const char *name, int rows, int cols)
+Matrix::Matrix(int rows, int cols)
 {
-	this->_name = name;
 	this->_rows = rows;
 	this->_cols = cols;
 	this->_data_cpu = new precision_t[rows * cols];
@@ -126,7 +124,6 @@ Matrix::Matrix(const char *name, int rows, int cols)
 	this->T = new Matrix();
 
 	// initialize transpose
-	this->T->_name = this->_name;
 	this->T->_rows = rows;
 	this->T->_cols = cols;
 	this->T->_data_cpu = this->_data_cpu;
@@ -138,13 +135,12 @@ Matrix::Matrix(const char *name, int rows, int cols)
 /**
  * Construct a matrix with arbitrary data.
  *
- * @param name
  * @param rows
  * @param cols
  * @param data
  */
-Matrix::Matrix(const char *name, int rows, int cols, precision_t *data)
-	: Matrix(name, rows, cols)
+Matrix::Matrix(int rows, int cols, precision_t *data)
+	: Matrix(rows, cols)
 {
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < cols; j++ ) {
@@ -158,17 +154,16 @@ Matrix::Matrix(const char *name, int rows, int cols, precision_t *data)
 /**
  * Copy a range of columns in a matrix.
  *
- * @param name
  * @param M
  * @param i
  * @param j
  */
-Matrix::Matrix(const char *name, const Matrix& M, int i, int j)
-	: Matrix(name, M._rows, j - i)
+Matrix::Matrix(const Matrix& M, int i, int j)
+	: Matrix(M._rows, j - i)
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- %s(:, %d:%d) [%d,%d]",
-		this->_name, this->_rows, this->_cols,
-		M._name, i + 1, j, M._rows, j - i);
+	log(LL_DEBUG, "debug: C [%d,%d] <- M(:, %d:%d) [%d,%d]",
+		this->_rows, this->_cols,
+		i + 1, j, M._rows, j - i);
 
 	assert(0 <= i && i < j && j <= M._cols);
 
@@ -178,23 +173,12 @@ Matrix::Matrix(const char *name, const Matrix& M, int i, int j)
 }
 
 /**
- * Copy a matrix.
- *
- * @param name
- * @param M
- */
-Matrix::Matrix(const char *name, const Matrix& M)
-	: Matrix(name, M, 0, M._cols)
-{
-}
-
-/**
  * Copy-construct a matrix.
  *
  * @param M
  */
 Matrix::Matrix(const Matrix& M)
-	: Matrix(M._name, M, 0, M._cols)
+	: Matrix(M, 0, M._cols)
 {
 }
 
@@ -214,7 +198,6 @@ Matrix::Matrix(Matrix&& M)
  */
 Matrix::Matrix()
 {
-	this->_name = "";
 	this->_rows = 0;
 	this->_cols = 0;
 	this->_data_cpu = nullptr;
@@ -239,16 +222,15 @@ Matrix::~Matrix()
 /**
  * Construct an identity matrix.
  *
- * @param name
  * @param rows
  */
-Matrix Matrix::identity(const char *name, int rows)
+Matrix Matrix::identity(int rows)
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- eye(%d)",
-		name, rows, rows,
+	log(LL_DEBUG, "debug: M [%d,%d] <- eye(%d)",
+		rows, rows,
 		rows);
 
-	Matrix M(name, rows, rows);
+	Matrix M(rows, rows);
 
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < rows; j++ ) {
@@ -264,17 +246,16 @@ Matrix Matrix::identity(const char *name, int rows)
 /**
  * Construct a matrix of all ones.
  *
- * @param name
  * @param rows
  * @param cols
  */
-Matrix Matrix::ones(const char *name, int rows, int cols)
+Matrix Matrix::ones(int rows, int cols)
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- ones(%d, %d)",
-		name, rows, cols,
+	log(LL_DEBUG, "debug: M [%d,%d] <- ones(%d, %d)",
+		rows, cols,
 		rows, cols);
 
-	Matrix M(name, rows, cols);
+	Matrix M(rows, cols);
 
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < cols; j++ ) {
@@ -290,20 +271,19 @@ Matrix Matrix::ones(const char *name, int rows, int cols)
 /**
  * Construct a matrix of normally-distributed random numbers.
  *
- * @param name
  * @param rows
  * @param cols
  */
-Matrix Matrix::random(const char *name, int rows, int cols)
+Matrix Matrix::random(int rows, int cols)
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- randn(%d, %d)",
-		name, rows, cols,
+	log(LL_DEBUG, "debug: M [%d,%d] <- randn(%d, %d)",
+		rows, cols,
 		rows, cols);
 
 	static std::default_random_engine generator;
 	static std::normal_distribution<precision_t> distribution(0, 1);
 
-	Matrix M(name, rows, cols);
+	Matrix M(rows, cols);
 
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < cols; j++ ) {
@@ -319,13 +299,12 @@ Matrix Matrix::random(const char *name, int rows, int cols)
 /**
  * Construct a zero matrix.
  *
- * @param name
  * @param rows
  * @param cols
  */
-Matrix Matrix::zeros(const char *name, int rows, int cols)
+Matrix Matrix::zeros(int rows, int cols)
 {
-	Matrix M(name, rows, cols);
+	Matrix M(rows, cols);
 
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < cols; j++ ) {
@@ -345,7 +324,7 @@ Matrix Matrix::zeros(const char *name, int rows, int cols)
  */
 void Matrix::print(std::ostream& os) const
 {
-	os << this->_name << " [" << this->_rows << ", " << this->_cols << "]\n";
+	os << "[" << this->_rows << ", " << this->_cols << "]\n";
 
 	for ( int i = 0; i < this->_rows; i++ ) {
 		for ( int j = 0; j < this->_cols; j++ ) {
@@ -383,7 +362,7 @@ void Matrix::load(std::ifstream& file)
 	file.read(reinterpret_cast<char *>(&rows), sizeof(int));
 	file.read(reinterpret_cast<char *>(&cols), sizeof(int));
 
-	*this = Matrix("", rows, cols);
+	*this = Matrix(rows, cols);
 	file.read(reinterpret_cast<char *>(this->_data_cpu), this->_rows * this->_cols * sizeof(precision_t));
 }
 
@@ -424,6 +403,9 @@ void Matrix::gpu_write()
  */
 precision_t Matrix::determinant() const
 {
+	log(LL_DEBUG, "debug: d <- det(M [%d,%d])",
+		this->_rows, this->_cols);
+
 	int m = this->_rows;
 	int n = this->_cols;
 	Matrix U = *this;
@@ -469,21 +451,19 @@ precision_t Matrix::determinant() const
 
 /**
  * Compute the diagonal matrix of a vector.
- *
- * @param name
  */
-Matrix Matrix::diagonalize(const char *name) const
+Matrix Matrix::diagonalize() const
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- diag(%s [%d,%d])",
-		name, max(this->_rows, this->_cols), max(this->_rows, this->_cols),
-		this->_name, this->_rows, this->_cols);
+	log(LL_DEBUG, "debug: D [%d,%d] <- diag(v [%d,%d])",
+		max(this->_rows, this->_cols), max(this->_rows, this->_cols),
+		this->_rows, this->_cols);
 
 	assert(this->_rows == 1 || this->_cols == 1);
 
 	int n = (this->_rows == 1)
 		? this->_cols
 		: this->_rows;
-	Matrix D = Matrix::zeros(name, n, n);
+	Matrix D = Matrix::zeros(n, n);
 
 	for ( int i = 0; i < n; i++ ) {
 		ELEM(D, i, i) = this->_data_cpu[i];
@@ -502,23 +482,21 @@ Matrix Matrix::diagonalize(const char *name) const
  * eigenvalue corresponds to the i-th column vector. The eigenvalues
  * are returned in ascending order.
  *
- * @param V_name
- * @param D_name
  * @param n1
  * @param V
  * @param D
  */
-void Matrix::eigen(const char *V_name, const char *D_name, int n1, Matrix& V, Matrix& D) const
+void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 {
-	log(LL_DEBUG, "debug: %s [%d,%d], %s [%d,%d] <- eig(%s [%d,%d], %d)",
-		V_name, this->_rows, n1,
-		D_name, n1, n1,
-		this->_name, this->_rows, this->_cols, n1);
+	log(LL_DEBUG, "debug: V [%d,%d], D [%d,%d] <- eig(M [%d,%d], %d)",
+		this->_rows, n1,
+		n1, n1,
+		this->_rows, this->_cols, n1);
 
 	assert(this->_rows == this->_cols);
 
-	V = Matrix(V_name, *this);
-	D = Matrix(D_name, 1, this->_cols);
+	V = Matrix(*this);
+	D = Matrix(1, this->_cols);
 
 	// compute eigenvalues and eigenvectors
 	int n = this->_cols;
@@ -571,23 +549,21 @@ void Matrix::eigen(const char *V_name, const char *D_name, int n1, Matrix& V, Ma
 	i = max(i, D._cols - n1);
 
 	V = V(i, V._cols);
-	D = D(i, D._cols).diagonalize(D_name);
+	D = D(i, D._cols).diagonalize();
 }
 
 /**
  * Compute the inverse of a square matrix.
- *
- * @param name
  */
-Matrix Matrix::inverse(const char *name) const
+Matrix Matrix::inverse() const
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- inv(%s [%d,%d])",
-		name, this->_rows, this->_cols,
-		this->_name, this->_rows, this->_cols);
+	log(LL_DEBUG, "debug: M^-1 [%d,%d] <- inv(M [%d,%d])",
+		this->_rows, this->_cols,
+		this->_rows, this->_cols);
 
 	assert(this->_rows == this->_cols);
 
-	Matrix M_inv(name, *this);
+	Matrix M_inv(*this);
 
 	int m = this->_rows;
 	int n = this->_cols;
@@ -636,52 +612,48 @@ Matrix Matrix::inverse(const char *name) const
 
 /**
  * Compute the mean column of a matrix.
- *
- * @param name
  */
-Matrix Matrix::mean_column(const char *name) const
+Matrix Matrix::mean_column() const
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- mean(%s [%d,%d], 2)",
-		name, this->_rows, 1,
-		this->_name, this->_rows, this->_cols);
+	log(LL_DEBUG, "debug: mu [%d,%d] <- mean(M [%d,%d], 2)",
+		this->_rows, 1,
+		this->_rows, this->_cols);
 
-	Matrix a = Matrix::zeros(name, this->_rows, 1);
+	Matrix mu = Matrix::zeros(this->_rows, 1);
 
 	for ( int i = 0; i < this->_cols; i++ ) {
 		for ( int j = 0; j < this->_rows; j++ ) {
-			ELEM(a, j, 0) += ELEM(*this, j, i);
+			ELEM(mu, j, 0) += ELEM(*this, j, i);
 		}
 	}
-	a.gpu_write();
+	mu.gpu_write();
 
-	a /= this->_cols;
+	mu /= this->_cols;
 
-	return a;
+	return mu;
 }
 
 /**
  * Compute the mean row of a matrix.
- *
- * @param name
  */
-Matrix Matrix::mean_row(const char *name) const
+Matrix Matrix::mean_row() const
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- mean(%s [%d,%d], 1)",
-		name, 1, this->_cols,
-		this->_name, this->_rows, this->_cols);
+	log(LL_DEBUG, "debug: mu [%d,%d] <- mean(M [%d,%d], 1)",
+		1, this->_cols,
+		this->_rows, this->_cols);
 
-	Matrix a = Matrix::zeros(name, 1, this->_cols);
+	Matrix mu = Matrix::zeros(1, this->_cols);
 
 	for ( int i = 0; i < this->_rows; i++ ) {
 		for ( int j = 0; j < this->_cols; j++ ) {
-			ELEM(a, 0, j) += ELEM(*this, i, j);
+			ELEM(mu, 0, j) += ELEM(*this, i, j);
 		}
 	}
-	a.gpu_write();
+	mu.gpu_write();
 
-	a /= this->_rows;
+	mu /= this->_rows;
 
-	return a;
+	return mu;
 }
 
 /**
@@ -689,8 +661,8 @@ Matrix Matrix::mean_row(const char *name) const
  */
 precision_t Matrix::norm() const
 {
-	log(LL_DEBUG, "debug: n = norm(%s [%d,%d])",
-		this->_name, this->_rows, this->_cols);
+	log(LL_DEBUG, "debug: n = norm(v [%d,%d])",
+		this->_rows, this->_cols);
 
 	assert(this->_rows == 1 || this->_cols == 1);
 
@@ -715,10 +687,9 @@ precision_t Matrix::norm() const
 /**
  * Compute the product of two matrices.
  *
- * @param name
  * @param B
  */
-Matrix Matrix::product(const char *name, const Matrix& B) const
+Matrix Matrix::product(const Matrix& B) const
 {
 	const Matrix& A = *this;
 
@@ -727,14 +698,14 @@ Matrix Matrix::product(const char *name, const Matrix& B) const
 	int k2 = B._transposed ? B._cols : B._rows;
 	int n = B._transposed ? B._rows : B._cols;
 
-	log(LL_DEBUG, "debug: %s [%d,%d] <- %s%s [%d,%d] * %s%s [%d,%d]",
-		name, m, n,
-		A._name, A._transposed ? "'" : "", m, k1,
-		B._name, B._transposed ? "'" : "", k2, n);
+	log(LL_DEBUG, "debug: C [%d,%d] <- A%s [%d,%d] * B%s [%d,%d]",
+		m, n,
+		A._transposed ? "'" : "", m, k1,
+		B._transposed ? "'" : "", k2, n);
 
 	assert(k1 == k2);
 
-	Matrix C = Matrix::zeros(name, m, n);
+	Matrix C = Matrix::zeros(m, n);
 
 	precision_t alpha = 1.0f;
 	precision_t beta = 0.0f;
@@ -770,8 +741,8 @@ Matrix Matrix::product(const char *name, const Matrix& B) const
  */
 precision_t Matrix::sum() const
 {
-	log(LL_DEBUG, "debug: s = sum(%s [%d,%d])",
-		this->_name, this->_rows, this->_cols);
+	log(LL_DEBUG, "debug: s = sum(v [%d,%d])",
+		this->_rows, this->_cols);
 
 	assert(this->_rows == 1 || this->_cols == 1);
 
@@ -799,8 +770,8 @@ precision_t Matrix::sum() const
  */
 void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 {
-	log(LL_DEBUG, "debug: U, S, V <- svd(%s [%d,%d])",
-		this->_name, this->_rows, this->_cols);
+	log(LL_DEBUG, "debug: U, S, V <- svd(M [%d,%d])",
+		this->_rows, this->_cols);
 
 	int m = this->_rows;
 	int n = this->_cols;
@@ -808,9 +779,9 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 	int ldu = m;
 	int ldvt = min(m, n);
 
-	U = Matrix("U", ldu, min(m, n));
-	S = Matrix("S", 1, min(m, n));
-	Matrix VT = Matrix("VT", ldvt, n);
+	U = Matrix(ldu, min(m, n));
+	S = Matrix(1, min(m, n));
+	Matrix VT = Matrix(ldvt, n);
 
 #ifdef __NVCC__
 	Matrix wA = *this;
@@ -847,22 +818,20 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 	delete[] work;
 #endif
 
-	S = S.diagonalize("S");
-	V = VT.transpose("V");
+	S = S.diagonalize();
+	V = VT.transpose();
 }
 
 /**
  * Compute the transpose of a matrix.
- *
- * @param name
  */
-Matrix Matrix::transpose(const char *name) const
+Matrix Matrix::transpose() const
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- transpose(%s [%d,%d])",
-		name, this->_cols, this->_rows,
-		this->_name, this->_rows, this->_cols);
+	log(LL_DEBUG, "debug: M' [%d,%d] <- transpose(M [%d,%d])",
+		this->_cols, this->_rows,
+		this->_rows, this->_cols);
 
-	Matrix T(name, this->_cols, this->_rows);
+	Matrix T(this->_cols, this->_rows);
 
 	for ( int i = 0; i < T._rows; i++ ) {
 		for ( int j = 0; j < T._cols; j++ ) {
@@ -884,10 +853,10 @@ void Matrix::add(const Matrix& B)
 {
 	Matrix& A = *this;
 
-	log(LL_DEBUG, "debug: %s [%d,%d] <- %s [%d,%d] + %s [%d,%d]",
-		A._name, A._rows, A._cols,
-		A._name, A._rows, A._cols,
-		B._name, B._rows, B._cols);
+	log(LL_DEBUG, "debug: A [%d,%d] <- A [%d,%d] + B [%d,%d]",
+		A._rows, A._cols,
+		A._rows, A._cols,
+		B._rows, B._cols);
 
 	assert(A._rows == B._rows && A._cols == B._cols);
 
@@ -918,9 +887,9 @@ void Matrix::assign_column(int i, const Matrix& B, int j)
 {
 	Matrix& A = *this;
 
-	log(LL_DEBUG, "debug: %s(:, %d) [%d,%d] <- %s(:, %d) [%d,%d]",
-		A._name, i + 1, A._rows, 1,
-		B._name, j + 1, B._rows, 1);
+	log(LL_DEBUG, "debug: A(:, %d) [%d,%d] <- B(:, %d) [%d,%d]",
+		i + 1, A._rows, 1,
+		j + 1, B._rows, 1);
 
 	assert(A._rows == B._rows);
 	assert(0 <= i && i < A._cols);
@@ -942,9 +911,9 @@ void Matrix::assign_row(int i, const Matrix& B, int j)
 {
 	Matrix& A = *this;
 
-	log(LL_DEBUG, "debug: %s(%d, :) [%d,%d] <- %s(%d, :) [%d,%d]",
-		A._name, i + 1, 1, A._cols,
-		B._name, j + 1, 1, B._cols);
+	log(LL_DEBUG, "debug: A(%d, :) [%d,%d] <- B(%d, :) [%d,%d]",
+		i + 1, 1, A._cols,
+		j + 1, 1, B._cols);
 
 	assert(A._cols == B._cols);
 	assert(0 <= i && i < A._rows);
@@ -964,9 +933,9 @@ void Matrix::assign_row(int i, const Matrix& B, int j)
  */
 void Matrix::elem_apply(elem_func_t f)
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- f(%s [%d,%d])",
-		this->_name, this->_rows, this->_cols,
-		this->_name, this->_rows, this->_cols);
+	log(LL_DEBUG, "debug: M [%d,%d] <- f(M [%d,%d])",
+		this->_rows, this->_cols,
+		this->_rows, this->_cols);
 
 	for ( int i = 0; i < this->_rows; i++ ) {
 		for ( int j = 0; j < this->_cols; j++ ) {
@@ -984,9 +953,9 @@ void Matrix::elem_apply(elem_func_t f)
  */
 void Matrix::elem_mult(precision_t c)
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- %g * %s [%d,%d]",
-		this->_name, this->_rows, this->_cols,
-		c, this->_name, this->_rows, this->_cols);
+	log(LL_DEBUG, "debug: M [%d,%d] <- %g * M [%d,%d]",
+		this->_rows, this->_cols,
+		c, this->_rows, this->_cols);
 
 	int n = this->_rows * this->_cols;
 	int incX = 1;
@@ -1011,10 +980,10 @@ void Matrix::subtract(const Matrix& B)
 {
 	Matrix& A = *this;
 
-	log(LL_DEBUG, "debug: %s [%d,%d] <- %s [%d,%d] - %s [%d,%d]",
-		A._name, A._rows, A._cols,
-		A._name, A._rows, A._cols,
-		B._name, B._rows, B._cols);
+	log(LL_DEBUG, "debug: A [%d,%d] <- A [%d,%d] - B [%d,%d]",
+		A._rows, A._cols,
+		A._rows, A._cols,
+		B._rows, B._cols);
 
 	assert(A._rows == B._rows && A._cols == B._cols);
 
@@ -1045,11 +1014,11 @@ void Matrix::subtract(const Matrix& B)
  */
 void Matrix::subtract_columns(const Matrix& a)
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- %s [%d,%d] - %s [%d,%d] * %s [%d,%d]",
-		this->_name, this->_rows, this->_cols,
-		this->_name, this->_rows, this->_cols,
-		a._name, a._rows, a._cols,
-		"1_N'", 1, this->_cols);
+	log(LL_DEBUG, "debug: M [%d,%d] <- M [%d,%d] - a [%d,%d] * 1_N' [%d,%d]",
+		this->_rows, this->_cols,
+		this->_rows, this->_cols,
+		a._rows, a._cols,
+		1, this->_cols);
 
 	assert(this->_rows == a._rows && a._cols == 1);
 
@@ -1072,11 +1041,11 @@ void Matrix::subtract_columns(const Matrix& a)
  */
 void Matrix::subtract_rows(const Matrix& a)
 {
-	log(LL_DEBUG, "debug: %s [%d,%d] <- %s [%d,%d] - %s [%d,%d] * %s [%d,%d]",
-		this->_name, this->_rows, this->_cols,
-		this->_name, this->_rows, this->_cols,
-		"1_N", this->_rows, 1,
-		a._name, a._rows, a._cols);
+	log(LL_DEBUG, "debug: M [%d,%d] <- M [%d,%d] - a [%d,%d] * 1_N [%d,%d]",
+		this->_rows, this->_cols,
+		this->_rows, this->_cols,
+		this->_rows, 1,
+		a._rows, a._cols);
 
 	assert(this->_cols == a._cols && a._rows == 1);
 
@@ -1096,7 +1065,6 @@ void Matrix::subtract_rows(const Matrix& a)
  */
 void swap(Matrix& A, Matrix& B)
 {
-	std::swap(A._name, B._name);
 	std::swap(A._rows, B._rows);
 	std::swap(A._cols, B._cols);
 	std::swap(A._data_cpu, B._data_cpu);

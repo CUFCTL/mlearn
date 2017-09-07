@@ -53,11 +53,11 @@ precision_t gaussian(Matrix x, const Matrix& mu, precision_t S_det, const Matrix
 Matrix GMMLayer::pdf(const Matrix& X, const parameter_t& theta)
 {
 	int n = X.cols();
-	Matrix h("h", n, this->_k);
+	Matrix h(n, this->_k);
 
 	for ( int j = 0; j < this->_k; j++ ) {
 		precision_t S_det = theta.S[j].determinant();
-		Matrix S_inv = theta.S[j].inverse("");
+		Matrix S_inv = theta.S[j].inverse();
 
 		for ( int i = 0; i < n; i++ ) {
 			h.elem(i, j) = gaussian(X(i), theta.mu[j], S_det, S_inv);
@@ -119,7 +119,7 @@ parameter_t GMMLayer::init_random(const Matrix& X, int num_init)
 		}
 
 		// compute conditional probabilities (using nearest neighbor)
-		Matrix c = Matrix::zeros("c", n, this->_k);
+		Matrix c = Matrix::zeros(n, this->_k);
 
 		for ( int i = 0; i < n; i++ ) {
 			int min_j = -1;
@@ -149,7 +149,7 @@ parameter_t GMMLayer::init_random(const Matrix& X, int num_init)
 			theta_test.p.push_back(n_j / n);
 
 			// compute S_j = W_j / n_j
-			Matrix W_j = Matrix::zeros("S_j", d, d);
+			Matrix W_j = Matrix::zeros(d, d);
 
 			for ( int i = 0; i < n; i++ ) {
 				if ( c.elem(i, j) > 0 ) {
@@ -229,7 +229,7 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, parameter_t& theta)
 		theta.p[j] = n_j / n;
 
 		// compute mu_j = sum(c_ij * x_i, i=1:n) / n_j
-		Matrix sum = Matrix::zeros("mu_k", d, 1);
+		Matrix sum = Matrix::zeros(d, 1);
 		for ( int i = 0; i < n; i++ ) {
 			sum += c.elem(i, j) * X(i);
 		}
@@ -237,7 +237,7 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, parameter_t& theta)
 		theta.mu[j] = sum / n_j;
 
 		// compute S_j = W_j / n_j
-		Matrix W_j = Matrix::zeros("S_j", d, d);
+		Matrix W_j = Matrix::zeros(d, d);
 
 		for ( int i = 0; i < n; i++ ) {
 			Matrix x_i = X(i) - theta.mu[j];
@@ -275,7 +275,7 @@ void GMMLayer::compute(const Matrix& X)
 
 	timer_push("estimate parameters");
 
-	Matrix c("c", n, this->_k);
+	Matrix c(n, this->_k);
 
 	for ( int m = 0; m < NUM_ITER; m++ ) {
 		timer_push("E step");

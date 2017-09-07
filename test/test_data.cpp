@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 	// map the sample to a column vector
 	sample->load(args.infile);
 
-	Matrix x("x", sample->size(), 1);
+	Matrix x(sample->size(), 1);
 
 	sample->to_matrix(x, 0);
 

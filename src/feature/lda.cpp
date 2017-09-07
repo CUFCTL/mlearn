@@ -68,12 +68,12 @@ void LDALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 
 	timer_push("compute eigendecomposition of S_b and S_w");
 
-	Matrix S_w_inv = S_w.inverse("inv(S_w)");
+	Matrix S_w_inv = S_w.inverse();
 	Matrix J = S_w_inv * S_b;
 
 	Matrix W_fld;
 	Matrix J_eval;
-	J.eigen("W_fld", "J_eval", n2, W_fld, J_eval);
+	J.eigen(n2, W_fld, J_eval);
 
 	timer_pop();
 

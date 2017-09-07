@@ -146,7 +146,7 @@ std::vector<Matrix> m_class_means(const std::vector<Matrix>& X_c)
 	std::vector<Matrix> U;
 
 	for ( const Matrix& X_c_i : X_c ) {
-		U.push_back(X_c_i.mean_column("U_i"));
+		U.push_back(X_c_i.mean_column());
 	}
 
 	return U;
@@ -189,7 +189,7 @@ Matrix m_scatter_between(const std::vector<Matrix>& X_c, const std::vector<Matri
 	int N = U[0].rows();
 
 	// compute the mean of all classes
-	Matrix u("u", N, 1);
+	Matrix u(N, 1);
 
 	for ( const Matrix& U_i : U ) {
 		u += U_i;
@@ -197,7 +197,7 @@ Matrix m_scatter_between(const std::vector<Matrix>& X_c, const std::vector<Matri
 	u /= X_c.size();
 
 	// compute the between-scatter S_b
-	Matrix S_b = Matrix::zeros("S_b", N, N);
+	Matrix S_b = Matrix::zeros(N, N);
 
 	for ( size_t i = 0; i < X_c.size(); i++ ) {
 		Matrix U_i = U[i] - u;
@@ -223,7 +223,7 @@ Matrix m_scatter_between(const std::vector<Matrix>& X_c, const std::vector<Matri
 Matrix m_scatter_within(const std::vector<Matrix>& X_c, const std::vector<Matrix>& U)
 {
 	int N = U[0].rows();
-	Matrix S_w = Matrix::zeros("S_w", N, N);
+	Matrix S_w = Matrix::zeros(N, N);
 
 	for ( size_t i = 0; i < X_c.size(); i++ ) {
 		Matrix X_c_i = X_c[i];

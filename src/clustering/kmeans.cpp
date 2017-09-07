@@ -78,7 +78,7 @@ void KMeansLayer::compute(const Matrix& X)
 		timer_push("update step");
 
 		for ( int i = 0; i < this->_k; i++ ) {
-			Matrix mean = Matrix::zeros("", X.rows(), 1);
+			Matrix mean = Matrix::zeros(X.rows(), 1);
 			int num = 0;
 
 			for ( int j = 0; j < X.cols(); j++ ) {
