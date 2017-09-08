@@ -120,6 +120,9 @@ magma_queue_t magma_queue()
  */
 Matrix::Matrix(int rows, int cols)
 {
+	log(LL_DEBUG, "debug: new Matrix(%d, %d)",
+		rows, cols);
+
 	this->_rows = rows;
 	this->_cols = cols;
 	this->_data_cpu = new precision_t[rows * cols];
