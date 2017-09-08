@@ -892,13 +892,15 @@ void print_usage()
 		"Usage: ./test-matrix [options]\n"
 		"\n"
 		"Options:\n"
-		"  --loglevel LEVEL   set the log level (1=info, 2=verbose, 3=debug)\n";
+		"  --gpu             use GPU acceleration\n"
+		"  --loglevel LEVEL  set the log level (1=info, 2=verbose, 3=debug)\n";
 }
 
 int main(int argc, char **argv)
 {
 	// parse command-line arguments
 	struct option long_options[] = {
+		{ "gpu", no_argument, 0, 'g' },
 		{ "loglevel", required_argument, 0, 'e' },
 		{ 0, 0, 0, 0 }
 	};
@@ -906,6 +908,9 @@ int main(int argc, char **argv)
 	int opt;
 	while ( (opt = getopt_long_only(argc, argv, "", long_options, nullptr)) != -1 ) {
 		switch ( opt ) {
+		case 'g':
+			GPU = true;
+			break;
 		case 'e':
 			LOGLEVEL = (logger_level_t) atoi(optarg);
 			break;

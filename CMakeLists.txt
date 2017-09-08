@@ -9,19 +9,13 @@ if ( NOT CMAKE_BUILD_TYPE STREQUAL "Debug" )
 	set(CMAKE_BUILD_TYPE "Release")
 endif ()
 
-if ( NOT DEFINED GPU )
-	set(GPU "1")
-endif ()
-
 # compiler settings
-if ( GPU STREQUAL "1" )
-	set(CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda")
-	find_package(CUDA REQUIRED)
+set(CUDA_TOOLKIT_ROOT_DIR $ENV{CUDADIR})
+find_package(CUDA REQUIRED)
 
-	include(FindCUDA)
+include(FindCUDA)
 
-	set(CUDA_NVCC_FLAGS "-Wno-deprecated-gpu-targets")
-endif ()
+set(CUDA_NVCC_FLAGS "-Wno-deprecated-gpu-targets")
 
 set(CMAKE_CXX_FLAGS "-std=c++11")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -pg -Wall")

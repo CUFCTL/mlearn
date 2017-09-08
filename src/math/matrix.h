@@ -14,15 +14,17 @@
 
 namespace ML {
 
+typedef float precision_t;
+typedef precision_t (*elem_func_t)(precision_t);
+
+extern bool GPU;
+extern int GPU_DEVICE;
+
 void gpu_init();
 void gpu_finalize();
 
-typedef float precision_t;
-
 #define ELEM(M, i, j) (M)._data_cpu[(j) * (M)._rows + (i)]
 #define TRAN(M) (*M.T)
-
-typedef precision_t (*elem_func_t)(precision_t);
 
 class Matrix {
 private:

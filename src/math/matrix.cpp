@@ -13,15 +13,15 @@
 #include "math/math_utils.h"
 #include "util/logger.h"
 
-#if defined(__NVCC__)
-	#include <cuda_runtime.h>
-	#include "magma_v2.h"
-#else
-	#include <cblas.h>
-	#include <lapacke.h>
-#endif
+#include <cuda_runtime.h>
+#include "magma_v2.h"
+#include <cblas.h>
+#include <lapacke.h>
 
 namespace ML {
+
+bool GPU = false;
+int GPU_DEVICE = 0;
 
 const precision_t EPSILON = 1e-16;
 
@@ -30,10 +30,12 @@ const precision_t EPSILON = 1e-16;
  */
 void gpu_init()
 {
-#ifdef __NVCC__
+	if ( !GPU ) {
+		return;
+	}
+
 	magma_int_t stat = magma_init();
 	assert(stat == MAGMA_SUCCESS);
-#endif
 }
 
 /**
@@ -41,10 +43,12 @@ void gpu_init()
  */
 void gpu_finalize()
 {
-#ifdef __NVCC__
+	if ( !GPU ) {
+		return;
+	}
+
 	magma_int_t stat = magma_finalize();
 	assert(stat == MAGMA_SUCCESS);
-#endif
 }
 
 /**
@@ -54,12 +58,14 @@ void gpu_finalize()
  */
 void * gpu_malloc(size_t size)
 {
+	if ( !GPU ) {
+		return nullptr;
+	}
+
 	void *ptr = nullptr;
 
-#ifdef __NVCC__
 	int stat = magma_malloc(&ptr, size);
 	assert(stat == MAGMA_SUCCESS);
-#endif
 
 	return ptr;
 }
@@ -71,10 +77,12 @@ void * gpu_malloc(size_t size)
  */
 void gpu_free(void *ptr)
 {
-#ifdef __NVCC__
+	if ( !GPU ) {
+		return;
+	}
+
 	int stat = magma_free(ptr);
 	assert(stat == MAGMA_SUCCESS);
-#endif
 }
 
 /**
@@ -91,22 +99,18 @@ precision_t * gpu_malloc_matrix(int rows, int cols)
 /**
  * Get a MAGMA queue.
  */
-#ifdef __NVCC__
 magma_queue_t magma_queue()
 {
 	static int init = 1;
-	static int device = 0;
 	static magma_queue_t queue;
 
-	if ( init == 1 ) {
-		magma_queue_create(device, &queue);
-
+	if ( GPU && init == 1 ) {
+		magma_queue_create(GPU_DEVICE, &queue);
 		init = 0;
 	}
 
 	return queue;
 }
-#endif
 
 /**
  * Construct a matrix.
@@ -371,14 +375,16 @@ void Matrix::load(std::ifstream& file)
  */
 void Matrix::gpu_read()
 {
-#ifdef __NVCC__
+	if ( !GPU ) {
+		return;
+	}
+
 	magma_queue_t queue = magma_queue();
 
 	magma_getmatrix(this->_rows, this->_cols, sizeof(precision_t),
 		this->_data_gpu, this->_rows,
 		this->_data_cpu, this->_rows,
 		queue);
-#endif
 }
 
 /**
@@ -386,14 +392,16 @@ void Matrix::gpu_read()
  */
 void Matrix::gpu_write()
 {
-#ifdef __NVCC__
+	if ( !GPU ) {
+		return;
+	}
+
 	magma_queue_t queue = magma_queue();
 
 	magma_setmatrix(this->_rows, this->_cols, sizeof(precision_t),
 		this->_data_cpu, this->_rows,
 		this->_data_gpu, this->_rows,
 		queue);
-#endif
 }
 
 /**
@@ -413,23 +421,24 @@ precision_t Matrix::determinant() const
 	int *ipiv = new int[min(m, n)];
 
 	// compute LU decomposition
-#ifdef __NVCC__
-	int info;
+	if ( GPU ) {
+		int info;
 
-	magma_sgetrf_gpu(
-		m, n, U._data_gpu, lda,
-		ipiv,
-		&info);
-	assert(info == 0);
+		magma_sgetrf_gpu(
+			m, n, U._data_gpu, lda,
+			ipiv,
+			&info);
+		assert(info == 0);
 
-	U.gpu_read();
-#else
-	int info = LAPACKE_sgetrf_work(
-		LAPACK_COL_MAJOR,
-		m, n, U._data_cpu, lda,
-		ipiv);
-	assert(info == 0);
-#endif
+		U.gpu_read();
+	}
+	else {
+		int info = LAPACKE_sgetrf_work(
+			LAPACK_COL_MAJOR,
+			m, n, U._data_cpu, lda,
+			ipiv);
+		assert(info == 0);
+	}
 
 	// compute det(A) = det(P * L * U) = 1^S * det(U)
 	precision_t det = 1;
@@ -502,42 +511,43 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 	int n = this->_cols;
 	int lda = this->_rows;
 
-#ifdef __NVCC__
-	int nb = magma_get_ssytrd_nb(n);
-	int ldwa = n;
-	precision_t *wA = new precision_t[ldwa * n];
-	int lwork = max(2*n + n*nb, 1 + 6*n + 2*n*n);
-	precision_t *work = new precision_t[lwork];
-	int liwork = 3 + 5*n;
-	int *iwork = new int[liwork];
-	int info;
+	if ( GPU ) {
+		int nb = magma_get_ssytrd_nb(n);
+		int ldwa = n;
+		precision_t *wA = new precision_t[ldwa * n];
+		int lwork = max(2*n + n*nb, 1 + 6*n + 2*n*n);
+		precision_t *work = new precision_t[lwork];
+		int liwork = 3 + 5*n;
+		int *iwork = new int[liwork];
+		int info;
 
-	magma_ssyevd_gpu(MagmaVec, MagmaUpper,
-		n, V._data_gpu, lda,
-		D._data_cpu,
-		wA, ldwa,
-		work, lwork,
-		iwork, liwork,
-		&info);
-	assert(info == 0);
+		magma_ssyevd_gpu(MagmaVec, MagmaUpper,
+			n, V._data_gpu, lda,
+			D._data_cpu,
+			wA, ldwa,
+			work, lwork,
+			iwork, liwork,
+			&info);
+		assert(info == 0);
 
-	delete[] wA;
-	delete[] work;
-	delete[] iwork;
+		delete[] wA;
+		delete[] work;
+		delete[] iwork;
 
-	V.gpu_read();
-#else
-	int lwork = 3 * n;
-	precision_t *work = new precision_t[lwork];
+		V.gpu_read();
+	}
+	else {
+		int lwork = 3 * n;
+		precision_t *work = new precision_t[lwork];
 
-	int info = LAPACKE_ssyev_work(LAPACK_COL_MAJOR, 'V', 'U',
-		n, V._data_cpu, lda,
-		D._data_cpu,
-		work, lwork);
-	assert(info == 0);
+		int info = LAPACKE_ssyev_work(LAPACK_COL_MAJOR, 'V', 'U',
+			n, V._data_cpu, lda,
+			D._data_cpu,
+			work, lwork);
+		assert(info == 0);
 
-	delete[] work;
-#endif
+		delete[] work;
+	}
 
 	// take only positive eigenvalues
 	int i = 0;
@@ -569,43 +579,44 @@ Matrix Matrix::inverse() const
 	int n = this->_cols;
 	int lda = this->_rows;
 
-#ifdef __NVCC__
-	int nb = magma_get_sgetri_nb(n);
-	int *ipiv = new int[n];
-	int lwork = n * nb;
-	precision_t *dwork = (precision_t *)gpu_malloc(lwork * sizeof(precision_t));
-	int info;
+	if ( GPU ) {
+		int nb = magma_get_sgetri_nb(n);
+		int *ipiv = new int[n];
+		int lwork = n * nb;
+		precision_t *dwork = (precision_t *)gpu_malloc(lwork * sizeof(precision_t));
+		int info;
 
-	magma_sgetrf_gpu(m, n, M_inv._data_gpu, lda,
-		ipiv, &info);
-	assert(info == 0);
+		magma_sgetrf_gpu(m, n, M_inv._data_gpu, lda,
+			ipiv, &info);
+		assert(info == 0);
 
-	magma_sgetri_gpu(n, M_inv._data_gpu, lda,
-		ipiv, dwork, lwork, &info);
-	assert(info == 0);
+		magma_sgetri_gpu(n, M_inv._data_gpu, lda,
+			ipiv, dwork, lwork, &info);
+		assert(info == 0);
 
-	delete[] ipiv;
-	gpu_free(dwork);
+		delete[] ipiv;
+		gpu_free(dwork);
 
-	M_inv.gpu_read();
-#else
-	int *ipiv = new int[n];
-	int lwork = n;
-	precision_t *work = new precision_t[lwork];
+		M_inv.gpu_read();
+	}
+	else {
+		int *ipiv = new int[n];
+		int lwork = n;
+		precision_t *work = new precision_t[lwork];
 
-	int info = LAPACKE_sgetrf_work(LAPACK_COL_MAJOR,
-		m, n, M_inv._data_cpu, lda,
-		ipiv);
-	assert(info == 0);
+		int info = LAPACKE_sgetrf_work(LAPACK_COL_MAJOR,
+			m, n, M_inv._data_cpu, lda,
+			ipiv);
+		assert(info == 0);
 
-	info = LAPACKE_sgetri_work(LAPACK_COL_MAJOR,
-		n, M_inv._data_cpu, lda,
-		ipiv, work, lwork);
-	assert(info == 0);
+		info = LAPACKE_sgetri_work(LAPACK_COL_MAJOR,
+			n, M_inv._data_cpu, lda,
+			ipiv, work, lwork);
+		assert(info == 0);
 
-	delete[] ipiv;
-	delete[] work;
-#endif
+		delete[] ipiv;
+		delete[] work;
+	}
 
 	return M_inv;
 }
@@ -673,13 +684,14 @@ precision_t Matrix::norm() const
 
 	precision_t norm;
 
-#ifdef __NVCC__
-	magma_queue_t queue = magma_queue();
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
 
-	norm = magma_snrm2(n, this->_data_gpu, incX, queue);
-#else
-	norm = cblas_snrm2(n, this->_data_cpu, incX);
-#endif
+		norm = magma_snrm2(n, this->_data_gpu, incX, queue);
+	}
+	else {
+		norm = cblas_snrm2(n, this->_data_cpu, incX);
+	}
 
 	return norm;
 }
@@ -711,27 +723,28 @@ Matrix Matrix::product(const Matrix& B) const
 	precision_t beta = 0.0f;
 
 	// C := alpha * A * B + beta * C
-#ifdef __NVCC__
-	magma_queue_t queue = magma_queue();
-	magma_trans_t TransA = A._transposed ? MagmaTrans : MagmaNoTrans;
-	magma_trans_t TransB = B._transposed ? MagmaTrans : MagmaNoTrans;
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
+		magma_trans_t TransA = A._transposed ? MagmaTrans : MagmaNoTrans;
+		magma_trans_t TransB = B._transposed ? MagmaTrans : MagmaNoTrans;
 
-	magma_sgemm(TransA, TransB,
-		m, n, k1,
-		alpha, A._data_gpu, A._rows, B._data_gpu, B._rows,
-		beta, C._data_gpu, C._rows,
-		queue);
+		magma_sgemm(TransA, TransB,
+			m, n, k1,
+			alpha, A._data_gpu, A._rows, B._data_gpu, B._rows,
+			beta, C._data_gpu, C._rows,
+			queue);
 
-	C.gpu_read();
-#else
-	CBLAS_TRANSPOSE TransA = A._transposed ? CblasTrans : CblasNoTrans;
-	CBLAS_TRANSPOSE TransB = B._transposed ? CblasTrans : CblasNoTrans;
+		C.gpu_read();
+	}
+	else {
+		CBLAS_TRANSPOSE TransA = A._transposed ? CblasTrans : CblasNoTrans;
+		CBLAS_TRANSPOSE TransB = B._transposed ? CblasTrans : CblasNoTrans;
 
-	cblas_sgemm(CblasColMajor, TransA, TransB,
-		m, n, k1,
-		alpha, A._data_cpu, A._rows, B._data_cpu, B._rows,
-		beta, C._data_cpu, C._rows);
-#endif
+		cblas_sgemm(CblasColMajor, TransA, TransB,
+			m, n, k1,
+			alpha, A._data_cpu, A._rows, B._data_cpu, B._rows,
+			beta, C._data_cpu, C._rows);
+	}
 
 	return C;
 }
@@ -783,40 +796,41 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 	S = Matrix(1, min(m, n));
 	Matrix VT = Matrix(ldvt, n);
 
-#ifdef __NVCC__
-	Matrix wA = *this;
-	int nb = magma_get_sgesvd_nb(m, n);
-	int lwork = 2 * min(m, n) + (max(m, n) + min(m, n)) * nb;
-	precision_t *work = new precision_t[lwork];
-	int info;
+	if ( GPU ) {
+		Matrix wA = *this;
+		int nb = magma_get_sgesvd_nb(m, n);
+		int lwork = 2 * min(m, n) + (max(m, n) + min(m, n)) * nb;
+		precision_t *work = new precision_t[lwork];
+		int info;
 
-	magma_sgesvd(
-		MagmaSomeVec, MagmaSomeVec,
-		m, n, wA._data_cpu, lda,
-		S._data_cpu,
-		U._data_cpu, ldu,
-		VT._data_cpu, ldvt,
-		work, lwork,
-		&info);
-	assert(info == 0);
+		magma_sgesvd(
+			MagmaSomeVec, MagmaSomeVec,
+			m, n, wA._data_cpu, lda,
+			S._data_cpu,
+			U._data_cpu, ldu,
+			VT._data_cpu, ldvt,
+			work, lwork,
+			&info);
+		assert(info == 0);
 
-	delete[] work;
-#else
-	Matrix wA = *this;
-	int lwork = 5 * min(m, n);
-	precision_t *work = new precision_t[lwork];
+		delete[] work;
+	}
+	else {
+		Matrix wA = *this;
+		int lwork = 5 * min(m, n);
+		precision_t *work = new precision_t[lwork];
 
-	int info = LAPACKE_sgesvd_work(
-		LAPACK_COL_MAJOR, 'S', 'S',
-		m, n, wA._data_cpu, lda,
-		S._data_cpu,
-		U._data_cpu, ldu,
-		VT._data_cpu, ldvt,
-		work, lwork);
-	assert(info == 0);
+		int info = LAPACKE_sgesvd_work(
+			LAPACK_COL_MAJOR, 'S', 'S',
+			m, n, wA._data_cpu, lda,
+			S._data_cpu,
+			U._data_cpu, ldu,
+			VT._data_cpu, ldvt,
+			work, lwork);
+		assert(info == 0);
 
-	delete[] work;
-#endif
+		delete[] work;
+	}
 
 	S = S.diagonalize();
 	V = VT.transpose();
@@ -865,15 +879,16 @@ void Matrix::add(const Matrix& B)
 	int incX = 1;
 	int incY = 1;
 
-#ifdef __NVCC__
-	magma_queue_t queue = magma_queue();
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
 
-	magma_saxpy(n, alpha, B._data_gpu, incX, A._data_gpu, incY, queue);
+		magma_saxpy(n, alpha, B._data_gpu, incX, A._data_gpu, incY, queue);
 
-	A.gpu_read();
-#else
-	cblas_saxpy(n, alpha, B._data_cpu, incX, A._data_cpu, incY);
-#endif
+		A.gpu_read();
+	}
+	else {
+		cblas_saxpy(n, alpha, B._data_cpu, incX, A._data_cpu, incY);
+	}
 }
 
 /**
@@ -960,15 +975,16 @@ void Matrix::elem_mult(precision_t c)
 	int n = this->_rows * this->_cols;
 	int incX = 1;
 
-#ifdef __NVCC__
-	magma_queue_t queue = magma_queue();
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
 
-	magma_sscal(n, c, this->_data_gpu, incX, queue);
+		magma_sscal(n, c, this->_data_gpu, incX, queue);
 
-	this->gpu_read();
-#else
-	cblas_sscal(n, c, this->_data_cpu, incX);
-#endif
+		this->gpu_read();
+	}
+	else {
+		cblas_sscal(n, c, this->_data_cpu, incX);
+	}
 }
 
 /**
@@ -992,15 +1008,16 @@ void Matrix::subtract(const Matrix& B)
 	int incX = 1;
 	int incY = 1;
 
-#ifdef __NVCC__
-	magma_queue_t queue = magma_queue();
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
 
-	magma_saxpy(n, alpha, B._data_gpu, incX, A._data_gpu, incY, queue);
+		magma_saxpy(n, alpha, B._data_gpu, incX, A._data_gpu, incY, queue);
 
-	A.gpu_read();
-#else
-	cblas_saxpy(n, alpha, B._data_cpu, incX, A._data_cpu, incY);
-#endif
+		A.gpu_read();
+	}
+	else {
+		cblas_saxpy(n, alpha, B._data_cpu, incX, A._data_cpu, incY);
+	}
 }
 
 /**

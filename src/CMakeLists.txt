@@ -21,16 +21,11 @@ include_directories("${MAGMADIR}/include")
 # build mlearn library
 file(GLOB_RECURSE mlearn_src ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
-if ( GPU STREQUAL "1" )
-	set_source_files_properties(${mlearn_src} PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
+set_source_files_properties(${mlearn_src} PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
-	cuda_add_library(mlearn SHARED ${mlearn_src})
-	cuda_add_cublas_to_target(mlearn)
-	target_link_libraries(mlearn openblas magma)
-else ()
-	add_library(mlearn SHARED ${mlearn_src})
-	target_link_libraries(mlearn openblas)
-endif ()
+cuda_add_library(mlearn SHARED ${mlearn_src})
+cuda_add_cublas_to_target(mlearn)
+target_link_libraries(mlearn openblas magma)
 
 # install libmlearn.so
 install(
