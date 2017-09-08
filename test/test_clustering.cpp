@@ -11,39 +11,42 @@ using namespace ML;
 
 typedef struct {
 	std::string filename;
-	std::string layer_type;
+	std::string method;
+	std::string criterion;
 	int k;
 } args_t;
 
 int main(int argc, char **argv)
 {
-	gpu_init();
-
 	// parse command-line arguments
-	if ( argc < 3 ) {
-		std::cerr << "usage: ./test-clustering [method] [k]\n";
+	if ( argc != 4 ) {
+		std::cerr << "usage: ./test-clustering [method] [criterion] [k]\n";
 		exit(1);
 	}
 
 	args_t args = {
 		"test/data/iris.train",
 		argv[1],
-		atoi(argv[2])
+		argv[2],
+		atoi(argv[3])
 	};
 
-	// set loglevel
+	GPU = true;
 	LOGLEVEL = LL_VERBOSE;
+
+	// initialize GPU if enabled
+	gpu_init();
 
 	// load input dataset
 	Dataset input_data(nullptr, args.filename);
 
-	// create clustering model
+	// construct clustering layer
 	std::vector<ClusteringLayer *> layers;
 
-	if ( args.layer_type == "gmm" ) {
+	if ( args.method == "gmm" ) {
 		layers.push_back(new GMMLayer(args.k));
 	}
-	else if ( args.layer_type == "k-means" ) {
+	else if ( args.method == "k-means" ) {
 		layers.push_back(new KMeansLayer(args.k));
 	}
 	else {
@@ -51,11 +54,23 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	CriterionLayer *criterion = new BICLayer();
+	// construct criterion layer
+	CriterionLayer *criterion;
 
-	ClusteringModel model(layers, criterion);
+	if ( args.criterion == "bic" ) {
+		criterion = new BICLayer();
+	}
+	else if ( args.criterion == "icl" ) {
+		criterion = new ICLLayer();
+	}
+	else {
+		std::cerr << "error: criterion must be 'bic' or 'icl'\n";
+		exit(1);
+	}
 
 	// perform clustering on input data
+	ClusteringModel model(layers, criterion);
+
 	std::vector<int> Y_pred = model.run(input_data);
 
 	// print clustering results

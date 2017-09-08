@@ -1,9 +1,9 @@
 /**
- * @file clustering/bic.cpp
+ * @file criterion/bic.cpp
  *
  * Implementation of the BIC layer.
  */
-#include "clustering/bic.h"
+#include "criterion/bic.h"
 
 namespace ML {
 

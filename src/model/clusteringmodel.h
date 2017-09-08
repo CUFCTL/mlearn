@@ -7,7 +7,7 @@
 #define CLUSTERINGMODEL_H
 
 #include "clustering/clustering.h"
-#include "clustering/criterion.h"
+#include "criterion/criterion.h"
 #include "data/dataset.h"
 
 namespace ML {

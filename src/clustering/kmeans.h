@@ -23,6 +23,7 @@ public:
 
 	void compute(const Matrix& X);
 
+	precision_t entropy() const { return 0; }
 	precision_t log_likelihood() const { return this->_log_likelihood; };
 	int num_parameters() const { return this->_num_parameters; };
 	int num_samples() const { return this->_num_samples; };

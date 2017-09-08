@@ -17,6 +17,7 @@ public:
 
 	virtual void compute(const Matrix& X) = 0;
 
+	virtual precision_t entropy() const = 0;
 	virtual precision_t log_likelihood() const = 0;
 	virtual int num_parameters() const = 0;
 	virtual int num_samples() const = 0;

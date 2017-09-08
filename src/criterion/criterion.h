@@ -1,5 +1,5 @@
 /**
- * @file clustering/criterion.h
+ * @file criterion/criterion.h
  *
  * Interface definitions for the abstract criterion layer.
  */

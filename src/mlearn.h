@@ -9,9 +9,11 @@
 #include "classifier/bayes.h"
 #include "classifier/knn.h"
 
-#include "clustering/bic.h"
 #include "clustering/gmm.h"
 #include "clustering/kmeans.h"
+
+#include "criterion/bic.h"
+#include "criterion/icl.h"
 
 #include "data/dataset.h"
 #include "data/genome.h"

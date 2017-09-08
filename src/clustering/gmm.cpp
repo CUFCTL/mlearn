@@ -302,6 +302,56 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, parameter_t& theta)
 }
 
 /**
+ * Compute labels for a dataset from the conditional
+ * probability matrix.
+ *
+ * @param c
+ */
+std::vector<int> compute_labels(const Matrix& c)
+{
+	int n = c.rows();
+	int k = c.cols();
+	std::vector<int> y;
+
+	for ( int i = 0; i < n; i++ ) {
+		int max_j = -1;
+		precision_t max_c;
+
+		for ( int j = 0; j < k; j++ ) {
+			if ( max_j == -1 || max_c < c.elem(i, j) ) {
+				max_j = j;
+				max_c = c.elem(i, j);
+			}
+		}
+
+		y.push_back(max_j);
+	}
+
+	return y;
+}
+
+/**
+ * Compute the entropy of a model:
+ *
+ *   E = sum(sum(z_ij * ln(c_ij), j=1:n), i=1:n)
+ *
+ * @param c
+ * @param y
+ */
+precision_t compute_entropy(const Matrix& c, const std::vector<int>& y)
+{
+	int n = c.rows();
+	int k = c.cols();
+	precision_t E = 0;
+
+	for ( int i = 0; i < n; i++ ) {
+		E += logf(c.elem(i, y[i]));
+	}
+
+	return E;
+}
+
+/**
  * Partition a matrix X of observations into
  * clusters using a Gaussian mixture model.
  *
@@ -354,29 +404,12 @@ void GMMLayer::compute(const Matrix& X)
 
 	timer_pop();
 
-	timer_push("assign labels");
-
-	std::vector<int> y;
-
-	for ( int i = 0; i < n; i++ ) {
-		int max_j = -1;
-		precision_t max_c;
-
-		for ( int j = 0; j < this->_k; j++ ) {
-			if ( max_j == -1 || max_c < c.elem(i, j) ) {
-				max_j = j;
-				max_c = c.elem(i, j);
-			}
-		}
-
-		y.push_back(max_j);
-	}
-
-	timer_pop();
-
 	// save outputs
+	std::vector<int> y = compute_labels(c);
+
+	this->_entropy = compute_entropy(c, y);
 	this->_log_likelihood = this->log_likelihood(X, theta);
-	this->_num_parameters = this->_k * d + this->_k;
+	this->_num_parameters = this->_k * (1 + d + d * d);
 	this->_num_samples = n;
 	this->_output = y;
 

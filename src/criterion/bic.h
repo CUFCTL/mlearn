@@ -1,13 +1,12 @@
 /**
- * @file clustering/bic.h
+ * @file criterion/bic.h
  *
  * Interface definitions for the BIC layer.
  */
 #ifndef BIC_H
 #define BIC_H
 
-#include <vector>
-#include "clustering/criterion.h"
+#include "criterion/criterion.h"
 
 namespace ML {
 
