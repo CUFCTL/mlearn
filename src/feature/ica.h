@@ -31,6 +31,7 @@ public:
 	Matrix W;
 
 	ICALayer(int n1, int n2, ICANonl nonl, int max_iter, precision_t eps);
+	ICALayer() : ICALayer(-1, -1, ICANonl::pow3, 1000, 0.0001f) {};
 
 	void compute(const Matrix& X, const std::vector<DataEntry>& y, int c);
 	Matrix project(const Matrix& X);

@@ -10,8 +10,9 @@
 using namespace ML;
 
 typedef struct {
-	std::string filename;
-	std::string method;
+	std::string path_input;
+	std::string feature;
+	std::string clustering;
 	std::string criterion;
 	int k;
 } args_t;
@@ -19,8 +20,8 @@ typedef struct {
 int main(int argc, char **argv)
 {
 	// parse command-line arguments
-	if ( argc != 4 ) {
-		std::cerr << "usage: ./test-clustering [method] [criterion] [k]\n";
+	if ( argc != 5 ) {
+		std::cerr << "usage: ./test-clustering [feature] [clustering] [criterion] [k]\n";
 		exit(1);
 	}
 
@@ -28,7 +29,8 @@ int main(int argc, char **argv)
 		"test/data/iris.train",
 		argv[1],
 		argv[2],
-		atoi(argv[3])
+		argv[3],
+		atoi(argv[4])
 	};
 
 	GPU = true;
@@ -38,19 +40,39 @@ int main(int argc, char **argv)
 	gpu_init();
 
 	// load input dataset
-	Dataset input_data(nullptr, args.filename);
+	Dataset input_data(nullptr, args.path_input);
+
+	// construct feature layer
+	FeatureLayer *feature;
+
+	if ( args.feature == "identity" ) {
+		feature = new IdentityLayer();
+	}
+	else if ( args.feature == "pca" ) {
+		feature = new PCALayer();
+	}
+	else if ( args.feature == "lda" ) {
+		feature = new LDALayer();
+	}
+	else if ( args.feature == "ica" ) {
+		feature = new ICALayer();
+	}
+	else {
+		std::cerr << "error: feature must be identity | pca | lda | ica\n";
+		exit(1);
+	}
 
 	// construct clustering layer
 	std::vector<ClusteringLayer *> layers;
 
-	if ( args.method == "gmm" ) {
+	if ( args.clustering == "gmm" ) {
 		layers.push_back(new GMMLayer(args.k));
 	}
-	else if ( args.method == "k-means" ) {
+	else if ( args.clustering == "k-means" ) {
 		layers.push_back(new KMeansLayer(args.k));
 	}
 	else {
-		std::cerr << "error: method must be 'gmm' or 'k-means'\n";
+		std::cerr << "error: clustering must be 'gmm' or 'k-means'\n";
 		exit(1);
 	}
 
@@ -69,9 +91,10 @@ int main(int argc, char **argv)
 	}
 
 	// perform clustering on input data
-	ClusteringModel model(layers, criterion);
+	ClusteringModel model(feature, layers, criterion);
 
-	std::vector<int> Y_pred = model.run(input_data);
+	model.extract(input_data);
+	std::vector<int> Y_pred = model.predict();
 
 	// print clustering results
 	log(LL_INFO, "Results");

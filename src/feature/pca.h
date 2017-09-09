@@ -19,6 +19,7 @@ public:
 	Matrix D;
 
 	PCALayer(int n1);
+	PCALayer() : PCALayer(-1) {}
 
 	void compute(const Matrix& X, const std::vector<DataEntry>& y, int c);
 	Matrix project(const Matrix& X);

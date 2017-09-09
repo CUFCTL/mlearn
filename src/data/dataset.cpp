@@ -316,24 +316,24 @@ void Dataset::load(std::ifstream& file)
 void Dataset::print() const
 {
 	// print path
-	log(LL_INFO, "path: %s", this->_path.c_str());
-	log(LL_INFO, "");
+	log(LL_VERBOSE, "path: %s", this->_path.c_str());
+	log(LL_VERBOSE, "");
 
 	// print labels
-	log(LL_INFO, "%d classes", this->_labels.size());
+	log(LL_VERBOSE, "%d classes", this->_labels.size());
 
 	for ( const DataLabel& label : this->_labels ) {
-		log(LL_INFO, "%s", label.c_str());
+		log(LL_VERBOSE, "%s", label.c_str());
 	}
-	log(LL_INFO, "");
+	log(LL_VERBOSE, "");
 
 	// print entries
-	log(LL_INFO, "%d entries", this->_entries.size());
+	log(LL_VERBOSE, "%d entries", this->_entries.size());
 
 	for ( const DataEntry& entry : this->_entries ) {
-		log(LL_INFO, "%-8s  %s", entry.label.c_str(), entry.name.c_str());
+		log(LL_VERBOSE, "%-8s  %s", entry.label.c_str(), entry.name.c_str());
 	}
-	log(LL_INFO, "");
+	log(LL_VERBOSE, "");
 }
 
 }

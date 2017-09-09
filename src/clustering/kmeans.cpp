@@ -139,9 +139,8 @@ void KMeansLayer::compute(const Matrix& X)
  */
 void KMeansLayer::print() const
 {
-	log(LL_INFO, "k-means");
-	log(LL_INFO, "  k: %d", this->_k);
-	log(LL_INFO, "");
+	log(LL_VERBOSE, "k-means");
+	log(LL_VERBOSE, "  %-20s  %10d", "k", this->_k);
 }
 
 }

@@ -9,21 +9,26 @@
 #include "clustering/clustering.h"
 #include "criterion/criterion.h"
 #include "data/dataset.h"
+#include "feature/feature.h"
 
 namespace ML {
 
 class ClusteringModel {
 private:
-	// layers
-	// InitLayer *_init;
+	Dataset _input;
+
+	FeatureLayer *_feature;
+	Matrix _P;
+
 	std::vector<ClusteringLayer *> _layers;
 	CriterionLayer *_criterion;
 
 public:
-	ClusteringModel(const std::vector<ClusteringLayer *>& layers, CriterionLayer *criterion);
+	ClusteringModel(FeatureLayer *feature, const std::vector<ClusteringLayer *>& layers, CriterionLayer *criterion);
 	~ClusteringModel() {};
 
-	std::vector<int> run(const Dataset& input);
+	void extract(const Dataset& input);
+	std::vector<int> predict();
 };
 
 }

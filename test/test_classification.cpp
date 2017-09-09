@@ -9,28 +9,73 @@
 
 using namespace ML;
 
+typedef struct {
+	std::string path_train;
+	std::string path_test;
+	std::string feature;
+	std::string classifier;
+} args_t;
+
 int main(int argc, char **argv)
 {
-	gpu_init();
-
-	if ( argc != 1 ) {
-		std::cerr << "usage: ./test-classification\n";
+	// parse command-line arguments
+	if ( argc != 3 ) {
+		std::cerr << "usage: ./test-classification [feature] [classifier]\n";
 		exit(1);
 	}
 
-	const char *train_filename = "test/data/iris.train";
-	const char *test_filename = "test/data/iris.test";
+	args_t args = {
+		"test/data/iris.train",
+		"test/data/iris.test",
+		argv[1],
+		argv[2]
+	};
 
-	// set loglevel
+	GPU = true;
 	LOGLEVEL = LL_VERBOSE;
 
-	// load train set, test set
-	Dataset train_set(nullptr, train_filename);
-	Dataset test_set(nullptr, test_filename, false);
+	// initialize GPU if enabled
+	gpu_init();
 
-	// create clustering model
-	FeatureLayer *feature = new PCALayer(-1);
-	ClassifierLayer *classifier = new KNNLayer(1, m_dist_L1);
+	// load train set, test set
+	Dataset train_set(nullptr, args.path_train);
+	Dataset test_set(nullptr, args.path_test, false);
+
+	// construct feature layer
+	FeatureLayer *feature;
+
+	if ( args.feature == "identity" ) {
+		feature = new IdentityLayer();
+	}
+	else if ( args.feature == "pca" ) {
+		feature = new PCALayer();
+	}
+	else if ( args.feature == "lda" ) {
+		feature = new LDALayer();
+	}
+	else if ( args.feature == "ica" ) {
+		feature = new ICALayer();
+	}
+	else {
+		std::cerr << "error: feature must be identity | pca | lda | ica\n";
+		exit(1);
+	}
+
+	// construct classifier layer
+	ClassifierLayer *classifier;
+
+	if ( args.classifier == "knn" ) {
+		classifier = new KNNLayer();
+	}
+	else if ( args.classifier == "bayes" ) {
+		classifier = new BayesLayer();
+	}
+	else {
+		std::cerr << "error: classifier must be 'knn' or 'bayes'\n";
+		exit(1);
+	}
+
+	// create classification model
 	ClassificationModel model(feature, classifier);
 
 	// train the model with the training set
@@ -41,7 +86,7 @@ int main(int argc, char **argv)
 	test_set.print();
 	std::vector<DataLabel> Y_pred = model.predict(test_set);
 
-	// print results
+	// print classification results
 	log(LL_INFO, "Results");
 
 	for ( size_t i = 0; i < test_set.entries().size(); i++ ) {

@@ -19,6 +19,7 @@ public:
 	Matrix W;
 
 	LDALayer(int n1, int n2);
+	LDALayer() : LDALayer(-1, -1) {};
 
 	void compute(const Matrix& X, const std::vector<DataEntry>& y, int c);
 	Matrix project(const Matrix& X);

@@ -4,6 +4,7 @@
  * Implementation of the BIC layer.
  */
 #include "criterion/bic.h"
+#include "util/logger.h"
 
 namespace ML {
 
@@ -21,6 +22,14 @@ float BICLayer::compute(ClusteringLayer *layer)
 	precision_t L = layer->log_likelihood();
 
 	return logf(n) * k - 2 * L;
+}
+
+/**
+ * Print a BIC layer.
+ */
+void BICLayer::print() const
+{
+	log(LL_VERBOSE, "BIC");
 }
 
 }

@@ -13,6 +13,8 @@ namespace ML {
 class BICLayer : public CriterionLayer {
 public:
 	float compute(ClusteringLayer *layer);
+
+	void print() const;
 };
 
 }

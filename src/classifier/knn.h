@@ -18,6 +18,7 @@ private:
 
 public:
 	KNNLayer(int k, dist_func_t dist);
+	KNNLayer() : KNNLayer(1, m_dist_L1) {};
 
 	std::vector<DataLabel> predict(
 		const Matrix& X,

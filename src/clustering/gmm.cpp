@@ -421,9 +421,8 @@ void GMMLayer::compute(const Matrix& X)
  */
 void GMMLayer::print() const
 {
-	log(LL_INFO, "Gaussian mixture model");
-	log(LL_INFO, "  k: %d", this->_k);
-	log(LL_INFO, "");
+	log(LL_VERBOSE, "Gaussian mixture model");
+	log(LL_VERBOSE, "  %-20s  %10d", "k", this->_k);
 }
 
 }
