@@ -14,26 +14,24 @@ namespace ML {
  * Construct a clustering model.
  *
  * @param feature
- * @param layers
- * @param criterion
+ * @param clustering
  */
-ClusteringModel::ClusteringModel(FeatureLayer *feature, const std::vector<ClusteringLayer *>& layers, CriterionLayer *criterion)
+ClusteringModel::ClusteringModel(FeatureLayer *feature, ClusteringLayer *clustering)
 {
 	// initialize layers
 	this->_feature = feature;
-	this->_layers = layers;
-	this->_criterion = criterion;
+	this->_clustering = clustering;
+
+	// initialize stats
+	this->_stats.error_rate = 0.0f;
+	this->_stats.extract_time = 0.0f;
+	this->_stats.predict_time = 0.0f;
 
 	// log hyperparameters
 	log(LL_VERBOSE, "Hyperparameters");
 
 	this->_feature->print();
-
-	for ( ClusteringLayer *layer : this->_layers ) {
-		layer->print();
-	}
-
-	this->_criterion->print();
+	this->_clustering->print();
 
 	log(LL_VERBOSE, "");
 }
@@ -65,7 +63,8 @@ void ClusteringModel::extract(const Dataset& input)
 	this->_feature->compute(X, this->_input.entries(), this->_input.labels().size());
 	this->_P = this->_feature->project(X);
 
-	timer_pop();
+	// record extraction time
+	this->_stats.extract_time = timer_pop();
 
 	log(LL_VERBOSE, "");
 }
@@ -77,35 +76,53 @@ std::vector<int> ClusteringModel::predict()
 {
 	timer_push("Clustering");
 
-	// run and evaluate each clustering layer
-	std::vector<float> values;
+	// run clustering layer
+	this->_clustering->compute(this->_P);
 
-	for ( size_t i = 0; i < this->_layers.size(); i++ ) {
-		ClusteringLayer *layer = this->_layers[i];
-		layer->compute(this->_P);
+	// record prediction time
+	this->_stats.predict_time = timer_pop();
 
-		float value = this->_criterion->compute(layer);
-		values.push_back(value);
+	return this->_clustering->output();
+}
 
-		log(LL_VERBOSE, "model %lu criterion: %f", i, value);
-		log(LL_VERBOSE, "");
-	}
+/**
+ * Validate a set of predicted labels against the ground truth.
+ *
+ * @param Y_pred
+ */
+void ClusteringModel::validate(const std::vector<int>& Y_pred)
+{
+	// compute purity
+	precision_t purity = 0;
 
-	// select the layer with the lowest criterion value
-	size_t min_index = 0;
+	int c = this->_input.labels().size();
+	int n = this->_input.entries().size();
+	int k = this->_clustering->num_clusters();
 
-	for ( size_t i = 0; i < values.size(); i++ ) {
-		if ( values[i] < values[min_index] ) {
-			min_index = i;
+	for ( int i = 0; i < k; i++ ) {
+		int max_correct = 0;
+
+		for ( int j = 0; j < c; j++ ) {
+			int num_correct = 0;
+
+			for ( int p = 0; p < n; p++ ) {
+				if ( Y_pred[p] == i && this->_input.entries()[p].label == this->_input.labels()[j] ) {
+					num_correct++;
+				}
+			}
+
+			if ( max_correct < num_correct ) {
+				max_correct = num_correct;
+			}
 		}
+
+		purity += max_correct;
 	}
 
-	log(LL_VERBOSE, "selecting model %d", min_index);
-	log(LL_VERBOSE, "");
+	purity /= n;
 
-	timer_pop();
-
-	return this->_layers[min_index]->output();
+	// compute error rate
+	this->_stats.error_rate = 1 - purity;
 }
 
 /**
@@ -126,7 +143,21 @@ void ClusteringModel::print_results(const std::vector<int>& Y_pred) const
 			entry.label.c_str(),
 			y_pred);
 	}
+
+	log(LL_VERBOSE, "Error rate: %.3f", this->_stats.error_rate);
 	log(LL_VERBOSE, "");
+}
+
+/**
+ * Print a model's performance and accuracy statistics.
+ */
+void ClusteringModel::print_stats() const
+{
+	std::cout
+		<< std::setw(12) << std::setprecision(3) << this->_stats.error_rate
+		<< std::setw(12) << std::setprecision(3) << this->_stats.extract_time
+		<< std::setw(12) << std::setprecision(3) << this->_stats.predict_time
+		<< "\n";
 }
 
 }

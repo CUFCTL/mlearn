@@ -22,18 +22,26 @@ private:
 	FeatureLayer *_feature;
 	Matrix _P;
 
-	// clustering, criterion layers
-	std::vector<ClusteringLayer *> _layers;
-	CriterionLayer *_criterion;
+	// clustering layer
+	ClusteringLayer *_clustering;
+
+	// performance, accuracy stats
+	struct {
+		float error_rate;
+		float extract_time;
+		float predict_time;
+	} _stats;
 
 public:
-	ClusteringModel(FeatureLayer *feature, const std::vector<ClusteringLayer *>& layers, CriterionLayer *criterion);
+	ClusteringModel(FeatureLayer *feature, ClusteringLayer *clustering);
 	~ClusteringModel() {};
 
 	void extract(const Dataset& input);
 	std::vector<int> predict();
+	void validate(const std::vector<int>& Y_pred);
 
 	void print_results(const std::vector<int>& Y_pred) const;
+	void print_stats() const;
 };
 
 }

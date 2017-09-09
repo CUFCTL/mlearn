@@ -25,7 +25,7 @@ ClassificationModel::ClassificationModel(FeatureLayer *feature, ClassifierLayer 
 	// initialize stats
 	this->_stats.error_rate = 0.0f;
 	this->_stats.train_time = 0.0f;
-	this->_stats.test_time = 0.0f;
+	this->_stats.predict_time = 0.0f;
 
 	// log hyperparameters
 	log(LL_VERBOSE, "Hyperparameters");
@@ -130,8 +130,8 @@ std::vector<DataLabel> ClassificationModel::predict(const Dataset& test_set)
 		P_test
 	);
 
-	// record predition time
-	this->_stats.test_time = timer_pop();
+	// record prediction time
+	this->_stats.predict_time = timer_pop();
 
 	log(LL_VERBOSE, "");
 
@@ -190,7 +190,7 @@ void ClassificationModel::print_stats() const
 	std::cout
 		<< std::setw(12) << std::setprecision(3) << this->_stats.error_rate
 		<< std::setw(12) << std::setprecision(3) << this->_stats.train_time
-		<< std::setw(12) << std::setprecision(3) << this->_stats.test_time
+		<< std::setw(12) << std::setprecision(3) << this->_stats.predict_time
 		<< "\n";
 }
 

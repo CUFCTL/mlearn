@@ -63,13 +63,13 @@ int main(int argc, char **argv)
 	}
 
 	// construct clustering layer
-	std::vector<ClusteringLayer *> layers;
+	ClusteringLayer *clustering;
 
 	if ( args.clustering == "gmm" ) {
-		layers.push_back(new GMMLayer(args.k));
+		clustering = new GMMLayer(args.k);
 	}
 	else if ( args.clustering == "k-means" ) {
-		layers.push_back(new KMeansLayer(args.k));
+		clustering = new KMeansLayer(args.k);
 	}
 	else {
 		std::cerr << "error: clustering must be 'gmm' or 'k-means'\n";
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 	}
 
 	// create clustering model
-	ClusteringModel model(feature, layers, criterion);
+	ClusteringModel model(feature, clustering);
 
 	// extract features from input data
 	model.extract(input_data);
@@ -100,7 +100,14 @@ int main(int argc, char **argv)
 	std::vector<int> Y_pred = model.predict();
 
 	// print clustering results
+	model.validate(Y_pred);
 	model.print_results(Y_pred);
+
+	// evaluate criterion of clustering model
+	float value = criterion->compute(clustering);
+
+	log(LL_VERBOSE, "criterion value: %f", value);
+	log(LL_VERBOSE, "");
 
 	// print timing results
 	timer_print();

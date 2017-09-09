@@ -24,10 +24,11 @@ public:
 	void compute(const Matrix& X);
 
 	precision_t entropy() const { return 0; }
-	precision_t log_likelihood() const { return this->_log_likelihood; };
-	int num_parameters() const { return this->_num_parameters; };
-	int num_samples() const { return this->_num_samples; };
-	inline std::vector<int> output() const { return this->_output; };
+	precision_t log_likelihood() const { return this->_log_likelihood; }
+	int num_clusters() const { return this->_k; }
+	int num_parameters() const { return this->_num_parameters; }
+	int num_samples() const { return this->_num_samples; }
+	inline std::vector<int> output() const { return this->_output; }
 
 	void print() const;
 };

@@ -13,12 +13,6 @@
 
 namespace ML {
 
-typedef struct {
-	float error_rate;
-	float train_time;
-	float test_time;
-} model_stats_t;
-
 class ClassificationModel {
 private:
 	// input data
@@ -33,7 +27,11 @@ private:
 	ClassifierLayer *_classifier;
 
 	// performance, accuracy stats
-	model_stats_t _stats;
+	struct {
+		float error_rate;
+		float train_time;
+		float predict_time;
+	} _stats;
 
 public:
 	ClassificationModel(FeatureLayer *feature, ClassifierLayer *classifier);
