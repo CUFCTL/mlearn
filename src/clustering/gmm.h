@@ -7,14 +7,9 @@
 #define GMM_H
 
 #include "clustering/clustering.h"
+#include "clustering/parameterset.h"
 
 namespace ML {
-
-typedef struct {
-	std::vector<precision_t> p;
-	std::vector<Matrix> mu;
-	std::vector<Matrix> S;
-} parameter_t;
 
 class GMMLayer : public ClusteringLayer {
 private:
@@ -25,11 +20,9 @@ private:
 	int _num_samples;
 	std::vector<int> _output;
 
-	Matrix pdf_all(const Matrix& X, const parameter_t& theta);
-	precision_t log_likelihood(const Matrix& X, const parameter_t& theta);
-	parameter_t initialize(const Matrix& X, int num_init, bool small_em=false);
-	void E_step(const Matrix& X, const parameter_t& theta, Matrix& c);
-	void M_step(const Matrix& X, const Matrix& c, parameter_t& theta);
+	ParameterSet initialize(const Matrix& X, int num_init, bool small_em=false);
+	void E_step(const Matrix& X, const ParameterSet& theta, Matrix& c);
+	void M_step(const Matrix& X, const Matrix& c, ParameterSet& theta);
 
 public:
 	GMMLayer(int k);
