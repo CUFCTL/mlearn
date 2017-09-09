@@ -5,6 +5,7 @@
  */
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
 #include "math/matrix_utils.h"
 
 namespace ML {
@@ -105,6 +106,45 @@ precision_t m_dist_L2(const Matrix& A, int i, const Matrix& B, int j)
 }
 
 /**
+ * Copy a matrix X into a list of column vectors.
+ *
+ * @param X
+ */
+std::vector<Matrix> m_copy_columns(const Matrix& X)
+{
+	std::vector<Matrix> X_col;
+
+	X_col.reserve(X.cols());
+
+	for ( size_t i = 0; i < X.cols(); i++ ) {
+		X_col.push_back(X(i));
+	}
+
+	return X_col;
+}
+
+/**
+ * Select k random columns from a matrix X.
+ *
+ * @param X
+ * @param k
+ */
+std::vector<Matrix> m_random_sample(const Matrix& X, int k)
+{
+	std::vector<Matrix> samples;
+
+	samples.reserve(k);
+
+	for ( int i = 0; i < k; i++ ) {
+		int j = lrand48() % X.cols();
+
+		samples.push_back(X(j));
+	}
+
+	return samples;
+}
+
+/**
  * Copy a matrix X into a list X_c of class
  * submatrices.
  *
@@ -118,6 +158,8 @@ precision_t m_dist_L2(const Matrix& A, int i, const Matrix& B, int j)
 std::vector<Matrix> m_copy_classes(const Matrix& X, const std::vector<DataEntry>& y, int c)
 {
 	std::vector<Matrix> X_c;
+
+	X_c.reserve(c);
 
 	int i, j;
 	for ( i = 0, j = 0; i < c; i++ ) {
@@ -145,6 +187,8 @@ std::vector<Matrix> m_class_means(const std::vector<Matrix>& X_c)
 {
 	std::vector<Matrix> U;
 
+	U.reserve(X_c.size());
+
 	for ( const Matrix& X_c_i : X_c ) {
 		U.push_back(X_c_i.mean_column());
 	}
@@ -164,6 +208,8 @@ std::vector<Matrix> m_class_means(const std::vector<Matrix>& X_c)
 std::vector<Matrix> m_class_scatters(const std::vector<Matrix>& X_c, const std::vector<Matrix>& U)
 {
 	std::vector<Matrix> S;
+
+	S.reserve(X_c.size());
 
 	for ( size_t i = 0; i < X_c.size(); i++ ) {
 		Matrix X_c_i = X_c[i];

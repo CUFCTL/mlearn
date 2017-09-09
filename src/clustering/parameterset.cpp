@@ -4,7 +4,6 @@
  * Implementation of the parameter set.
  */
 #include <cmath>
-#include <cstdlib>
 #include "clustering/parameterset.h"
 #include "math/matrix_utils.h"
 
@@ -101,10 +100,7 @@ void ParameterSet::initialize(const Matrix& X)
 	int d = X.rows();
 
 	// choose k means randomly from data
-	for ( int j = 0; j < this->_k; j++ ) {
-		int i = lrand48() % n;
-		this->_mu.push_back(X(i));
-	}
+	this->_mu = m_random_sample(X, this->_k);
 
 	// compute conditional probabilities (using nearest neighbor)
 	Matrix c = Matrix::zeros(n, this->_k);
