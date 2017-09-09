@@ -80,13 +80,14 @@ std::vector<int> ClusteringModel::predict()
 	// run and evaluate each clustering layer
 	std::vector<float> values;
 
-	for ( ClusteringLayer *layer : this->_layers ) {
+	for ( size_t i = 0; i < this->_layers.size(); i++ ) {
+		ClusteringLayer *layer = this->_layers[i];
 		layer->compute(this->_P);
 
 		float value = this->_criterion->compute(layer);
 		values.push_back(value);
 
-		log(LL_VERBOSE, "criterion value: %f", value);
+		log(LL_VERBOSE, "model %lu criterion: %f", i, value);
 		log(LL_VERBOSE, "");
 	}
 

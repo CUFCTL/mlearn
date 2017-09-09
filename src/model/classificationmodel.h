@@ -37,7 +37,7 @@ private:
 
 public:
 	ClassificationModel(FeatureLayer *feature, ClassifierLayer *classifier);
-	~ClassificationModel();
+	~ClassificationModel() {};
 
 	void save(const std::string& path);
 	void load(const std::string& path);

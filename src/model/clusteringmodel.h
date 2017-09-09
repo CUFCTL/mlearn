@@ -15,11 +15,14 @@ namespace ML {
 
 class ClusteringModel {
 private:
+	// input data
 	Dataset _input;
 
+	// feature layer
 	FeatureLayer *_feature;
 	Matrix _P;
 
+	// clustering, criterion layers
 	std::vector<ClusteringLayer *> _layers;
 	CriterionLayer *_criterion;
 

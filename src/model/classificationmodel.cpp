@@ -37,15 +37,6 @@ ClassificationModel::ClassificationModel(FeatureLayer *feature, ClassifierLayer 
 }
 
 /**
- * Destruct a model.
- */
-ClassificationModel::~ClassificationModel()
-{
-	delete this->_feature;
-	delete this->_classifier;
-}
-
-/**
  * Save a model to a file.
  *
  * @param path

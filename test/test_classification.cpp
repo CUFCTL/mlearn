@@ -78,12 +78,10 @@ int main(int argc, char **argv)
 	// create classification model
 	ClassificationModel model(feature, classifier);
 
-	// train the model with the training set
-	train_set.print();
+	// extract features from training set
 	model.train(train_set);
 
-	// classify the test set with the trained model
-	test_set.print();
+	// perform classification on test set
 	std::vector<DataLabel> Y_pred = model.predict(test_set);
 
 	// print classification results

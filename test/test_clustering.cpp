@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 	// initialize GPU if enabled
 	gpu_init();
 
-	// load input dataset
+	// load input data
 	Dataset input_data(nullptr, args.path_input);
 
 	// construct feature layer
@@ -90,10 +90,13 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	// perform clustering on input data
+	// create clustering model
 	ClusteringModel model(feature, layers, criterion);
 
+	// extract features from input data
 	model.extract(input_data);
+
+	// perform clustering on input data
 	std::vector<int> Y_pred = model.predict();
 
 	// print clustering results
