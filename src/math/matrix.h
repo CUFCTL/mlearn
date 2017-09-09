@@ -24,7 +24,6 @@ void gpu_init();
 void gpu_finalize();
 
 #define ELEM(M, i, j) (M)._data_cpu[(j) * (M)._rows + (i)]
-#define TRAN(M) (*M.T)
 
 class Matrix {
 private:
@@ -33,10 +32,9 @@ private:
 	precision_t *_data_cpu;
 	precision_t *_data_gpu;
 	bool _transposed;
+	Matrix *_T;
 
 public:
-	Matrix *T;
-
 	// constructor, destructor functions
 	Matrix(int rows, int cols);
 	Matrix(int rows, int cols, precision_t *data);
@@ -64,6 +62,7 @@ public:
 	inline int rows() const { return this->_rows; }
 	inline int cols() const { return this->_cols; }
 	inline precision_t& elem(int i, int j) const { return ELEM(*this, i, j); }
+	inline Matrix& T() const { return *(this->_T); }
 
 	precision_t determinant() const;
 	Matrix diagonalize() const;

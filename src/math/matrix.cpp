@@ -128,15 +128,15 @@ Matrix::Matrix(int rows, int cols)
 	this->_data_cpu = new precision_t[rows * cols];
 	this->_data_gpu = gpu_malloc_matrix(rows, cols);
 	this->_transposed = false;
-	this->T = new Matrix();
+	this->_T = new Matrix();
 
 	// initialize transpose
-	this->T->_rows = rows;
-	this->T->_cols = cols;
-	this->T->_data_cpu = this->_data_cpu;
-	this->T->_data_gpu = this->_data_gpu;
-	this->T->_transposed = true;
-	this->T->T = nullptr;
+	this->_T->_rows = rows;
+	this->_T->_cols = cols;
+	this->_T->_data_cpu = this->_data_cpu;
+	this->_T->_data_gpu = this->_data_gpu;
+	this->_T->_transposed = true;
+	this->_T->_T = nullptr;
 }
 
 /**
@@ -210,7 +210,7 @@ Matrix::Matrix()
 	this->_data_cpu = nullptr;
 	this->_data_gpu = nullptr;
 	this->_transposed = false;
-	this->T = nullptr;
+	this->_T = nullptr;
 }
 
 /**
@@ -222,7 +222,7 @@ Matrix::~Matrix()
 		delete[] this->_data_cpu;
 		gpu_free(this->_data_gpu);
 
-		delete this->T;
+		delete this->_T;
 	}
 }
 
@@ -848,17 +848,17 @@ Matrix Matrix::transpose() const
 		this->_cols, this->_rows,
 		this->_rows, this->_cols);
 
-	Matrix T(this->_cols, this->_rows);
+	Matrix MT(this->_cols, this->_rows);
 
-	for ( int i = 0; i < T._rows; i++ ) {
-		for ( int j = 0; j < T._cols; j++ ) {
-			ELEM(T, i, j) = ELEM(*this, j, i);
+	for ( int i = 0; i < MT._rows; i++ ) {
+		for ( int j = 0; j < MT._cols; j++ ) {
+			ELEM(MT, i, j) = ELEM(*this, j, i);
 		}
 	}
 
-	T.gpu_write();
+	MT.gpu_write();
 
-	return T;
+	return MT;
 }
 
 /**
@@ -1090,7 +1090,7 @@ void swap(Matrix& A, Matrix& B)
 	std::swap(A._data_cpu, B._data_cpu);
 	std::swap(A._data_gpu, B._data_gpu);
 	std::swap(A._transposed, B._transposed);
-	std::swap(A.T, B.T);
+	std::swap(A._T, B._T);
 }
 
 }

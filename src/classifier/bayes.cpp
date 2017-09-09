@@ -29,7 +29,7 @@ precision_t bayes_prob(Matrix x, const Matrix& mu, const Matrix& S_inv)
 {
 	x -= mu;
 
-	return -0.5f * (TRAN(x) * S_inv * x).elem(0, 0);
+	return -0.5f * (x.T() * S_inv * x).elem(0, 0);
 }
 
 /**

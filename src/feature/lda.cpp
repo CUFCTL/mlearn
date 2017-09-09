@@ -93,7 +93,7 @@ void LDALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
  */
 Matrix LDALayer::project(const Matrix& X)
 {
-	return TRAN(this->W) * X;
+	return this->W.T() * X;
 }
 
 /**

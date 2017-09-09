@@ -43,7 +43,7 @@ GMMLayer::GMMLayer(int k)
 precision_t pdf(Matrix x, const Matrix& mu, precision_t S_det, const Matrix& S_inv)
 {
 	x -= mu;
-	Matrix temp = TRAN(x) * S_inv * x;
+	Matrix temp = x.T() * S_inv * x;
 
 	return powf(2 * M_PI, x.rows() / 2.0f) * powf(S_det, -0.5f) * expf(-0.5f * temp.elem(0, 0));
 }
@@ -156,7 +156,7 @@ parameter_t random_parameter(const Matrix& X, int k)
 		for ( int i = 0; i < n; i++ ) {
 			if ( c.elem(i, j) > 0 ) {
 				Matrix x_i = X(i) - theta.mu[j];
-				Matrix W_ji = x_i * TRAN(x_i);
+				Matrix W_ji = x_i * x_i.T();
 
 				W_ji *= c.elem(i, j);
 				W_j += W_ji;
@@ -289,7 +289,7 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, parameter_t& theta)
 
 		for ( int i = 0; i < n; i++ ) {
 			Matrix x_i = X(i) - theta.mu[j];
-			Matrix W_ji = x_i * TRAN(x_i);
+			Matrix W_ji = x_i * x_i.T();
 
 			W_ji *= c.elem(i, j);
 			W_j += W_ji;

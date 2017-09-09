@@ -65,7 +65,7 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 	D.elem_apply(sqrtf);
 	D = D.inverse();
 
-	Matrix W_z = D * TRAN(pca.W);
+	Matrix W_z = D * pca.W.T();
 
 	// compute whitened input U = W_z * mixedsig
 	Matrix U = W_z * mixedsig;
@@ -103,7 +103,7 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
  */
 Matrix ICALayer::project(const Matrix& X)
 {
-	return TRAN(this->W) * X;
+	return this->W.T() * X;
 }
 
 /**
@@ -167,7 +167,7 @@ void ICALayer::print()
  */
 Matrix fpica_pow3 (const Matrix& w0, const Matrix& X)
 {
-	Matrix w_temp1 = TRAN(X) * w0;
+	Matrix w_temp1 = X.T() * w0;
 	w_temp1.elem_apply(pow3);
 
 	Matrix w = X * w_temp1;
@@ -193,7 +193,7 @@ Matrix fpica_pow3 (const Matrix& w0, const Matrix& X)
  */
 Matrix fpica_tanh (const Matrix& w0, const Matrix& X)
 {
-	Matrix w_temp1 = TRAN(X) * w0;
+	Matrix w_temp1 = X.T() * w0;
 	Matrix w_temp2 = w_temp1;
 
 	w_temp1.elem_apply(tanhf);
@@ -243,7 +243,7 @@ precision_t dgauss (precision_t x)
  */
 Matrix fpica_gauss (const Matrix& w0, const Matrix& X)
 {
-	Matrix w_temp1 = TRAN(X) * w0;
+	Matrix w_temp1 = X.T() * w0;
 	Matrix w_temp2 = w_temp1;
 
 	w_temp1.elem_apply(gauss);
@@ -295,7 +295,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 		Matrix w = Matrix::random(n2, 1);
 
 		// compute w = w - B * B' * w, normalize w
-		w -= B * TRAN(B) * w;
+		w -= B * B.T() * w;
 		w /= w.norm();
 
 		// initialize w0
@@ -304,7 +304,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 		int j;
 		for ( j = 0; j < this->max_iter; j++ ) {
 			// compute w = w - B * B' * w, normalize w
-			w -= B * TRAN(B) * w;
+			w -= B * B.T() * w;
 			w /= w.norm();
 
 			// determine whether the direction of w and w0 are equal
@@ -317,7 +317,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 				B.assign_column(i, w, 0);
 
 				// save W_mix(i, :) = w' * W_z
-				W_mix.assign_row(i, TRAN(w) * W_z, 0);
+				W_mix.assign_row(i, w.T() * W_z, 0);
 
 				// continue to the next round
 				break;

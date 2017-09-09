@@ -44,7 +44,7 @@ void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 	if ( X.rows() > X.cols() ) {
 		timer_push("compute surrogate of covariance matrix L");
 
-		Matrix L = TRAN(X) * X;
+		Matrix L = X.T() * X;
 
 		timer_pop();
 
@@ -64,7 +64,7 @@ void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 	else {
 		timer_push("compute covariance matrix C");
 
-		Matrix C = X * TRAN(X);
+		Matrix C = X * X.T();
 
 		timer_pop();
 
@@ -85,7 +85,7 @@ void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
  */
 Matrix PCALayer::project(const Matrix& X)
 {
-	return TRAN(this->W) * X;
+	return this->W.T() * X;
 }
 
 /**
