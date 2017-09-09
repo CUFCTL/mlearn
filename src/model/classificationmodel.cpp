@@ -146,7 +146,6 @@ std::vector<DataLabel> ClassificationModel::predict(const Dataset& test_set)
  */
 void ClassificationModel::validate(const Dataset& test_set, const std::vector<DataLabel>& Y_pred)
 {
-	// compute error rate
 	int num_errors = 0;
 
 	for ( size_t i = 0; i < test_set.entries().size(); i++ ) {
@@ -156,8 +155,16 @@ void ClassificationModel::validate(const Dataset& test_set, const std::vector<Da
 	}
 
 	this->_stats.error_rate = (float) num_errors / test_set.entries().size();
+}
 
-	// print results
+/**
+ * Print prediction results of a model.
+ *
+ * @param test_set
+ * @param Y_pred
+ */
+void ClassificationModel::print_results(const Dataset& test_set, const std::vector<DataLabel>& Y_pred) const
+{
 	log(LL_VERBOSE, "Results");
 
 	for ( size_t i = 0; i < test_set.entries().size(); i++ ) {
@@ -171,14 +178,14 @@ void ClassificationModel::validate(const Dataset& test_set, const std::vector<Da
 		log(LL_VERBOSE, "%-12s -> %-4s %s", entry.name.c_str(), y_pred.c_str(), s);
 	}
 
-	log(LL_VERBOSE, "Error rate: %d / %d, %.3f", num_errors, test_set.entries().size(), this->_stats.error_rate);
+	log(LL_VERBOSE, "Error rate: %.3f", this->_stats.error_rate);
 	log(LL_VERBOSE, "");
 }
 
 /**
  * Print a model's performance and accuracy statistics.
  */
-void ClassificationModel::print_stats()
+void ClassificationModel::print_stats() const
 {
 	std::cout
 		<< std::setw(12) << std::setprecision(3) << this->_stats.error_rate

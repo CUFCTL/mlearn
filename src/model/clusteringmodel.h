@@ -32,6 +32,8 @@ public:
 
 	void extract(const Dataset& input);
 	std::vector<int> predict();
+
+	void print_results(const std::vector<int>& Y_pred) const;
 };
 
 }

@@ -100,18 +100,7 @@ int main(int argc, char **argv)
 	std::vector<int> Y_pred = model.predict();
 
 	// print clustering results
-	log(LL_INFO, "Results");
-
-	for ( size_t i = 0; i < input_data.entries().size(); i++ ) {
-		int y_pred = Y_pred[i];
-		const DataEntry& entry = input_data.entries()[i];
-
-		log(LL_INFO, "%-4s (%s) -> %d",
-			entry.name.c_str(),
-			entry.label.c_str(),
-			y_pred);
-	}
-	log(LL_INFO, "");
+	model.print_results(Y_pred);
 
 	// print timing results
 	timer_print();

@@ -85,15 +85,8 @@ int main(int argc, char **argv)
 	std::vector<DataLabel> Y_pred = model.predict(test_set);
 
 	// print classification results
-	log(LL_INFO, "Results");
-
-	for ( size_t i = 0; i < test_set.entries().size(); i++ ) {
-		const DataLabel& y_pred = Y_pred[i];
-		const DataEntry& entry = test_set.entries()[i];
-
-		log(LL_INFO, "%-12s -> %-4s", entry.name.c_str(), y_pred.c_str());
-	}
-	log(LL_INFO, "");
+	model.validate(test_set, Y_pred);
+	model.print_results(test_set, Y_pred);
 
 	// print timing results
 	timer_print();

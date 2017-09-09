@@ -46,7 +46,8 @@ public:
 	std::vector<DataLabel> predict(const Dataset& test_set);
 	void validate(const Dataset& test_set, const std::vector<DataLabel>& Y_pred);
 
-	void print_stats();
+	void print_results(const Dataset& test_set, const std::vector<DataLabel>& Y_pred) const;
+	void print_stats() const;
 };
 
 }

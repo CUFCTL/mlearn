@@ -108,4 +108,25 @@ std::vector<int> ClusteringModel::predict()
 	return this->_layers[min_index]->output();
 }
 
+/**
+ * Print prediction results of a model.
+ *
+ * @param Y_pred
+ */
+void ClusteringModel::print_results(const std::vector<int>& Y_pred) const
+{
+	log(LL_VERBOSE, "Results");
+
+	for ( size_t i = 0; i < this->_input.entries().size(); i++ ) {
+		int y_pred = Y_pred[i];
+		const DataEntry& entry = this->_input.entries()[i];
+
+		log(LL_VERBOSE, "%-4s (%s) -> %d",
+			entry.name.c_str(),
+			entry.label.c_str(),
+			y_pred);
+	}
+	log(LL_VERBOSE, "");
+}
+
 }
