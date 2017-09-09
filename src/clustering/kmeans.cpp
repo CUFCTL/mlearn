@@ -22,6 +22,23 @@ KMeansLayer::KMeansLayer(int k)
 }
 
 /**
+ * Compute the value of a (spherical) Gaussian distribution at x:
+ *
+ *   h(x | mu, var) = (2pi / var)^(d/2) e^(-(x - mu)' * (x - mu) / (2 * var))
+ *
+ * @param x
+ * @param mu
+ * @param var
+ */
+precision_t pdf(Matrix x, const Matrix& mu, precision_t var)
+{
+	x -= mu;
+	precision_t temp = (x.T() * x).elem(0, 0);
+
+	return powf(2.0f * M_PI / var, x.rows() / 2.0f) * expf(-temp / (2.0f * var));
+}
+
+/**
  * Partition a matrix X of observations into
  * clusters using k-means clustering.
  *
@@ -73,18 +90,18 @@ void KMeansLayer::compute(const Matrix& X)
 
 		timer_push("update step");
 
-		for ( int i = 0; i < this->_k; i++ ) {
-			mu[i] = Matrix::zeros(d, 1);
-			int num = 0;
+		for ( int j = 0; j < this->_k; j++ ) {
+			mu[j] = Matrix::zeros(d, 1);
+			int n_j = 0;
 
-			for ( int j = 0; j < n; j++ ) {
-				if ( y[j] == i ) {
-					mu[i] += X_col[j];
-					num++;
+			for ( int i = 0; i < n; i++ ) {
+				if ( y[i] == j ) {
+					mu[j] += X_col[i];
+					n_j++;
 				}
 			}
 
-			mu[i] /= num;
+			mu[j] /= n_j;
 		}
 
 		timer_pop();
@@ -92,36 +109,40 @@ void KMeansLayer::compute(const Matrix& X)
 
 	timer_push("compute log-likelihood");
 
+	// compute L = sum(L_j, j=1:k)
 	precision_t L = 0;
 
-	for ( int i = 0; i < this->_k; i++ ) {
-		// estimate variance for cluster i
-		precision_t variance = 0;
-		int R_n = 0;
+	for ( int j = 0; j < this->_k; j++ ) {
+		// compute variance for cluster j
+		precision_t var_j = 0;
+		precision_t n_j = 0;
 
-		for ( int j = 0; j < n; j++ ) {
-			if ( y[j] == i ) {
-				variance += m_dist_L2(X_col[j], 0, mu[i], 0);
-				R_n++;
+		for ( int i = 0; i < n; i++ ) {
+			if ( y[i] == j ) {
+				var_j += m_dist_L2(X_col[i], 0, mu[j], 0);
+				n_j++;
 			}
 		}
 
-		variance /= R_n - 1;
+		var_j /= n_j;
 
-		// compute log-likelihood for cluster i
-		int K = this->_k;
-		int M = d;
-		int R = n;
-		precision_t L_i = -R_n / 2 * logf(2 * M_PI) - R_n * M / 2 * logf(variance) - (R_n - K) / 2 + R_n * logf(R_n) - R_n * logf(R);
+		// compute mixture proportion for cluster j
+		precision_t p_j = n_j / n;
 
-		L += L_i;
+		// compute L_j = log(sum(p_j * h(x_i | mu_j, var_j), i=1:n))
+		precision_t sum = 0;
+		for ( int i = 0; i < n; i++ ) {
+			sum += p_j * pdf(X_col[i], mu[j], var_j);
+		}
+
+		L += logf(sum);
 	}
 
 	timer_pop();
 
 	// save outputs
 	this->_log_likelihood = L;
-	this->_num_parameters = this->_k * d + this->_k;
+	this->_num_parameters = this->_k * (2 + d);
 	this->_num_samples = n;
 	this->_output = y;
 
