@@ -19,15 +19,7 @@ namespace ML {
 Genome::Genome()
 {
 	this->_num_genes = 0;
-	this->_values = nullptr;
-}
-
-/**
- * Destruct a genome.
- */
-Genome::~Genome()
-{
-	delete this->_values;
+	this->_values.reset();
 }
 
 /**
@@ -79,7 +71,7 @@ void Genome::load(const std::string& path)
 	int num = (int)fsize / sizeof(float);
 
 	if ( this->_values == nullptr ) {
-		this->_values = new float[num];
+		this->_values.reset(new float[num]);
 	}
 	else if ( num != this->size() ) {
 		log(LL_ERROR, "error: unequal sizes on genome reload\n");
@@ -89,7 +81,7 @@ void Genome::load(const std::string& path)
 	this->_num_genes = num;
 
 	// read genome data
-	file.read(reinterpret_cast<char *>(this->_values), this->_num_genes * sizeof(float));
+	file.read(reinterpret_cast<char *>(this->_values.get()), this->_num_genes * sizeof(float));
 
 	file.close();
 }
@@ -103,7 +95,7 @@ void Genome::save(const std::string& path)
 {
 	std::ofstream file(path, std::ofstream::out);
 
-	file.write(reinterpret_cast<char *>(this->_values), this->_num_genes);
+	file.write(reinterpret_cast<char *>(this->_values.get()), this->_num_genes);
 
 	file.close();
 }

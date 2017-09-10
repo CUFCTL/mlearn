@@ -24,15 +24,7 @@ Image::Image()
 	this->_width = 0;
 	this->_height = 0;
 	this->_max_value = 0;
-	this->_pixels = nullptr;
-}
-
-/**
- * Destruct an image.
- */
-Image::~Image()
-{
-	delete[] this->_pixels;
+	this->_pixels.reset();
 }
 
 /**
@@ -67,6 +59,8 @@ void Image::from_matrix(Matrix& X, int i)
 
 /**
  * Helper function to skip comments in a PGM/PPM image.
+ *
+ * @param file
  */
 void skip_to_next_value(std::ifstream& file)
 {
@@ -134,7 +128,7 @@ void Image::load(const std::string& path)
 	int num = channels * width * height;
 
 	if ( this->_pixels == nullptr ) {
-		this->_pixels = new unsigned char[num];
+		this->_pixels.reset(new unsigned char[num]);
 	}
 	else if ( num != this->size() ) {
 		log(LL_ERROR, "error: unequal sizes on image reload\n");
@@ -147,7 +141,7 @@ void Image::load(const std::string& path)
 	this->_max_value = max_value;
 
 	// read pixel data
-	file.read(reinterpret_cast<char *>(this->_pixels), num);
+	file.read(reinterpret_cast<char *>(this->_pixels.get()), num);
 
 	file.close();
 }
@@ -184,7 +178,7 @@ void Image::save(const std::string& path)
 	// write pixel data
 	int num = this->_channels * this->_width * this->_height;
 
-	file.write(reinterpret_cast<char *>(this->_pixels), num);
+	file.write(reinterpret_cast<char *>(this->_pixels.get()), num);
 
 	file.close();
 }

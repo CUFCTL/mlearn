@@ -5,6 +5,7 @@
  */
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <mlearn.h>
 
 using namespace ML;
@@ -42,19 +43,19 @@ int main(int argc, char **argv)
 	Dataset test_set(nullptr, args.path_test, false);
 
 	// construct feature layer
-	FeatureLayer *feature;
+	std::unique_ptr<FeatureLayer> feature;
 
 	if ( args.feature == "identity" ) {
-		feature = new IdentityLayer();
+		feature.reset(new IdentityLayer());
 	}
 	else if ( args.feature == "pca" ) {
-		feature = new PCALayer();
+		feature.reset(new PCALayer());
 	}
 	else if ( args.feature == "lda" ) {
-		feature = new LDALayer();
+		feature.reset(new LDALayer());
 	}
 	else if ( args.feature == "ica" ) {
-		feature = new ICALayer();
+		feature.reset(new ICALayer());
 	}
 	else {
 		std::cerr << "error: feature must be identity | pca | lda | ica\n";
@@ -62,13 +63,13 @@ int main(int argc, char **argv)
 	}
 
 	// construct classifier layer
-	ClassifierLayer *classifier;
+	std::unique_ptr<ClassifierLayer> classifier;
 
 	if ( args.classifier == "knn" ) {
-		classifier = new KNNLayer();
+		classifier.reset(new KNNLayer());
 	}
 	else if ( args.classifier == "bayes" ) {
-		classifier = new BayesLayer();
+		classifier.reset(new BayesLayer());
 	}
 	else {
 		std::cerr << "error: classifier must be 'knn' or 'bayes'\n";
@@ -76,7 +77,7 @@ int main(int argc, char **argv)
 	}
 
 	// create classification model
-	ClassificationModel model(feature, classifier);
+	ClassificationModel model(feature.get(), classifier.get());
 
 	// extract features from training set
 	model.train(train_set);

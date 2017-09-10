@@ -6,6 +6,7 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <memory>
 #include "data/dataiterator.h"
 
 namespace ML {
@@ -16,11 +17,11 @@ private:
 	int _width;
 	int _height;
 	int _max_value;
-	unsigned char *_pixels;
+	std::unique_ptr<unsigned char[]> _pixels;
 
 public:
 	Image();
-	~Image();
+	~Image() {};
 
 	int size() const { return _channels * _width * _height; }
 	void to_matrix(Matrix& X, int i) const;

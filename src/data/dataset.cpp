@@ -5,6 +5,7 @@
  */
 #include <dirent.h>
 #include <fstream>
+#include <memory>
 #include "data/dataset.h"
 #include "util/logger.h"
 
@@ -44,12 +45,10 @@ std::string read_string(std::ifstream& file)
 {
 	int num = read_int(file);
 
-	char *buffer = new char[num];
-	file.read(buffer, num);
+	std::unique_ptr<char[]> buffer(new char[num]);
+	file.read(buffer.get(), num);
 
-	std::string str(buffer);
-
-	delete[] buffer;
+	std::string str(buffer.get());
 
 	return str;
 }

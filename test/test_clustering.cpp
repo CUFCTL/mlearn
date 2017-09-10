@@ -5,6 +5,7 @@
  */
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <mlearn.h>
 
 using namespace ML;
@@ -43,19 +44,19 @@ int main(int argc, char **argv)
 	Dataset input_data(nullptr, args.path_input);
 
 	// construct feature layer
-	FeatureLayer *feature;
+	std::unique_ptr<FeatureLayer> feature;
 
 	if ( args.feature == "identity" ) {
-		feature = new IdentityLayer();
+		feature.reset(new IdentityLayer());
 	}
 	else if ( args.feature == "pca" ) {
-		feature = new PCALayer();
+		feature.reset(new PCALayer());
 	}
 	else if ( args.feature == "lda" ) {
-		feature = new LDALayer();
+		feature.reset(new LDALayer());
 	}
 	else if ( args.feature == "ica" ) {
-		feature = new ICALayer();
+		feature.reset(new ICALayer());
 	}
 	else {
 		std::cerr << "error: feature must be identity | pca | lda | ica\n";
@@ -63,13 +64,13 @@ int main(int argc, char **argv)
 	}
 
 	// construct clustering layer
-	ClusteringLayer *clustering;
+	std::unique_ptr<ClusteringLayer> clustering;
 
 	if ( args.clustering == "gmm" ) {
-		clustering = new GMMLayer(args.k);
+		clustering.reset(new GMMLayer(args.k));
 	}
 	else if ( args.clustering == "k-means" ) {
-		clustering = new KMeansLayer(args.k);
+		clustering.reset(new KMeansLayer(args.k));
 	}
 	else {
 		std::cerr << "error: clustering must be 'gmm' or 'k-means'\n";
@@ -77,13 +78,13 @@ int main(int argc, char **argv)
 	}
 
 	// construct criterion layer
-	CriterionLayer *criterion;
+	std::unique_ptr<CriterionLayer> criterion;
 
 	if ( args.criterion == "bic" ) {
-		criterion = new BICLayer();
+		criterion.reset(new BICLayer());
 	}
 	else if ( args.criterion == "icl" ) {
-		criterion = new ICLLayer();
+		criterion.reset(new ICLLayer());
 	}
 	else {
 		std::cerr << "error: criterion must be 'bic' or 'icl'\n";
@@ -91,7 +92,7 @@ int main(int argc, char **argv)
 	}
 
 	// create clustering model
-	ClusteringModel model(feature, clustering);
+	ClusteringModel model(feature.get(), clustering.get());
 
 	// extract features from input data
 	model.extract(input_data);
@@ -104,7 +105,7 @@ int main(int argc, char **argv)
 	model.print_results(Y_pred);
 
 	// evaluate criterion of clustering model
-	float value = criterion->compute(clustering);
+	float value = criterion->compute(clustering.get());
 
 	log(LL_VERBOSE, "criterion value: %f", value);
 	log(LL_VERBOSE, "");

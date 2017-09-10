@@ -4,6 +4,7 @@
  * Test suite for the data types.
  */
 #include <iostream>
+#include <memory>
 #include <mlearn.h>
 
 using namespace ML;
@@ -28,13 +29,13 @@ int main(int argc, char **argv)
 	};
 
 	// initialize data type
-	DataIterator *iter;
+	std::unique_ptr<DataIterator> iter;
 
 	if ( args.data_type == "genome" ) {
-		iter = new Genome();
+		iter.reset(new Genome());
 	}
 	else if ( args.data_type == "image" ) {
-		iter = new Image();
+		iter.reset(new Image());
 	}
 	else {
 		std::cerr << "error: data type must be 'genome' or 'image'\n";
@@ -51,9 +52,6 @@ int main(int argc, char **argv)
 	// map the column vector to a sample
 	iter->from_matrix(x, 0);
 	iter->save(args.outfile);
-
-	// cleanup
-	delete iter;
 
 	return 0;
 }
