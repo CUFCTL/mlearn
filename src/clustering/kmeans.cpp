@@ -65,6 +65,7 @@ void KMeansLayer::compute(const Matrix& X)
 		std::vector<int> y_next(n);
 
 		for ( int i = 0; i < n; i++ ) {
+			// compute y_i = argmin(j, ||x_i - mu_j||)
 			int min_j = -1;
 			precision_t min_dist;
 
@@ -91,6 +92,7 @@ void KMeansLayer::compute(const Matrix& X)
 		timer_push("update step");
 
 		for ( int j = 0; j < this->_k; j++ ) {
+			// compute mu_j = mean of all x_i in cluster j
 			mu[j] = Matrix::zeros(d, 1);
 			int n_j = 0;
 
