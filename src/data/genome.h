@@ -6,11 +6,11 @@
 #ifndef GENOME_H
 #define GENOME_H
 
-#include "data/datatype.h"
+#include "data/dataiterator.h"
 
 namespace ML {
 
-class Genome : public DataType {
+class Genome : public DataIterator {
 private:
 	int _num_genes;
 	float *_values;

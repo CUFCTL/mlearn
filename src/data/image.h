@@ -6,11 +6,11 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include "data/datatype.h"
+#include "data/dataiterator.h"
 
 namespace ML {
 
-class Image : public DataType {
+class Image : public DataIterator {
 private:
 	int _channels;
 	int _width;

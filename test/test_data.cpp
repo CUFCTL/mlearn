@@ -28,32 +28,32 @@ int main(int argc, char **argv)
 	};
 
 	// initialize data type
-	DataType *sample;
+	DataIterator *iter;
 
 	if ( args.data_type == "genome" ) {
-		sample = new Genome();
+		iter = new Genome();
 	}
 	else if ( args.data_type == "image" ) {
-		sample = new Image();
+		iter = new Image();
 	}
 	else {
 		std::cerr << "error: data type must be 'genome' or 'image'\n";
 		exit(1);
 	}
 
-	// map the sample to a column vector
-	sample->load(args.infile);
+	// map a sample to a column vector
+	iter->load(args.infile);
 
-	Matrix x(sample->size(), 1);
+	Matrix x(iter->size(), 1);
 
-	sample->to_matrix(x, 0);
+	iter->to_matrix(x, 0);
 
 	// map the column vector to a sample
-	sample->from_matrix(x, 0);
-	sample->save(args.outfile);
+	iter->from_matrix(x, 0);
+	iter->save(args.outfile);
 
 	// cleanup
-	delete sample;
+	delete iter;
 
 	return 0;
 }

@@ -95,16 +95,16 @@ void write_string(const std::string& str, std::ofstream& file)
  * If the path is a file, each line should be an observation
  * with the features followed by the label.
  *
- * @param type
+ * @param iter
  * @param path
  * @param is_labeled
  */
-Dataset::Dataset(DataType *type, const std::string& path, bool is_labeled)
+Dataset::Dataset(DataIterator *iter, const std::string& path, bool is_labeled)
 {
-	this->_type = type;
+	this->_iter = iter;
 	this->_path = path;
 
-	if ( type != nullptr ) {
+	if ( iter != nullptr ) {
 		// get list of files
 		struct dirent **files;
 		int num_entries = scandir(this->_path.c_str(), &files, is_file, alphasort);
@@ -210,21 +210,21 @@ Matrix Dataset::load_data() const
 {
 	Matrix X;
 
-	if ( this->_type != nullptr ) {
+	if ( this->_iter != nullptr ) {
 		// get the size of the first sample
-		this->_type->load(this->_path + "/" + this->_entries[0].name);
+		this->_iter->load(this->_path + "/" + this->_entries[0].name);
 
 		// construct data matrix
-		int m = this->_type->size();
+		int m = this->_iter->size();
 		int n = this->_entries.size();
 		X = Matrix(m, n);
 
 		// map each sample to a column in X
-		this->_type->to_matrix(X, 0);
+		this->_iter->to_matrix(X, 0);
 
 		for ( int i = 1; i < n; i++ ) {
-			this->_type->load(this->_path + "/" + this->_entries[i].name);
-			this->_type->to_matrix(X, i);
+			this->_iter->load(this->_path + "/" + this->_entries[i].name);
+			this->_iter->to_matrix(X, i);
 		}
 	}
 	else {

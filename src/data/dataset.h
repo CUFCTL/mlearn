@@ -9,7 +9,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "data/datatype.h"
+#include "data/dataiterator.h"
 #include "math/matrix.h"
 
 namespace ML {
@@ -23,13 +23,13 @@ typedef struct {
 
 class Dataset {
 private:
-	DataType *_type;
+	DataIterator *_iter;
 	std::string _path;
 	std::vector<DataLabel> _labels;
 	std::vector<DataEntry> _entries;
 
 public:
-	Dataset(DataType *type, const std::string& path, bool is_labeled=true);
+	Dataset(DataIterator *iter, const std::string& path, bool is_labeled=true);
 	Dataset() {};
 
 	inline const std::string& path() const { return this->_path; }

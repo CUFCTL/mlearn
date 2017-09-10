@@ -1,19 +1,19 @@
 /**
- * @file data/datatype.h
+ * @file data/dataiterator.h
  *
- * Definition of the DataType interface.
+ * Definition of the DataIterator interface.
  */
-#ifndef DATATYPE_H
-#define DATATYPE_H
+#ifndef DATAITERATOR_H
+#define DATAITERATOR_H
 
 #include <string>
 #include "math/matrix.h"
 
 namespace ML {
 
-class DataType {
+class DataIterator {
 public:
-	virtual ~DataType() {};
+	virtual ~DataIterator() {};
 
 	virtual int size() const = 0;
 	virtual void to_matrix(Matrix& X, int i) const = 0;
