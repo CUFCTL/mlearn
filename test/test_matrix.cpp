@@ -66,11 +66,10 @@ bool m_equal(const Matrix& A, const Matrix& B)
  */
 void print_result(const char *name, bool result)
 {
-	std::string message = result
-		? ANSI_GREEN "PASSED" ANSI_RESET
-		: ANSI_RED ANSI_BOLD "FAILED" ANSI_RESET;
+	std::string color = result ? ANSI_GREEN : ANSI_RED;
+	std::string message = result ? "PASSED" : "FAILED";
 
-	std::cout << std::left << std::setw(25) << name << "  " << message << "\n";
+	std::cout << color << std::left << std::setw(25) << name << "  " << message << ANSI_RESET << "\n";
 }
 
 /**
