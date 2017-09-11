@@ -251,14 +251,14 @@ void GMMLayer::compute(const Matrix& X)
 
 		precision_t L1 = theta.log_likelihood(X);
 
+		timer_pop();
+
 		if ( L0 != 0 && fabsf(L1 - L0) < EPSILON ) {
 			log(LL_DEBUG, "converged after %d iteratinos", m + 1);
 			break;
 		}
 
 		L0 = L1;
-
-		timer_pop();
 	}
 
 	timer_pop();
