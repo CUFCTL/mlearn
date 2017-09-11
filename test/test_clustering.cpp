@@ -4,6 +4,7 @@
  * Test suite for the clustering model.
  */
 #include <cstdlib>
+#include <getopt.h>
 #include <iostream>
 #include <memory>
 #include <mlearn.h>
@@ -18,24 +19,73 @@ typedef struct {
 	int k;
 } args_t;
 
+void print_usage()
+{
+	std::cerr <<
+		"Usage: ./test-clustering [options]\n"
+		"\n"
+		"Options:\n"
+		"  --gpu              use GPU acceleration\n"
+		"  --loglevel LEVEL   set the log level (1=info, 2=verbose, 3=debug)\n"
+		"  --feat FEATURE     specify feature extraction ([identity], pca, lda, ica)\n"
+		"  --clus CLUSTERING  specify clustering method ([k-means], gmm)\n"
+		"  --crit CRITERION   specify model selection criterion ([bic], icl)\n"
+		"  --k K              specify number of clusters\n";
+}
+
 int main(int argc, char **argv)
 {
 	// parse command-line arguments
-	if ( argc != 5 ) {
-		std::cerr << "usage: ./test-clustering [feature] [clustering] [criterion] [k]\n";
-		exit(1);
-	}
-
 	args_t args = {
 		"test/data/iris.train",
-		argv[1],
-		argv[2],
-		argv[3],
-		atoi(argv[4])
+		"identity",
+		"k-means",
+		"bic",
+		0
 	};
 
-	GPU = true;
-	LOGLEVEL = LL_VERBOSE;
+	struct option long_options[] = {
+		{ "gpu", no_argument, 0, 'g' },
+		{ "loglevel", required_argument, 0, 'e' },
+		{ "feat", required_argument, 0, 'f' },
+		{ "clus", required_argument, 0, 'c' },
+		{ "crit", required_argument, 0, 'r' },
+		{ "k", required_argument, 0, 'k' },
+		{ 0, 0, 0, 0 }
+	};
+
+	int opt;
+	while ( (opt = getopt_long_only(argc, argv, "", long_options, nullptr)) != -1 ) {
+		switch ( opt ) {
+		case 'g':
+			GPU = true;
+			break;
+		case 'e':
+			LOGLEVEL = (logger_level_t) atoi(optarg);
+			break;
+		case 'f':
+			args.feature = optarg;
+			break;
+		case 'c':
+			args.clustering = optarg;
+			break;
+		case 'r':
+			args.criterion = optarg;
+			break;
+		case 'k':
+			args.k = atoi(optarg);
+			break;
+		case '?':
+			print_usage();
+			exit(1);
+		}
+	}
+
+	if ( args.k == 0 ) {
+		std::cerr << "error: --k is required\n";
+		print_usage();
+		exit(1);
+	}
 
 	// initialize GPU if enabled
 	gpu_init();
