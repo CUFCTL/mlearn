@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 
 	// load train set, test set
 	Dataset train_set(nullptr, args.path_train);
-	Dataset test_set(nullptr, args.path_test, false);
+	Dataset test_set(nullptr, args.path_test);
 
 	// construct feature layer
 	std::unique_ptr<FeatureLayer> feature;
