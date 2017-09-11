@@ -248,12 +248,14 @@ Matrix::Matrix()
  */
 Matrix::~Matrix()
 {
-	if ( !this->_transposed ) {
-		delete[] this->_data_cpu;
-		gpu_free(this->_data_gpu);
-
-		delete this->_T;
+	if ( this->_transposed ) {
+		return;
 	}
+
+	delete[] this->_data_cpu;
+	gpu_free(this->_data_gpu);
+
+	delete this->_T;
 }
 
 /**
@@ -440,16 +442,18 @@ void Matrix::gpu_write()
 /**
  * Compute the determinant of a matrix using LU decomposition.
  *
- *   det(A) = det(P * L * U)
+ *   det(M) = det(P * L * U)
  */
 precision_t Matrix::determinant() const
 {
-	log(LL_DEBUG, "debug: d <- det(M [%d,%d])",
-		this->_rows, this->_cols);
+	const Matrix& M = *this;
 
-	int m = this->_rows;
-	int n = this->_cols;
-	Matrix U = *this;
+	log(LL_DEBUG, "debug: d <- det(M [%d,%d])",
+		M._rows, M._cols);
+
+	int m = M._rows;
+	int n = M._cols;
+	Matrix U = M;
 	int lda = m;
 	int *ipiv = new int[min(m, n)];
 
@@ -496,17 +500,18 @@ precision_t Matrix::determinant() const
  */
 Matrix Matrix::diagonalize() const
 {
+	const Matrix& v = *this;
+
 	log(LL_DEBUG, "debug: D [%d,%d] <- diag(v [%d,%d])",
-		max(this->_rows, this->_cols), max(this->_rows, this->_cols),
-		this->_rows, this->_cols);
+		length(v), length(v), v._rows, v._cols);
 
-	assert(is_vector(*this));
+	assert(is_vector(v));
 
-	int n = length(*this);
+	int n = length(v);
 	Matrix D = Matrix::zeros(n, n);
 
 	for ( int i = 0; i < n; i++ ) {
-		D.elem(i, i) = this->_data_cpu[i];
+		D.elem(i, i) = v._data_cpu[i];
 	}
 
 	D.gpu_write();
@@ -560,19 +565,21 @@ precision_t Matrix::dot(const Matrix& b) const
  */
 void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 {
+	const Matrix& M = *this;
+
 	log(LL_DEBUG, "debug: V [%d,%d], D [%d,%d] <- eig(M [%d,%d], %d)",
-		this->_rows, n1,
+		M._rows, n1,
 		n1, n1,
-		this->_rows, this->_cols, n1);
+		M._rows, M._cols, n1);
 
-	assert(is_square(*this));
+	assert(is_square(M));
 
-	V = Matrix(*this);
-	D = Matrix(1, this->_cols);
+	V = M;
+	D = Matrix(1, M._cols);
 
 	// compute eigenvalues and eigenvectors
-	int n = this->_cols;
-	int lda = this->_rows;
+	int n = M._cols;
+	int lda = M._rows;
 
 	if ( GPU ) {
 		int nb = magma_get_ssytrd_nb(n);
@@ -630,17 +637,18 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
  */
 Matrix Matrix::inverse() const
 {
+	const Matrix& M = *this;
+
 	log(LL_DEBUG, "debug: M^-1 [%d,%d] <- inv(M [%d,%d])",
-		this->_rows, this->_cols,
-		this->_rows, this->_cols);
+		M._rows, M._cols, M._rows, M._cols);
 
-	assert(is_square(*this));
+	assert(is_square(M));
 
-	Matrix M_inv(*this);
+	Matrix M_inv = M;
 
-	int m = this->_rows;
-	int n = this->_cols;
-	int lda = this->_rows;
+	int m = M._rows;
+	int n = M._cols;
+	int lda = M._rows;
 
 	if ( GPU ) {
 		int nb = magma_get_sgetri_nb(n);
@@ -689,20 +697,21 @@ Matrix Matrix::inverse() const
  */
 Matrix Matrix::mean_column() const
 {
+	const Matrix& M = *this;
+
 	log(LL_DEBUG, "debug: mu [%d,%d] <- mean(M [%d,%d], 2)",
-		this->_rows, 1,
-		this->_rows, this->_cols);
+		M._rows, 1, M._rows, M._cols);
 
-	Matrix mu = Matrix::zeros(this->_rows, 1);
+	Matrix mu = Matrix::zeros(M._rows, 1);
 
-	for ( int i = 0; i < this->_cols; i++ ) {
-		for ( int j = 0; j < this->_rows; j++ ) {
-			mu.elem(j, 0) += this->elem(j, i);
+	for ( int i = 0; i < M._cols; i++ ) {
+		for ( int j = 0; j < M._rows; j++ ) {
+			mu.elem(j, 0) += M.elem(j, i);
 		}
 	}
 	mu.gpu_write();
 
-	mu /= this->_cols;
+	mu /= M._cols;
 
 	return mu;
 }
@@ -712,20 +721,21 @@ Matrix Matrix::mean_column() const
  */
 Matrix Matrix::mean_row() const
 {
+	const Matrix& M = *this;
+
 	log(LL_DEBUG, "debug: mu [%d,%d] <- mean(M [%d,%d], 1)",
-		1, this->_cols,
-		this->_rows, this->_cols);
+		1, M._cols, M._rows, M._cols);
 
-	Matrix mu = Matrix::zeros(1, this->_cols);
+	Matrix mu = Matrix::zeros(1, M._cols);
 
-	for ( int i = 0; i < this->_rows; i++ ) {
-		for ( int j = 0; j < this->_cols; j++ ) {
-			mu.elem(0, j) += this->elem(i, j);
+	for ( int i = 0; i < M._rows; i++ ) {
+		for ( int j = 0; j < M._cols; j++ ) {
+			mu.elem(0, j) += M.elem(i, j);
 		}
 	}
 	mu.gpu_write();
 
-	mu /= this->_rows;
+	mu /= M._rows;
 
 	return mu;
 }
@@ -735,22 +745,24 @@ Matrix Matrix::mean_row() const
  */
 precision_t Matrix::norm() const
 {
+	const Matrix& v = *this;
+
 	log(LL_DEBUG, "debug: n = norm(v [%d,%d])",
-		this->_rows, this->_cols);
+		v._rows, v._cols);
 
-	assert(is_vector(*this));
+	assert(is_vector(v));
 
-	int n = length(*this);
+	int n = length(v);
 	int incX = 1;
 	precision_t norm;
 
 	if ( GPU ) {
 		magma_queue_t queue = magma_queue();
 
-		norm = magma_snrm2(n, this->_data_gpu, incX, queue);
+		norm = magma_snrm2(n, v._data_gpu, incX, queue);
 	}
 	else {
-		norm = cblas_snrm2(n, this->_data_cpu, incX);
+		norm = cblas_snrm2(n, v._data_cpu, incX);
 	}
 
 	return norm;
@@ -814,16 +826,18 @@ Matrix Matrix::product(const Matrix& B) const
  */
 precision_t Matrix::sum() const
 {
+	const Matrix& v = *this;
+
 	log(LL_DEBUG, "debug: s = sum(v [%d,%d])",
-		this->_rows, this->_cols);
+		v._rows, v._cols);
 
-	assert(is_vector(*this));
+	assert(is_vector(v));
 
-	int n = length(*this);
+	int n = length(v);
 	precision_t sum = 0.0f;
 
 	for ( int i = 0; i < n; i++ ) {
-		sum += this->_data_cpu[i];
+		sum += v._data_cpu[i];
 	}
 
 	return sum;
@@ -841,11 +855,13 @@ precision_t Matrix::sum() const
  */
 void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 {
-	log(LL_DEBUG, "debug: U, S, V <- svd(M [%d,%d])",
-		this->_rows, this->_cols);
+	const Matrix& M = *this;
 
-	int m = this->_rows;
-	int n = this->_cols;
+	log(LL_DEBUG, "debug: U, S, V <- svd(M [%d,%d])",
+		M._rows, M._cols);
+
+	int m = M._rows;
+	int n = M._cols;
 	int lda = m;
 	int ldu = m;
 	int ldvt = min(m, n);
@@ -855,7 +871,7 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 	Matrix VT = Matrix(ldvt, n);
 
 	if ( GPU ) {
-		Matrix wA = *this;
+		Matrix wA = M;
 		int nb = magma_get_sgesvd_nb(m, n);
 		int lwork = 2 * min(m, n) + (max(m, n) + min(m, n)) * nb;
 		precision_t *work = new precision_t[lwork];
@@ -874,7 +890,7 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 		delete[] work;
 	}
 	else {
-		Matrix wA = *this;
+		Matrix wA = M;
 		int lwork = 5 * min(m, n);
 		precision_t *work = new precision_t[lwork];
 
@@ -899,15 +915,16 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
  */
 Matrix Matrix::transpose() const
 {
-	log(LL_DEBUG, "debug: M' [%d,%d] <- transpose(M [%d,%d])",
-		this->_cols, this->_rows,
-		this->_rows, this->_cols);
+	const Matrix& M = *this;
 
-	Matrix MT(this->_cols, this->_rows);
+	log(LL_DEBUG, "debug: M' [%d,%d] <- transpose(M [%d,%d])",
+		M._cols, M._rows, M._rows, M._cols);
+
+	Matrix MT(M._cols, M._rows);
 
 	for ( int i = 0; i < MT._rows; i++ ) {
 		for ( int j = 0; j < MT._cols; j++ ) {
-			MT.elem(i, j) = this->elem(j, i);
+			MT.elem(i, j) = M.elem(j, i);
 		}
 	}
 
@@ -1006,17 +1023,18 @@ void Matrix::assign_row(int i, const Matrix& B, int j)
  */
 void Matrix::elem_apply(elem_func_t f)
 {
-	log(LL_DEBUG, "debug: M [%d,%d] <- f(M [%d,%d])",
-		this->_rows, this->_cols,
-		this->_rows, this->_cols);
+	Matrix& M = *this;
 
-	for ( int i = 0; i < this->_rows; i++ ) {
-		for ( int j = 0; j < this->_cols; j++ ) {
-			this->elem(i, j) = f(this->elem(i, j));
+	log(LL_DEBUG, "debug: M [%d,%d] <- f(M [%d,%d])",
+		M._rows, M._cols, M._rows, M._cols);
+
+	for ( int i = 0; i < M._rows; i++ ) {
+		for ( int j = 0; j < M._cols; j++ ) {
+			M.elem(i, j) = f(M.elem(i, j));
 		}
 	}
 
-	this->gpu_write();
+	M.gpu_write();
 }
 
 /**
@@ -1026,22 +1044,23 @@ void Matrix::elem_apply(elem_func_t f)
  */
 void Matrix::elem_mult(precision_t c)
 {
-	log(LL_DEBUG, "debug: M [%d,%d] <- %g * M [%d,%d]",
-		this->_rows, this->_cols,
-		c, this->_rows, this->_cols);
+	Matrix& M = *this;
 
-	int n = this->_rows * this->_cols;
+	log(LL_DEBUG, "debug: M [%d,%d] <- %g * M [%d,%d]",
+		M._rows, M._cols, c, M._rows, M._cols);
+
+	int n = M._rows * M._cols;
 	int incX = 1;
 
 	if ( GPU ) {
 		magma_queue_t queue = magma_queue();
 
-		magma_sscal(n, c, this->_data_gpu, incX, queue);
+		magma_sscal(n, c, M._data_gpu, incX, queue);
 
-		this->gpu_read();
+		M.gpu_read();
 	}
 	else {
-		cblas_sscal(n, c, this->_data_cpu, incX);
+		cblas_sscal(n, c, M._data_cpu, incX);
 	}
 }
 
@@ -1089,20 +1108,22 @@ void Matrix::subtract(const Matrix& B)
  */
 void Matrix::subtract_columns(const Matrix& a)
 {
+	Matrix& M = *this;
+
 	log(LL_DEBUG, "debug: M [%d,%d] <- M [%d,%d] - a [%d,%d] * 1_N' [%d,%d]",
-		this->_rows, this->_cols,
-		this->_rows, this->_cols,
+		M._rows, M._cols,
+		M._rows, M._cols,
 		a._rows, a._cols,
-		1, this->_cols);
+		1, M._cols);
 
-	assert(this->_rows == a._rows && a._cols == 1);
+	assert(M._rows == a._rows && a._cols == 1);
 
-	for ( int i = 0; i < this->_cols; i++ ) {
-		for ( int j = 0; j < this->_rows; j++ ) {
-			this->elem(j, i) -= a.elem(j, 0);
+	for ( int i = 0; i < M._cols; i++ ) {
+		for ( int j = 0; j < M._rows; j++ ) {
+			M.elem(j, i) -= a.elem(j, 0);
 		}
 	}
-	this->gpu_write();
+	M.gpu_write();
 }
 
 /**
@@ -1116,20 +1137,22 @@ void Matrix::subtract_columns(const Matrix& a)
  */
 void Matrix::subtract_rows(const Matrix& a)
 {
+	Matrix& M = *this;
+
 	log(LL_DEBUG, "debug: M [%d,%d] <- M [%d,%d] - a [%d,%d] * 1_N [%d,%d]",
-		this->_rows, this->_cols,
-		this->_rows, this->_cols,
-		this->_rows, 1,
+		M._rows, M._cols,
+		M._rows, M._cols,
+		M._rows, 1,
 		a._rows, a._cols);
 
-	assert(this->_cols == a._cols && a._rows == 1);
+	assert(M._cols == a._cols && a._rows == 1);
 
-	for ( int i = 0; i < this->_rows; i++ ) {
-		for ( int j = 0; j < this->_cols; j++ ) {
-			this->elem(i, j) -= a.elem(0, j);
+	for ( int i = 0; i < M._rows; i++ ) {
+		for ( int j = 0; j < M._cols; j++ ) {
+			M.elem(i, j) -= a.elem(0, j);
 		}
 	}
-	this->gpu_write();
+	M.gpu_write();
 }
 
 /**
