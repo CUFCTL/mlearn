@@ -93,7 +93,7 @@ std::vector<int> ClusteringModel::predict()
 void ClusteringModel::validate(const std::vector<int>& Y_pred)
 {
 	// compute purity
-	precision_t purity = 0;
+	float purity = 0;
 
 	int c = this->_input.labels().size();
 	int n = this->_input.entries().size();

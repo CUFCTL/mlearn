@@ -38,7 +38,7 @@ void Image::to_matrix(Matrix& X, int i) const
 	assert(X.rows() == this->size());
 
 	for ( int j = 0; j < X.rows(); j++ ) {
-		X.elem(j, i) = (precision_t) this->_pixels[j];
+		X.elem(j, i) = (float) this->_pixels[j];
 	}
 }
 

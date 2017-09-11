@@ -29,7 +29,7 @@ ParameterSet::ParameterSet(int k)
  * @param S_det
  * @param S_inv
  */
-precision_t pdf(Matrix x, const Matrix& mu, precision_t S_det, const Matrix& S_inv)
+float pdf(Matrix x, const Matrix& mu, float S_det, const Matrix& S_inv)
 {
 	x -= mu;
 
@@ -49,7 +49,7 @@ Matrix ParameterSet::pdf_all(const Matrix& X) const
 	Matrix h(n, this->_k);
 
 	for ( int j = 0; j < this->_k; j++ ) {
-		precision_t S_det = this->_S[j].determinant();
+		float S_det = this->_S[j].determinant();
 		Matrix S_inv = this->_S[j].inverse();
 
 		for ( int i = 0; i < n; i++ ) {
@@ -67,17 +67,17 @@ Matrix ParameterSet::pdf_all(const Matrix& X) const
  *
  * @param X
  */
-precision_t ParameterSet::log_likelihood(const Matrix& X) const
+float ParameterSet::log_likelihood(const Matrix& X) const
 {
 	int n = X.cols();
 	Matrix h = this->pdf_all(X);
 
 	// compute L = sum(L_i, i=1:n)
-	precision_t L = 0;
+	float L = 0;
 
 	for ( int i = 0; i < n; i++ ) {
 		// compute L_i = log(sum(p_j * h_ij, j=1:k))
-		precision_t sum = 0;
+		float sum = 0;
 		for ( int j = 0; j < this->_k; j++ ) {
 			sum += this->_p[j] * h.elem(i, j);
 		}
@@ -106,10 +106,10 @@ void ParameterSet::initialize(const Matrix& X)
 
 	for ( int i = 0; i < n; i++ ) {
 		int min_j = -1;
-		precision_t min_dist;
+		float min_dist;
 
 		for ( int j = 0; j < this->_k; j++ ) {
-			precision_t dist = m_dist_L2(X, i, this->_mu[j], 0);
+			float dist = m_dist_L2(X, i, this->_mu[j], 0);
 
 			if ( min_j == -1 || dist < min_dist ) {
 				min_j = j;
@@ -123,7 +123,7 @@ void ParameterSet::initialize(const Matrix& X)
 	// update mixture proportions, covariances
 	for ( int j = 0; j < this->_k; j++ ) {
 		// compute n_j = sum(c_ij, i=1:n)
-		precision_t n_j = 0;
+		float n_j = 0;
 		for ( int i = 0; i < n; i++ ) {
 			n_j += c.elem(i, j);
 		}

@@ -23,7 +23,7 @@ typedef Matrix (*ica_nonl_func_t)(const Matrix& , const Matrix& );
  * @param max_iter
  * @param eps
  */
-ICALayer::ICALayer(int n1, int n2, ICANonl nonl, int max_iter, precision_t eps)
+ICALayer::ICALayer(int n1, int n2, ICANonl nonl, int max_iter, float eps)
 {
 	this->n1 = n1;
 	this->n2 = n2;
@@ -212,7 +212,7 @@ Matrix fpica_tanh (const Matrix& w0, const Matrix& X)
  *
  * @param x
  */
-precision_t gauss (precision_t x)
+float gauss (float x)
 {
 	return x * expf(-(x * x) / 2.0f);
 }
@@ -222,7 +222,7 @@ precision_t gauss (precision_t x)
  *
  * @param x
  */
-precision_t dgauss (precision_t x)
+float dgauss (float x)
 {
 	return (1 - x * x) * expf(-(x * x) / 2.0f);
 }
@@ -308,8 +308,8 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 			w /= w.norm();
 
 			// determine whether the direction of w and w0 are equal
-			precision_t norm1 = (w - w0).norm();
-			precision_t norm2 = (w + w0).norm();
+			float norm1 = (w - w0).norm();
+			float norm2 = (w + w0).norm();
 
 			// terminate round if w converges
 			if ( norm1 < this->eps || norm2 < this->eps ) {

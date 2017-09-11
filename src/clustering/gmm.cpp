@@ -12,11 +12,11 @@ namespace ML {
 
 const int INIT_SMALL_EM = false;
 const int INIT_NUM_ITER = 5;
-const precision_t INIT_EPSILON = 1e-2;
+const float INIT_EPSILON = 1e-2;
 
 const int NUM_INIT = 10;
 const int NUM_ITER = 200;
-const precision_t EPSILON = 1e-3;
+const float EPSILON = 1e-3;
 
 /**
  * Construct a GMM layer.
@@ -44,7 +44,7 @@ ParameterSet GMMLayer::initialize(const Matrix& X, int num_init, bool small_em)
 {
 	int n = X.cols();
 	ParameterSet theta(this->_k);
-	precision_t L_theta = 0;
+	float L_theta = 0;
 
 	for ( int t = 0; t < num_init; t++ ) {
 		ParameterSet theta_test(this->_k);
@@ -54,13 +54,13 @@ ParameterSet GMMLayer::initialize(const Matrix& X, int num_init, bool small_em)
 		if ( small_em ) {
 			// run the EM algorithm briefly
 			Matrix c(n, this->_k);
-			precision_t L0 = 0;
+			float L0 = 0;
 
 			for ( int m = 0; m < INIT_NUM_ITER; m++ ) {
 				this->E_step(X, theta_test, c);
 				this->M_step(X, c, theta_test);
 
-				precision_t L1 = theta_test.log_likelihood(X);
+				float L1 = theta_test.log_likelihood(X);
 
 				if ( L0 != 0 && fabsf(L1 - L0) < INIT_EPSILON ) {
 					break;
@@ -71,7 +71,7 @@ ParameterSet GMMLayer::initialize(const Matrix& X, int num_init, bool small_em)
 		}
 
 		// keep the parameter set with greater log-likelihood
-		precision_t L_test = theta_test.log_likelihood(X);
+		float L_test = theta_test.log_likelihood(X);
 
 		if ( L_theta == 0 || L_theta < L_test ) {
 			theta = theta_test;
@@ -100,7 +100,7 @@ void GMMLayer::E_step(const Matrix& X, const ParameterSet& theta, Matrix& c)
 
 	// compute c_ij for each i,j
 	for ( int i = 0; i < n; i++ ) {
-		precision_t sum = 0;
+		float sum = 0;
 
 		for ( int j = 0; j < this->_k; j++ ) {
 			sum += theta.p(j) * h.elem(i, j);
@@ -127,7 +127,7 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, ParameterSet& theta)
 
 	for ( int j = 0; j < this->_k; j++ ) {
 		// compute n_j = sum(c_ij, i=1:n)
-		precision_t n_j = 0;
+		float n_j = 0;
 		for ( int i = 0; i < n; i++ ) {
 			n_j += c.elem(i, j);
 		}
@@ -174,7 +174,7 @@ std::vector<int> compute_labels(const Matrix& c)
 
 	for ( int i = 0; i < n; i++ ) {
 		int max_j = -1;
-		precision_t max_c;
+		float max_c;
 
 		for ( int j = 0; j < k; j++ ) {
 			if ( max_j == -1 || max_c < c.elem(i, j) ) {
@@ -197,11 +197,11 @@ std::vector<int> compute_labels(const Matrix& c)
  * @param c
  * @param y
  */
-precision_t compute_entropy(const Matrix& c, const std::vector<int>& y)
+float compute_entropy(const Matrix& c, const std::vector<int>& y)
 {
 	int n = c.rows();
 	int k = c.cols();
-	precision_t E = 0;
+	float E = 0;
 
 	for ( int i = 0; i < n; i++ ) {
 		E += logf(c.elem(i, y[i]));
@@ -232,7 +232,7 @@ void GMMLayer::compute(const Matrix& X)
 	timer_push("run EM algorithm");
 
 	Matrix c(n, this->_k);
-	precision_t L0 = 0;
+	float L0 = 0;
 
 	for ( int m = 0; m < NUM_ITER; m++ ) {
 		timer_push("E step");
@@ -249,7 +249,7 @@ void GMMLayer::compute(const Matrix& X)
 
 		timer_push("check for convergence");
 
-		precision_t L1 = theta.log_likelihood(X);
+		float L1 = theta.log_likelihood(X);
 
 		timer_pop();
 

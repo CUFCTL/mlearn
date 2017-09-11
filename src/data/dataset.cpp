@@ -162,7 +162,7 @@ Dataset::Dataset(DataIterator *iter, const std::string& path, bool is_labeled)
 		// construct entries
 		for ( int i = 0; i < n; i++ ) {
 			// skip data
-			precision_t data;
+			float data;
 			for ( int j = 0; j < m; j++ ) {
 				file >> data;
 			}

@@ -28,9 +28,9 @@ typedef void (*test_func_t)(void);
  * @param a
  * @param b
  */
-bool is_equal(precision_t a, precision_t b)
+bool is_equal(float a, float b)
 {
-	static precision_t EPSILON = 1e-4;
+	static float EPSILON = 1e-4;
 
 	return (fabsf(a - b) < EPSILON);
 }
@@ -79,7 +79,7 @@ void print_result(const char *name, bool result)
  * @param b
  * @param name
  */
-void assert_equal(precision_t a, precision_t b, const char *name)
+void assert_equal(float a, float b, const char *name)
 {
 	print_result(name, is_equal(a, b));
 }
@@ -103,7 +103,7 @@ void assert_equal_matrix(const Matrix& A, const Matrix& B, const char *name)
  * @param data
  * @param name
  */
-void assert_matrix_value(const Matrix& M, precision_t *data, const char *name)
+void assert_matrix_value(const Matrix& M, float *data, const char *name)
 {
 	Matrix M_test(M.rows(), M.cols(), data);
 
@@ -115,7 +115,7 @@ void assert_matrix_value(const Matrix& M, precision_t *data, const char *name)
  */
 void test_identity()
 {
-	precision_t I_data[] = {
+	float I_data[] = {
 		1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
@@ -135,7 +135,7 @@ void test_identity()
  */
 void test_ones()
 {
-	precision_t X_data[] = {
+	float X_data[] = {
 		1, 1, 1, 1,
 		1, 1, 1, 1,
 		1, 1, 1, 1,
@@ -155,7 +155,7 @@ void test_ones()
  */
 void test_zeros()
 {
-	precision_t X_data[] = {
+	float X_data[] = {
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
@@ -175,7 +175,7 @@ void test_zeros()
  */
 void test_copy()
 {
-	precision_t A_data[] = {
+	float A_data[] = {
 		16,  2,  3, 13,
 		 5, 11, 10,  8,
 		 9,  7,  6, 12,
@@ -197,13 +197,13 @@ void test_copy()
  */
 void test_copy_columns()
 {
-	precision_t A_data[] = {
+	float A_data[] = {
 		16,  2,  3, 13,
 		 5, 11, 10,  8,
 		 9,  7,  6, 12,
 		 4, 14, 15,  1
 	};
-	precision_t C_data[] = {
+	float C_data[] = {
 		 2,  3,
 		11, 10,
 		 7,  6,
@@ -228,14 +228,14 @@ void test_copy_columns()
  */
 void test_determinant()
 {
-	precision_t A_data[] = {
+	float A_data[] = {
 		 1, -2,  4,
 		-5,  2,  0,
 		 1,  0,  3
 	};
 	Matrix A(3, 3, A_data);
 
-	precision_t det = A.determinant();
+	float det = A.determinant();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << A;
@@ -250,10 +250,10 @@ void test_determinant()
  */
 void test_diagonalize()
 {
-	precision_t v_data[] = {
+	float v_data[] = {
 		2, 1, -1, -2, -5
 	};
-	precision_t D_data[] = {
+	float D_data[] = {
 		2,  0,  0,  0,  0,
 		0,  1,  0,  0,  0,
 		0,  0, -1,  0,  0,
@@ -276,15 +276,15 @@ void test_diagonalize()
  */
 void test_dot()
 {
-	precision_t a_data[] = {
+	float a_data[] = {
 		1, 1, 0, 0
 	};
-	precision_t b_data[] = {
+	float b_data[] = {
 		1, 2, 3, 4
 	};
 	Matrix a(1, 4, a_data);
 	Matrix b(1, 4, b_data);
-	precision_t d = a.dot(b);
+	float d = a.dot(b);
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << a;
@@ -300,19 +300,19 @@ void test_dot()
  */
 void test_eigen()
 {
-	precision_t M_data[] = {
+	float M_data[] = {
 		1.0000, 0.5000, 0.3333, 0.2500,
 		0.5000, 1.0000, 0.6667, 0.5000,
 		0.3333, 0.6667, 1.0000, 0.7500,
 		0.2500, 0.5000, 0.7500, 1.0000
 	};
-	precision_t V_data[] = {
+	float V_data[] = {
 		 0.0694, -0.4422, -0.8105,  0.3778,
 		-0.3619,  0.7420, -0.1877,  0.5322,
 		 0.7694,  0.0487,  0.3010,  0.5614,
 		-0.5218, -0.5015,  0.4661,  0.5088
 	};
-	precision_t D_data[] = {
+	float D_data[] = {
 		0.2078, 0.0000, 0.0000, 0.0000,
 		0.0000, 0.4078, 0.0000, 0.0000,
 		0.0000, 0.0000, 0.8482, 0.0000,
@@ -339,22 +339,22 @@ void test_eigen()
  */
 void test_eigen2()
 {
-	precision_t A_data[] = {
+	float A_data[] = {
 		 0.5377,  0.8622, -0.4336,
 		 0.8622,  0.3188,  0.3426,
 		-0.4336,  0.3426,  3.5784
 	};
-	precision_t B_data[] = {
+	float B_data[] = {
 		 2, -1,  0,
 		-1,  2, -1,
 		 0, -1,  2
 	};
-	precision_t V_data[] = {
+	float V_data[] = {
 		 0.3714,  0.6224,  0.4740,
 		-0.4204,  0.4574,  0.7836,
 		 0.0606, -0.2616,  0.8233
 	};
-	precision_t D_data[] = {
+	float D_data[] = {
 		-0.1626,  0.0000,  0.0000,
 		 0.0000,  1.0700,  0.0000,
 		 0.0000,  0.0000,  3.4864
@@ -385,12 +385,12 @@ void test_eigen2()
  */
 void test_inverse()
 {
-	precision_t X_data[] = {
+	float X_data[] = {
 		 1,  0,  2,
 		-1,  5,  0,
 		 0,  3, -9
 	};
-	precision_t Y_data[] = {
+	float Y_data[] = {
 		0.8824, -0.1176,  0.1961,
 		0.1765,  0.1765,  0.0392,
 		0.0588,  0.0588, -0.0980
@@ -411,11 +411,11 @@ void test_inverse()
  */
 void test_mean_column()
 {
-	precision_t A_data[] = {
+	float A_data[] = {
 		0, 1, 1,
 		2, 3, 2
 	};
-	precision_t m_data[] = {
+	float m_data[] = {
 		0.6667,
 		2.3333
 	};
@@ -435,13 +435,13 @@ void test_mean_column()
  */
 void test_mean_row()
 {
-	precision_t A_data[] = {
+	float A_data[] = {
 		0, 1, 1,
 		2, 3, 2,
 		1, 3, 2,
 		4, 2, 2
 	};
-	precision_t m_data[] = {
+	float m_data[] = {
 		1.7500, 2.2500, 1.7500
 	};
 	Matrix A(4, 3, A_data);
@@ -460,11 +460,11 @@ void test_mean_row()
  */
 void test_norm()
 {
-	precision_t v_data[] = {
+	float v_data[] = {
 		-2, 3, 1
 	};
 	Matrix v(1, 3, v_data);
-	precision_t n = v.norm();
+	float n = v.norm();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << v;
@@ -481,19 +481,19 @@ void test_product()
 {
 	// multiply two vectors, A * B
 	// multiply two vectors, B * A
-	precision_t A1_data[] = {
+	float A1_data[] = {
 		1, 1, 0, 0
 	};
-	precision_t B1_data[] = {
+	float B1_data[] = {
 		1,
 		2,
 		3,
 		4
 	};
-	precision_t C1_data[] = {
+	float C1_data[] = {
 		3
 	};
-	precision_t C2_data[] = {
+	float C2_data[] = {
 		1, 1, 0, 0,
 		2, 2, 0, 0,
 		3, 3, 0, 0,
@@ -515,16 +515,16 @@ void test_product()
 	assert_matrix_value(C2, C2_data, "B1 * A1");
 
 	// multiply two matrices
-	precision_t A2_data[] = {
+	float A2_data[] = {
 		1, 3, 5,
 		2, 4, 7
 	};
-	precision_t B2_data[] = {
+	float B2_data[] = {
 		-5, 8, 11,
 		 3, 9, 21,
 		 4, 0,  8
 	};
-	precision_t C3_data[] = {
+	float C3_data[] = {
 		24, 35, 114,
 		30, 52, 162
 	};
@@ -546,11 +546,11 @@ void test_product()
  */
 void test_sum()
 {
-	precision_t v_data[] = {
+	float v_data[] = {
 		-2, 3, 1
 	};
 	Matrix v(1, 3, v_data);
-	precision_t s = v.sum();
+	float s = v.sum();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << v;
@@ -566,23 +566,23 @@ void test_sum()
  */
 void test_svd()
 {
-	precision_t A_data[] = {
+	float A_data[] = {
 		1, 2,
 		3, 4,
 		5, 6,
 		7, 8
 	};
-	precision_t U_data[] = {
+	float U_data[] = {
 		-0.1525, -0.8226,
 		-0.3499, -0.4214,
 		-0.5474, -0.0201,
 		-0.7448,  0.3812,
 	};
-	precision_t S_data[] = {
+	float S_data[] = {
 		14.2691,      0,
 		      0, 0.6268
 	};
-	precision_t V_data[] = {
+	float V_data[] = {
 		-0.6414,  0.7672,
 		-0.7672, -0.6414
 	};
@@ -608,13 +608,13 @@ void test_svd()
  */
 void test_transpose()
 {
-	precision_t A_data[] = {
+	float A_data[] = {
 		16,  2,  3, 13,
 		 5, 11, 10,  8,
 		 9,  7,  6, 12,
 		 4, 14, 15,  1
 	};
-	precision_t B_data[] = {
+	float B_data[] = {
 		16,  5,  9,  4,
 		 2, 11,  7, 14,
 		 3, 10,  6, 15,
@@ -636,15 +636,15 @@ void test_transpose()
  */
 void test_add()
 {
-	precision_t A_data1[] = {
+	float A_data1[] = {
 		1, 0,
 		2, 4
 	};
-	precision_t A_data2[] = {
+	float A_data2[] = {
 		6, 9,
 		4, 5
 	};
-	precision_t B_data[] = {
+	float B_data[] = {
 		5, 9,
 		2, 1
 	};
@@ -670,19 +670,19 @@ void test_add()
  */
 void test_assign_column()
 {
-	precision_t A_data1[] = {
+	float A_data1[] = {
 		16,  2,  3, 13,
 		 5, 11, 10,  8,
 		 9,  7,  6, 12,
 		 4, 14, 15,  1
 	};
-	precision_t A_data2[] = {
+	float A_data2[] = {
 		16,  2,  0, 13,
 		 5, 11,  0,  8,
 		 9,  7,  0, 12,
 		 4, 14,  0,  1
 	};
-	precision_t B_data[] = {
+	float B_data[] = {
 		0,
 		0,
 		0,
@@ -712,19 +712,19 @@ void test_assign_column()
  */
 void test_assign_row()
 {
-	precision_t A_data1[] = {
+	float A_data1[] = {
 		16,  2,  3, 13,
 		 5, 11, 10,  8,
 		 9,  7,  6, 12,
 		 4, 14, 15,  1
 	};
-	precision_t A_data2[] = {
+	float A_data2[] = {
 		16,  2,  3, 13,
 		 5, 11, 10,  8,
 		 0,  0,  0,  0,
 		 4, 14, 15,  1
 	};
-	precision_t B_data[] = {
+	float B_data[] = {
 		0, 0, 0, 0
 	};
 	Matrix A(4, 4, A_data1);
@@ -751,11 +751,11 @@ void test_assign_row()
  */
 void test_elem_apply()
 {
-	precision_t A_data1[] = {
+	float A_data1[] = {
 		1, 0, 2,
 		3, 1, 4
 	};
-	precision_t A_data2[] = {
+	float A_data2[] = {
 		1.0000, 0.0000, 1.4142,
 		1.7321, 1.0000, 2.0000
 	};
@@ -779,16 +779,16 @@ void test_elem_apply()
  */
 void test_elem_mult()
 {
-	precision_t A_data1[] = {
+	float A_data1[] = {
 		1, 0, 2,
 		3, 1, 4
 	};
-	precision_t A_data2[] = {
+	float A_data2[] = {
 		3, 0, 6,
 		9, 3, 12
 	};
 	Matrix A(2, 3, A_data1);
-	precision_t c = 3;
+	float c = 3;
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << A;
@@ -808,15 +808,15 @@ void test_elem_mult()
  */
 void test_subtract()
 {
-	precision_t A_data1[] = {
+	float A_data1[] = {
 		1, 0,
 		2, 4
 	};
-	precision_t A_data2[] = {
+	float A_data2[] = {
 		-4, -9,
 		 0,  3
 	};
-	precision_t B_data[] = {
+	float B_data[] = {
 		5, 9,
 		2, 1
 	};
@@ -842,17 +842,17 @@ void test_subtract()
  */
 void test_subtract_columns()
 {
-	precision_t M_data1[] = {
+	float M_data1[] = {
 		0, 2, 1, 4,
 		1, 3, 3, 2,
 		1, 2, 2, 2
 	};
-	precision_t M_data2[] = {
+	float M_data2[] = {
 		0, 2, 1, 4,
 		0, 2, 2, 1,
 		0, 1, 1, 1
 	};
-	precision_t a_data[] = {
+	float a_data[] = {
 		0,
 		1,
 		1
@@ -879,17 +879,17 @@ void test_subtract_columns()
  */
 void test_subtract_rows()
 {
-	precision_t M_data1[] = {
+	float M_data1[] = {
 		0, 2, 1, 4,
 		1, 3, 3, 2,
 		1, 2, 2, 2
 	};
-	precision_t M_data2[] = {
+	float M_data2[] = {
 		0,  0,  0,  0,
 		1,  1,  2, -2,
 		1,  0,  1, -2
 	};
-	precision_t a_data[] = {
+	float a_data[] = {
 		0, 2, 1, 4
 	};
 	Matrix M(3, 4, M_data1);

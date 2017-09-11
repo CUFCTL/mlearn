@@ -29,7 +29,7 @@ BayesLayer::BayesLayer()
  * @param mu
  * @param S_inv
  */
-precision_t bayes_prob(Matrix x, const Matrix& mu, const Matrix& S_inv)
+float bayes_prob(Matrix x, const Matrix& mu, const Matrix& S_inv)
 {
 	x -= mu;
 
@@ -62,11 +62,11 @@ std::vector<DataLabel> BayesLayer::predict(const Matrix& X, const std::vector<Da
 	std::vector<DataLabel> Y_pred;
 
 	for ( int i = 0; i < X_test.cols(); i++ ) {
-		std::vector<precision_t> probs;
+		std::vector<float> probs;
 
 		// compute the Bayes probability for each class
 		for ( size_t j = 0; j < C.size(); j++ ) {
-			precision_t p = bayes_prob(X_test(i), U[j], S_inv[j]);
+			float p = bayes_prob(X_test(i), U[j], S_inv[j]);
 
 			probs.push_back(p);
 		}

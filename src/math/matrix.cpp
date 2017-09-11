@@ -22,7 +22,7 @@ namespace ML {
 bool GPU = false;
 int GPU_DEVICE = 0;
 
-const precision_t EPSILON = 1e-16;
+const float EPSILON = 1e-16;
 
 /**
  * Determine whether a Matrix is a vector.
@@ -120,9 +120,9 @@ void gpu_free(void *ptr)
  * @param rows
  * @param cols
  */
-precision_t * gpu_malloc_matrix(int rows, int cols)
+float * gpu_malloc_matrix(int rows, int cols)
 {
-	return (precision_t *)gpu_malloc(rows * cols * sizeof(precision_t));
+	return (float *)gpu_malloc(rows * cols * sizeof(float));
 }
 
 /**
@@ -154,7 +154,7 @@ Matrix::Matrix(int rows, int cols)
 
 	this->_rows = rows;
 	this->_cols = cols;
-	this->_data_cpu = new precision_t[rows * cols];
+	this->_data_cpu = new float[rows * cols];
 	this->_data_gpu = gpu_malloc_matrix(rows, cols);
 	this->_transposed = false;
 	this->_T = new Matrix();
@@ -175,7 +175,7 @@ Matrix::Matrix(int rows, int cols)
  * @param cols
  * @param data
  */
-Matrix::Matrix(int rows, int cols, precision_t *data)
+Matrix::Matrix(int rows, int cols, float *data)
 	: Matrix(rows, cols)
 {
 	for ( int i = 0; i < rows; i++ ) {
@@ -203,7 +203,7 @@ Matrix::Matrix(const Matrix& M, int i, int j)
 
 	assert(0 <= i && i < j && j <= M._cols);
 
-	memcpy(this->_data_cpu, &ELEM(M, 0, i), this->_rows * this->_cols * sizeof(precision_t));
+	memcpy(this->_data_cpu, &ELEM(M, 0, i), this->_rows * this->_cols * sizeof(float));
 
 	this->gpu_write();
 }
@@ -378,7 +378,7 @@ void Matrix::save(std::ofstream& file) const
 {
 	file.write(reinterpret_cast<const char *>(&this->_rows), sizeof(int));
 	file.write(reinterpret_cast<const char *>(&this->_cols), sizeof(int));
-	file.write(reinterpret_cast<const char *>(this->_data_cpu), this->_rows * this->_cols * sizeof(precision_t));
+	file.write(reinterpret_cast<const char *>(this->_data_cpu), this->_rows * this->_cols * sizeof(float));
 }
 
 /**
@@ -398,7 +398,7 @@ void Matrix::load(std::ifstream& file)
 	file.read(reinterpret_cast<char *>(&cols), sizeof(int));
 
 	*this = Matrix(rows, cols);
-	file.read(reinterpret_cast<char *>(this->_data_cpu), this->_rows * this->_cols * sizeof(precision_t));
+	file.read(reinterpret_cast<char *>(this->_data_cpu), this->_rows * this->_cols * sizeof(float));
 }
 
 /**
@@ -412,7 +412,7 @@ void Matrix::gpu_read()
 
 	magma_queue_t queue = magma_queue();
 
-	magma_getmatrix(this->_rows, this->_cols, sizeof(precision_t),
+	magma_getmatrix(this->_rows, this->_cols, sizeof(float),
 		this->_data_gpu, this->_rows,
 		this->_data_cpu, this->_rows,
 		queue);
@@ -429,7 +429,7 @@ void Matrix::gpu_write()
 
 	magma_queue_t queue = magma_queue();
 
-	magma_setmatrix(this->_rows, this->_cols, sizeof(precision_t),
+	magma_setmatrix(this->_rows, this->_cols, sizeof(float),
 		this->_data_cpu, this->_rows,
 		this->_data_gpu, this->_rows,
 		queue);
@@ -440,7 +440,7 @@ void Matrix::gpu_write()
  *
  *   det(M) = det(P * L * U)
  */
-precision_t Matrix::determinant() const
+float Matrix::determinant() const
 {
 	const Matrix& M = *this;
 
@@ -474,7 +474,7 @@ precision_t Matrix::determinant() const
 	}
 
 	// compute det(A) = det(P * L * U) = 1^S * det(U)
-	precision_t det = 1;
+	float det = 1;
 	for ( int i = 0; i < min(m, n); i++ ) {
 		if ( i + 1 != ipiv[i] ) {
 			det *= -1;
@@ -520,7 +520,7 @@ Matrix Matrix::diagonalize() const
  *
  * @param b
  */
-precision_t Matrix::dot(const Matrix& b) const
+float Matrix::dot(const Matrix& b) const
 {
 	const Matrix& a = *this;
 
@@ -533,7 +533,7 @@ precision_t Matrix::dot(const Matrix& b) const
 	int n = length(a);
 	int incX = 1;
 	int incY = 1;
-	precision_t dot;
+	float dot;
 
 	if ( GPU ) {
 		magma_queue_t queue = magma_queue();
@@ -580,9 +580,9 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 	if ( GPU ) {
 		int nb = magma_get_ssytrd_nb(n);
 		int ldwa = n;
-		precision_t *wA = new precision_t[ldwa * n];
+		float *wA = new float[ldwa * n];
 		int lwork = max(2*n + n*nb, 1 + 6*n + 2*n*n);
-		precision_t *work = new precision_t[lwork];
+		float *work = new float[lwork];
 		int liwork = 3 + 5*n;
 		int *iwork = new int[liwork];
 		int info;
@@ -604,7 +604,7 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 	}
 	else {
 		int lwork = 3 * n;
-		precision_t *work = new precision_t[lwork];
+		float *work = new float[lwork];
 
 		int info = LAPACKE_ssyev_work(LAPACK_COL_MAJOR, 'V', 'U',
 			n, V._data_cpu, lda,
@@ -650,7 +650,7 @@ Matrix Matrix::inverse() const
 		int nb = magma_get_sgetri_nb(n);
 		int *ipiv = new int[n];
 		int lwork = n * nb;
-		precision_t *dwork = (precision_t *)gpu_malloc(lwork * sizeof(precision_t));
+		float *dwork = (float *)gpu_malloc(lwork * sizeof(float));
 		int info;
 
 		magma_sgetrf_gpu(m, n, M_inv._data_gpu, lda,
@@ -669,7 +669,7 @@ Matrix Matrix::inverse() const
 	else {
 		int *ipiv = new int[n];
 		int lwork = n;
-		precision_t *work = new precision_t[lwork];
+		float *work = new float[lwork];
 
 		int info = LAPACKE_sgetrf_work(LAPACK_COL_MAJOR,
 			m, n, M_inv._data_cpu, lda,
@@ -739,7 +739,7 @@ Matrix Matrix::mean_row() const
 /**
  * Compute the 2-norm of a vector.
  */
-precision_t Matrix::norm() const
+float Matrix::norm() const
 {
 	const Matrix& v = *this;
 
@@ -750,7 +750,7 @@ precision_t Matrix::norm() const
 
 	int n = length(v);
 	int incX = 1;
-	precision_t norm;
+	float norm;
 
 	if ( GPU ) {
 		magma_queue_t queue = magma_queue();
@@ -787,8 +787,8 @@ Matrix Matrix::product(const Matrix& B) const
 
 	Matrix C = Matrix::zeros(m, n);
 
-	precision_t alpha = 1.0f;
-	precision_t beta = 0.0f;
+	float alpha = 1.0f;
+	float beta = 0.0f;
 
 	// C := alpha * A * B + beta * C
 	if ( GPU ) {
@@ -820,7 +820,7 @@ Matrix Matrix::product(const Matrix& B) const
 /**
  * Compute the sum of the elements of a vector.
  */
-precision_t Matrix::sum() const
+float Matrix::sum() const
 {
 	const Matrix& v = *this;
 
@@ -830,7 +830,7 @@ precision_t Matrix::sum() const
 	assert(is_vector(v));
 
 	int n = length(v);
-	precision_t sum = 0.0f;
+	float sum = 0.0f;
 
 	for ( int i = 0; i < n; i++ ) {
 		sum += v._data_cpu[i];
@@ -870,7 +870,7 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 		Matrix wA = M;
 		int nb = magma_get_sgesvd_nb(m, n);
 		int lwork = 2 * min(m, n) + (max(m, n) + min(m, n)) * nb;
-		precision_t *work = new precision_t[lwork];
+		float *work = new float[lwork];
 		int info;
 
 		magma_sgesvd(
@@ -888,7 +888,7 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 	else {
 		Matrix wA = M;
 		int lwork = 5 * min(m, n);
-		precision_t *work = new precision_t[lwork];
+		float *work = new float[lwork];
 
 		int info = LAPACKE_sgesvd_work(
 			LAPACK_COL_MAJOR, 'S', 'S',
@@ -946,7 +946,7 @@ void Matrix::add(const Matrix& B)
 	assert(A._rows == B._rows && A._cols == B._cols);
 
 	int n = A._rows * A._cols;
-	precision_t alpha = 1.0f;
+	float alpha = 1.0f;
 	int incX = 1;
 	int incY = 1;
 
@@ -981,7 +981,7 @@ void Matrix::assign_column(int i, const Matrix& B, int j)
 	assert(0 <= i && i < A._cols);
 	assert(0 <= j && j < B._cols);
 
-	memcpy(&ELEM(A, 0, i), B._data_cpu, B._rows * sizeof(precision_t));
+	memcpy(&ELEM(A, 0, i), B._data_cpu, B._rows * sizeof(float));
 
 	A.gpu_write();
 }
@@ -1038,7 +1038,7 @@ void Matrix::elem_apply(elem_func_t f)
  *
  * @param c
  */
-void Matrix::elem_mult(precision_t c)
+void Matrix::elem_mult(float c)
 {
 	Matrix& M = *this;
 
@@ -1077,7 +1077,7 @@ void Matrix::subtract(const Matrix& B)
 	assert(A._rows == B._rows && A._cols == B._cols);
 
 	int n = A._rows * A._cols;
-	precision_t alpha = -1.0f;
+	float alpha = -1.0f;
 	int incX = 1;
 	int incY = 1;
 

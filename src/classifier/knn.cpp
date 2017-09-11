@@ -11,7 +11,7 @@ namespace ML {
 
 typedef struct {
 	DataLabel label;
-	precision_t dist;
+	float dist;
 } neighbor_t;
 
 typedef struct {

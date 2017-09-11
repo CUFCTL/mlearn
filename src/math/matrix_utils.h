@@ -12,11 +12,11 @@
 
 namespace ML {
 
-typedef precision_t (*dist_func_t)(const Matrix&, int, const Matrix&, int);
+typedef float (*dist_func_t)(const Matrix&, int, const Matrix&, int);
 
-precision_t m_dist_COS(const Matrix& A, int i, const Matrix& B, int j);
-precision_t m_dist_L1(const Matrix& A, int i, const Matrix& B, int j);
-precision_t m_dist_L2(const Matrix& A, int i, const Matrix& B, int j);
+float m_dist_COS(const Matrix& A, int i, const Matrix& B, int j);
+float m_dist_L1(const Matrix& A, int i, const Matrix& B, int j);
+float m_dist_L2(const Matrix& A, int i, const Matrix& B, int j);
 
 std::vector<Matrix> m_copy_columns(const Matrix& X);
 std::vector<Matrix> m_random_sample(const Matrix& X, int k);

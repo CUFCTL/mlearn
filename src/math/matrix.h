@@ -14,8 +14,7 @@
 
 namespace ML {
 
-typedef float precision_t;
-typedef precision_t (*elem_func_t)(precision_t);
+typedef float (*elem_func_t)(float);
 
 extern bool GPU;
 extern int GPU_DEVICE;
@@ -29,15 +28,15 @@ class Matrix {
 private:
 	int _rows;
 	int _cols;
-	precision_t *_data_cpu;
-	precision_t *_data_gpu;
+	float *_data_cpu;
+	float *_data_gpu;
 	bool _transposed;
 	Matrix *_T;
 
 public:
 	// constructor, destructor functions
 	Matrix(int rows, int cols);
-	Matrix(int rows, int cols, precision_t *data);
+	Matrix(int rows, int cols, float *data);
 	Matrix(const Matrix& M, int i, int j);
 	Matrix(const Matrix& M);
 	Matrix(Matrix&& M);
@@ -61,19 +60,19 @@ public:
 	// getter functions
 	inline int rows() const { return this->_rows; }
 	inline int cols() const { return this->_cols; }
-	inline precision_t& elem(int i, int j) const { return ELEM(*this, i, j); }
+	inline float& elem(int i, int j) const { return ELEM(*this, i, j); }
 	inline Matrix& T() const { return *(this->_T); }
 
-	precision_t determinant() const;
+	float determinant() const;
 	Matrix diagonalize() const;
-	precision_t dot(const Matrix& b) const;
+	float dot(const Matrix& b) const;
 	void eigen(int n1, Matrix& V, Matrix& D) const;
 	Matrix inverse() const;
 	Matrix mean_column() const;
 	Matrix mean_row() const;
-	precision_t norm() const;
+	float norm() const;
 	Matrix product(const Matrix& B) const;
-	precision_t sum() const;
+	float sum() const;
 	void svd(Matrix& U, Matrix& S, Matrix& V) const;
 	Matrix transpose() const;
 
@@ -82,7 +81,7 @@ public:
 	void assign_column(int i, const Matrix& B, int j);
 	void assign_row(int i, const Matrix& B, int j);
 	void elem_apply(elem_func_t f);
-	void elem_mult(precision_t c);
+	void elem_mult(float c);
 	void subtract(const Matrix& B);
 	void subtract_columns(const Matrix& a);
 	void subtract_rows(const Matrix& a);
@@ -93,8 +92,8 @@ public:
 	inline Matrix& operator=(Matrix B) { swap(*this, B); return *this; }
 	inline Matrix& operator+=(const Matrix& B) { this->add(B); return *this; }
 	inline Matrix& operator-=(const Matrix& B) { this->subtract(B); return *this; }
-	inline Matrix& operator*=(precision_t c) { this->elem_mult(c); return *this; }
-	inline Matrix& operator/=(precision_t c) { this->elem_mult(1 / c); return *this; }
+	inline Matrix& operator*=(float c) { this->elem_mult(c); return *this; }
+	inline Matrix& operator/=(float c) { this->elem_mult(1 / c); return *this; }
 
 	// friend functions
 	friend void swap(Matrix& A, Matrix& B);
@@ -103,9 +102,9 @@ public:
 inline Matrix operator+(Matrix A, const Matrix& B) { return (A += B); }
 inline Matrix operator-(Matrix A, const Matrix& B) { return (A -= B); }
 inline Matrix operator*(const Matrix& A, const Matrix& B) { return A.product(B); }
-inline Matrix operator*(Matrix A, precision_t c) { return (A *= c); }
-inline Matrix operator*(precision_t c, Matrix A) { return (A *= c); }
-inline Matrix operator/(Matrix A, precision_t c) { return (A /= c); }
+inline Matrix operator*(Matrix A, float c) { return (A *= c); }
+inline Matrix operator*(float c, Matrix A) { return (A *= c); }
+inline Matrix operator/(Matrix A, float c) { return (A /= c); }
 inline std::ostream& operator<<(std::ostream& os, const Matrix& M) { M.print(os); return os; }
 
 }

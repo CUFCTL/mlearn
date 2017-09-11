@@ -30,7 +30,7 @@ KMeansLayer::KMeansLayer(int k)
  * @param mu
  * @param var
  */
-precision_t pdf(Matrix x, const Matrix& mu, precision_t var)
+float pdf(Matrix x, const Matrix& mu, float var)
 {
 	x -= mu;
 
@@ -66,10 +66,10 @@ void KMeansLayer::compute(const Matrix& X)
 		for ( int i = 0; i < n; i++ ) {
 			// compute y_i = argmin(j, ||x_i - mu_j||)
 			int min_j = -1;
-			precision_t min_dist;
+			float min_dist;
 
 			for ( int j = 0; j < this->_k; j++ ) {
-				precision_t dist = m_dist_L2(X_col[i], 0, mu[j], 0);
+				float dist = m_dist_L2(X_col[i], 0, mu[j], 0);
 
 				if ( min_j == -1 || dist < min_dist ) {
 					min_j = j;
@@ -111,12 +111,12 @@ void KMeansLayer::compute(const Matrix& X)
 	timer_push("compute log-likelihood");
 
 	// compute L = sum(L_j, j=1:k)
-	precision_t L = 0;
+	float L = 0;
 
 	for ( int j = 0; j < this->_k; j++ ) {
 		// compute variance for cluster j
-		precision_t var_j = 0;
-		precision_t n_j = 0;
+		float var_j = 0;
+		float n_j = 0;
 
 		for ( int i = 0; i < n; i++ ) {
 			if ( y[i] == j ) {
@@ -128,10 +128,10 @@ void KMeansLayer::compute(const Matrix& X)
 		var_j /= n_j;
 
 		// compute mixture proportion for cluster j
-		precision_t p_j = n_j / n;
+		float p_j = n_j / n;
 
 		// compute L_j = log(sum(p_j * h(x_i | mu_j, var_j), i=1:n))
-		precision_t sum = 0;
+		float sum = 0;
 		for ( int i = 0; i < n; i++ ) {
 			sum += p_j * pdf(X_col[i], mu[j], var_j);
 		}

@@ -24,21 +24,21 @@ namespace ML {
  * @param B
  * @param j
  */
-precision_t m_dist_COS(const Matrix& A, int i, const Matrix& B, int j)
+float m_dist_COS(const Matrix& A, int i, const Matrix& B, int j)
 {
 	assert(A.rows() == B.rows());
 	assert(0 <= i && i < A.cols() && 0 <= j && j < B.cols());
 
 	// compute x * y
-	precision_t x_dot_y = 0;
+	float x_dot_y = 0;
 
 	for ( int k = 0; k < A.rows(); k++ ) {
 		x_dot_y += A.elem(k, i) * B.elem(k, j);
 	}
 
 	// compute ||x|| and ||y||
-	precision_t abs_x = 0;
-	precision_t abs_y = 0;
+	float abs_x = 0;
+	float abs_y = 0;
 
 	for ( int k = 0; k < A.rows(); k++ ) {
 		abs_x += A.elem(k, i) * A.elem(k, i);
@@ -46,7 +46,7 @@ precision_t m_dist_COS(const Matrix& A, int i, const Matrix& B, int j)
 	}
 
 	// compute similarity
-	precision_t similarity = x_dot_y / sqrtf(abs_x * abs_y);
+	float similarity = x_dot_y / sqrtf(abs_x * abs_y);
 
 	// compute scaled distance
 	return 1 - similarity;
@@ -63,12 +63,12 @@ precision_t m_dist_COS(const Matrix& A, int i, const Matrix& B, int j)
  * @param B
  * @param j
  */
-precision_t m_dist_L1(const Matrix& A, int i, const Matrix& B, int j)
+float m_dist_L1(const Matrix& A, int i, const Matrix& B, int j)
 {
 	assert(A.rows() == B.rows());
 	assert(0 <= i && i < A.cols() && 0 <= j && j < B.cols());
 
-	precision_t dist = 0;
+	float dist = 0;
 
 	for ( int k = 0; k < A.rows(); k++ ) {
 		dist += fabsf(A.elem(k, i) - B.elem(k, j));
@@ -88,15 +88,15 @@ precision_t m_dist_L1(const Matrix& A, int i, const Matrix& B, int j)
  * @param B
  * @param j
  */
-precision_t m_dist_L2(const Matrix& A, int i, const Matrix& B, int j)
+float m_dist_L2(const Matrix& A, int i, const Matrix& B, int j)
 {
 	assert(A.rows() == B.rows());
 	assert(0 <= i && i < A.cols() && 0 <= j && j < B.cols());
 
-	precision_t dist = 0;
+	float dist = 0;
 
 	for ( int k = 0; k < A.rows(); k++ ) {
-		precision_t diff = A.elem(k, i) - B.elem(k, j);
+		float diff = A.elem(k, i) - B.elem(k, j);
 		dist += diff * diff;
 	}
 

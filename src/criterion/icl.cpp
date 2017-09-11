@@ -19,8 +19,8 @@ float ICLLayer::compute(ClusteringLayer *layer)
 {
 	int k = layer->num_parameters();
 	int n = layer->num_samples();
-	precision_t L = layer->log_likelihood();
-	precision_t E = layer->entropy();
+	float L = layer->log_likelihood();
+	float E = layer->entropy();
 
 	return logf(n) * k - 2 * L - 2 * E;
 }
