@@ -26,6 +26,36 @@ int GPU_DEVICE = 0;
 const precision_t EPSILON = 1e-16;
 
 /**
+ * Determine whether a Matrix is a vector.
+ *
+ * @param v
+ */
+inline bool is_vector(const Matrix& v)
+{
+	return (v.rows() == 1 || v.cols() == 1);
+}
+
+/**
+ * Determine whether a Matrix is square.
+ *
+ * @param M
+ */
+inline bool is_square(const Matrix& M)
+{
+	return (M.rows() == M.cols());
+}
+
+/**
+ * Determine the length of a vector.
+ *
+ * @param v
+ */
+inline int length(const Matrix& v)
+{
+	return (v.rows() == 1) ? v.cols() : v.rows();
+}
+
+/**
  * Create a connection to the GPU.
  */
 void gpu_init()
@@ -470,11 +500,9 @@ Matrix Matrix::diagonalize() const
 		max(this->_rows, this->_cols), max(this->_rows, this->_cols),
 		this->_rows, this->_cols);
 
-	assert(this->_rows == 1 || this->_cols == 1);
+	assert(is_vector(*this));
 
-	int n = (this->_rows == 1)
-		? this->_cols
-		: this->_rows;
+	int n = length(*this);
 	Matrix D = Matrix::zeros(n, n);
 
 	for ( int i = 0; i < n; i++ ) {
@@ -498,25 +526,21 @@ precision_t Matrix::dot(const Matrix& b) const
 	log(LL_DEBUG, "debug: d = dot(a [%d,%d], b [%d,%d])",
 		a._rows, a._cols, b._rows, b._cols);
 
-	assert(a._rows == 1 || a._cols == 1);
-	assert(b._rows == 1 || b._cols == 1);
+	assert(is_vector(a) && is_vector(b));
+	assert(length(a) == length(b));
 
-	int n1 = (a._rows == 1) ? a._cols : a._rows;
-	int n2 = (b._rows == 1) ? b._cols : b._rows;
+	int n = length(a);
 	int incX = 1;
 	int incY = 1;
-
-	assert(n1 == n2);
-
 	precision_t dot;
 
 	if ( GPU ) {
 		magma_queue_t queue = magma_queue();
 
-		dot = magma_sdot(n1, a._data_gpu, incX, b._data_gpu, incY, queue);
+		dot = magma_sdot(n, a._data_gpu, incX, b._data_gpu, incY, queue);
 	}
 	else {
-		dot = cblas_sdot(n1, a._data_cpu, incX, b._data_cpu, incY);
+		dot = cblas_sdot(n, a._data_cpu, incX, b._data_cpu, incY);
 	}
 
 	return dot;
@@ -541,7 +565,7 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 		n1, n1,
 		this->_rows, this->_cols, n1);
 
-	assert(this->_rows == this->_cols);
+	assert(is_square(*this));
 
 	V = Matrix(*this);
 	D = Matrix(1, this->_cols);
@@ -610,7 +634,7 @@ Matrix Matrix::inverse() const
 		this->_rows, this->_cols,
 		this->_rows, this->_cols);
 
-	assert(this->_rows == this->_cols);
+	assert(is_square(*this));
 
 	Matrix M_inv(*this);
 
@@ -714,13 +738,10 @@ precision_t Matrix::norm() const
 	log(LL_DEBUG, "debug: n = norm(v [%d,%d])",
 		this->_rows, this->_cols);
 
-	assert(this->_rows == 1 || this->_cols == 1);
+	assert(is_vector(*this));
 
-	int n = (this->_rows == 1)
-		? this->_cols
-		: this->_rows;
+	int n = length(*this);
 	int incX = 1;
-
 	precision_t norm;
 
 	if ( GPU ) {
@@ -796,11 +817,9 @@ precision_t Matrix::sum() const
 	log(LL_DEBUG, "debug: s = sum(v [%d,%d])",
 		this->_rows, this->_cols);
 
-	assert(this->_rows == 1 || this->_cols == 1);
+	assert(is_vector(*this));
 
-	int n = (this->_rows == 1)
-		? this->_cols
-		: this->_rows;
+	int n = length(*this);
 	precision_t sum = 0.0f;
 
 	for ( int i = 0; i < n; i++ ) {
