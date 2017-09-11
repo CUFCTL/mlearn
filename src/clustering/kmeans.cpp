@@ -33,9 +33,8 @@ KMeansLayer::KMeansLayer(int k)
 precision_t pdf(Matrix x, const Matrix& mu, precision_t var)
 {
 	x -= mu;
-	precision_t temp = (x.T() * x).elem(0, 0);
 
-	return powf(2.0f * M_PI / var, x.rows() / 2.0f) * expf(-temp / (2.0f * var));
+	return powf(2.0f * M_PI / var, x.rows() / 2.0f) * expf(-x.dot(x) / (2.0f * var));
 }
 
 /**

@@ -487,6 +487,42 @@ Matrix Matrix::diagonalize() const
 }
 
 /**
+ * Compute the dot product of two vectors.
+ *
+ * @param b
+ */
+precision_t Matrix::dot(const Matrix& b) const
+{
+	const Matrix& a = *this;
+
+	log(LL_DEBUG, "debug: d = dot(a [%d,%d], b [%d,%d])",
+		a._rows, a._cols, b._rows, b._cols);
+
+	assert(a._rows == 1 || a._cols == 1);
+	assert(b._rows == 1 || b._cols == 1);
+
+	int n1 = (a._rows == 1) ? a._cols : a._rows;
+	int n2 = (b._rows == 1) ? b._cols : b._rows;
+	int incX = 1;
+	int incY = 1;
+
+	assert(n1 == n2);
+
+	precision_t dot;
+
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
+
+		dot = magma_sdot(n1, a._data_gpu, incX, b._data_gpu, incY, queue);
+	}
+	else {
+		dot = cblas_sdot(n1, a._data_cpu, incX, b._data_cpu, incY);
+	}
+
+	return dot;
+}
+
+/**
  * Compute the eigenvalues and eigenvectors of a symmetric matrix.
  *
  * The eigenvalues are returned as a diagonal matrix, and the

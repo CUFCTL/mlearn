@@ -66,6 +66,7 @@ public:
 
 	precision_t determinant() const;
 	Matrix diagonalize() const;
+	precision_t dot(const Matrix& b) const;
 	void eigen(int n1, Matrix& V, Matrix& D) const;
 	Matrix inverse() const;
 	Matrix mean_column() const;

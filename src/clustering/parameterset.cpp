@@ -32,9 +32,8 @@ ParameterSet::ParameterSet(int k)
 precision_t pdf(Matrix x, const Matrix& mu, precision_t S_det, const Matrix& S_inv)
 {
 	x -= mu;
-	precision_t temp = (x.T() * S_inv * x).elem(0, 0);
 
-	return powf(2 * M_PI, x.rows() / 2.0f) * powf(S_det, -0.5f) * expf(-0.5f * temp);
+	return powf(2 * M_PI, x.rows() / 2.0f) * powf(S_det, -0.5f) * expf(-0.5f * (x.T() * S_inv).dot(x));
 }
 
 /**

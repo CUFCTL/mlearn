@@ -23,13 +23,17 @@ BayesLayer::BayesLayer()
  * feature vector using the Bayes discriminant
  * function:
  *
- * g_i'(x) = -1/2 * (x - mu_i)' * S_i^-1 * (x - mu_i)
+ *   g_i'(x) = -1/2 * (x - mu_i)' * S_i^-1 * (x - mu_i)
+ *
+ * @param x
+ * @param mu
+ * @param S_inv
  */
 precision_t bayes_prob(Matrix x, const Matrix& mu, const Matrix& S_inv)
 {
 	x -= mu;
 
-	return -0.5f * (x.T() * S_inv * x).elem(0, 0);
+	return -0.5f * (x.T() * S_inv).dot(x);
 }
 
 /**

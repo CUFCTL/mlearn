@@ -273,6 +273,30 @@ void test_diagonalize()
 }
 
 /**
+ * Test dot product.
+ */
+void test_dot()
+{
+	precision_t a_data[] = {
+		1, 1, 0, 0
+	};
+	precision_t b_data[] = {
+		1, 2, 3, 4
+	};
+	Matrix a(1, 4, a_data);
+	Matrix b(1, 4, b_data);
+	precision_t d = a.dot(b);
+
+	if ( LOGGER(LL_VERBOSE) ) {
+		std::cout << a;
+		std::cout << b;
+		std::cout << "a' * b = " << d << "\n";
+	}
+
+	assert_equal(d, 3, "a' * b");
+}
+
+/**
  * Test eigenvalues, eigenvectors.
  */
 void test_eigen()
@@ -931,6 +955,7 @@ int main(int argc, char **argv)
 		test_copy_columns,
 		test_determinant,
 		test_diagonalize,
+		test_dot,
 		test_eigen,
 		test_eigen2,
 		test_inverse,
