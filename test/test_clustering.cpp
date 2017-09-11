@@ -13,6 +13,7 @@ using namespace ML;
 
 typedef struct {
 	std::string path_input;
+	std::string data_type;
 	std::string feature;
 	std::string clustering;
 	std::string criterion;
@@ -25,19 +26,21 @@ void print_usage()
 		"Usage: ./test-clustering [options]\n"
 		"\n"
 		"Options:\n"
-		"  --gpu              use GPU acceleration\n"
-		"  --loglevel LEVEL   set the log level (1=info, 2=verbose, 3=debug)\n"
-		"  --feat FEATURE     specify feature extraction ([identity], pca, lda, ica)\n"
-		"  --clus CLUSTERING  specify clustering method ([k-means], gmm)\n"
-		"  --crit CRITERION   specify model selection criterion ([bic], icl)\n"
-		"  --k K              specify number of clusters\n";
+		"  --gpu              enable GPU acceleration\n"
+		"  --loglevel LEVEL   log level ([1]=info, 2=verbose, 3=debug)\n"
+		"  --path PATH        path to dataset (default is IRIS dataset)\n"
+		"  --type TYPE        data type ([none], image, genome)\n"
+		"  --feat FEATURE     feature extraction method ([identity], pca, lda, ica)\n"
+		"  --clus CLUSTERING  clustering method ([k-means], gmm)\n"
+		"  --crit CRITERION   model selection criterion ([bic], icl)\n"
+		"  --k K              number of clusters\n";
 }
 
-int main(int argc, char **argv)
+args_t parse_args(int argc, char **argv)
 {
-	// parse command-line arguments
 	args_t args = {
 		"test/data/iris.train",
+		"none",
 		"identity",
 		"k-means",
 		"bic",
@@ -47,6 +50,8 @@ int main(int argc, char **argv)
 	struct option long_options[] = {
 		{ "gpu", no_argument, 0, 'g' },
 		{ "loglevel", required_argument, 0, 'e' },
+		{ "path", required_argument, 0, 'p' },
+		{ "type", required_argument, 0, 'd' },
 		{ "feat", required_argument, 0, 'f' },
 		{ "clus", required_argument, 0, 'c' },
 		{ "crit", required_argument, 0, 'r' },
@@ -62,6 +67,12 @@ int main(int argc, char **argv)
 			break;
 		case 'e':
 			LOGLEVEL = (logger_level_t) atoi(optarg);
+			break;
+		case 'p':
+			args.path_input = optarg;
+			break;
+		case 'd':
+			args.data_type = optarg;
 			break;
 		case 'f':
 			args.feature = optarg;
@@ -87,11 +98,36 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
+	return args;
+}
+
+int main(int argc, char **argv)
+{
+	// parse command-line arguments
+	args_t args = parse_args(argc, argv);
+
 	// initialize GPU if enabled
 	gpu_init();
 
+	// construct data iterator
+	std::unique_ptr<DataIterator> data_iter;
+
+	if ( args.data_type == "image" ) {
+		data_iter.reset(new Image());
+	}
+	else if ( args.data_type == "genome" ) {
+		data_iter.reset(new Genome());
+	}
+	else if ( args.data_type == "none" ) {
+		data_iter.reset(nullptr);
+	}
+	else {
+		std::cerr << "error: type must be image | genome | none\n";
+		exit(1);
+	}
+
 	// load input data
-	Dataset input_data(nullptr, args.path_input);
+	Dataset input_data(data_iter.get(), args.path_input);
 
 	// construct feature layer
 	std::unique_ptr<FeatureLayer> feature;
