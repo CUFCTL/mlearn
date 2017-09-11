@@ -168,7 +168,7 @@ void ICALayer::print()
 Matrix fpica_pow3 (const Matrix& w0, const Matrix& X)
 {
 	Matrix w_temp1 = X.T() * w0;
-	w_temp1.elem_apply(pow3);
+	w_temp1.elem_apply(pow3f);
 
 	Matrix w = X * w_temp1;
 	w /= X.cols();
@@ -198,7 +198,7 @@ Matrix fpica_tanh (const Matrix& w0, const Matrix& X)
 
 	w_temp1.elem_apply(tanhf);
 	w_temp2.elem_apply(sechf);
-	w_temp2.elem_apply(pow2);
+	w_temp2.elem_apply(pow2f);
 
 	Matrix w = X * w_temp1;
 	w -= w_temp2.sum() * w0;

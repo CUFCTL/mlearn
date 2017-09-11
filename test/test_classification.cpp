@@ -51,7 +51,7 @@ args_t parse_args(int argc, char **argv)
 		{ "path_test", required_argument, 0, 'r' },
 		{ "type", required_argument, 0, 'd' },
 		{ "feat", required_argument, 0, 'f' },
-		{ "clus", required_argument, 0, 'c' },
+		{ "clas", required_argument, 0, 'c' },
 		{ 0, 0, 0, 0 }
 	};
 
@@ -92,6 +92,9 @@ int main(int argc, char **argv)
 {
 	// parse command-line arguments
 	args_t args = parse_args(argc, argv);
+
+	// initialize random number engine
+	RNG_seed();
 
 	// initialize GPU if enabled
 	gpu_init();

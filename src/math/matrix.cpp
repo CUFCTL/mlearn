@@ -8,7 +8,6 @@
 #include <cmath>
 #include <cstring>
 #include <iomanip>
-#include <random>
 #include "math/matrix.h"
 #include "math/math_utils.h"
 #include "util/logger.h"
@@ -319,14 +318,11 @@ Matrix Matrix::random(int rows, int cols)
 		rows, cols,
 		rows, cols);
 
-	static std::default_random_engine generator;
-	static std::normal_distribution<precision_t> distribution(0, 1);
-
 	Matrix M(rows, cols);
 
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < cols; j++ ) {
-			M.elem(i, j) = distribution(generator);
+			M.elem(i, j) = RNG_normal();
 		}
 	}
 

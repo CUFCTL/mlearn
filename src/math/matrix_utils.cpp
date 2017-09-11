@@ -5,7 +5,7 @@
  */
 #include <cassert>
 #include <cmath>
-#include <cstdlib>
+#include "math/math_utils.h"
 #include "math/matrix_utils.h"
 
 namespace ML {
@@ -136,7 +136,7 @@ std::vector<Matrix> m_random_sample(const Matrix& X, int k)
 	samples.reserve(k);
 
 	for ( int i = 0; i < k; i++ ) {
-		int j = lrand48() % X.cols();
+		int j = RNG_int(0, X.cols());
 
 		samples.push_back(X(j));
 	}

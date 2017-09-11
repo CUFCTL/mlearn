@@ -8,8 +8,12 @@
 
 namespace ML {
 
-float pow2(float x);
-float pow3(float x);
+void RNG_seed(unsigned int value=0);
+int RNG_int(int a, int b);
+float RNG_normal(float mu=0, float sigma=1);
+
+float pow2f(float x);
+float pow3f(float x);
 float sechf(float x);
 
 }
