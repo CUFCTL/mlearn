@@ -181,7 +181,7 @@ Matrix::Matrix(int rows, int cols, precision_t *data)
 {
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < cols; j++ ) {
-			ELEM(*this, i, j) = data[i * cols + j];
+			this->elem(i, j) = data[i * cols + j];
 		}
 	}
 
@@ -271,7 +271,7 @@ Matrix Matrix::identity(int rows)
 
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < rows; j++ ) {
-			ELEM(M, i, j) = (i == j);
+			M.elem(i, j) = (i == j);
 		}
 	}
 
@@ -296,7 +296,7 @@ Matrix Matrix::ones(int rows, int cols)
 
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < cols; j++ ) {
-			ELEM(M, i, j) = 1;
+			M.elem(i, j) = 1;
 		}
 	}
 
@@ -324,7 +324,7 @@ Matrix Matrix::random(int rows, int cols)
 
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < cols; j++ ) {
-			ELEM(M, i, j) = distribution(generator);
+			M.elem(i, j) = distribution(generator);
 		}
 	}
 
@@ -345,7 +345,7 @@ Matrix Matrix::zeros(int rows, int cols)
 
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < cols; j++ ) {
-			ELEM(M, i, j) = 0;
+			M.elem(i, j) = 0;
 		}
 	}
 
@@ -506,7 +506,7 @@ Matrix Matrix::diagonalize() const
 	Matrix D = Matrix::zeros(n, n);
 
 	for ( int i = 0; i < n; i++ ) {
-		ELEM(D, i, i) = this->_data_cpu[i];
+		D.elem(i, i) = this->_data_cpu[i];
 	}
 
 	D.gpu_write();
@@ -614,7 +614,7 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 
 	// take only positive eigenvalues
 	int i = 0;
-	while ( i < D._cols && ELEM(D, 0, i) < EPSILON ) {
+	while ( i < D._cols && D.elem(0, i) < EPSILON ) {
 		i++;
 	}
 
@@ -697,7 +697,7 @@ Matrix Matrix::mean_column() const
 
 	for ( int i = 0; i < this->_cols; i++ ) {
 		for ( int j = 0; j < this->_rows; j++ ) {
-			ELEM(mu, j, 0) += ELEM(*this, j, i);
+			mu.elem(j, 0) += this->elem(j, i);
 		}
 	}
 	mu.gpu_write();
@@ -720,7 +720,7 @@ Matrix Matrix::mean_row() const
 
 	for ( int i = 0; i < this->_rows; i++ ) {
 		for ( int j = 0; j < this->_cols; j++ ) {
-			ELEM(mu, 0, j) += ELEM(*this, i, j);
+			mu.elem(0, j) += this->elem(i, j);
 		}
 	}
 	mu.gpu_write();
@@ -907,7 +907,7 @@ Matrix Matrix::transpose() const
 
 	for ( int i = 0; i < MT._rows; i++ ) {
 		for ( int j = 0; j < MT._cols; j++ ) {
-			ELEM(MT, i, j) = ELEM(*this, j, i);
+			MT.elem(i, j) = this->elem(j, i);
 		}
 	}
 
@@ -993,7 +993,7 @@ void Matrix::assign_row(int i, const Matrix& B, int j)
 	assert(0 <= j && j < B._rows);
 
 	for ( int k = 0; k < A._cols; k++ ) {
-		ELEM(A, i, k) = ELEM(B, j, k);
+		A.elem(i, k) = B.elem(j, k);
 	}
 
 	A.gpu_write();
@@ -1012,7 +1012,7 @@ void Matrix::elem_apply(elem_func_t f)
 
 	for ( int i = 0; i < this->_rows; i++ ) {
 		for ( int j = 0; j < this->_cols; j++ ) {
-			ELEM(*this, i, j) = f(ELEM(*this, i, j));
+			this->elem(i, j) = f(this->elem(i, j));
 		}
 	}
 
@@ -1099,7 +1099,7 @@ void Matrix::subtract_columns(const Matrix& a)
 
 	for ( int i = 0; i < this->_cols; i++ ) {
 		for ( int j = 0; j < this->_rows; j++ ) {
-			ELEM(*this, j, i) -= ELEM(a, j, 0);
+			this->elem(j, i) -= a.elem(j, 0);
 		}
 	}
 	this->gpu_write();
@@ -1126,7 +1126,7 @@ void Matrix::subtract_rows(const Matrix& a)
 
 	for ( int i = 0; i < this->_rows; i++ ) {
 		for ( int j = 0; j < this->_cols; j++ ) {
-			ELEM(*this, i, j) -= ELEM(a, 0, j);
+			this->elem(i, j) -= a.elem(0, j);
 		}
 	}
 	this->gpu_write();
