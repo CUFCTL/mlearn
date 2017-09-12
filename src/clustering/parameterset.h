@@ -21,6 +21,8 @@ private:
 public:
 	ParameterSet(int k);
 
+	void print() const;
+
 	// getter functions
 	const float& p(int i) const { return this->_p[i]; }
 	const Matrix& mu(int i) const { return this->_mu[i]; }

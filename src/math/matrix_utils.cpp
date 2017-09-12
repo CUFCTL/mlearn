@@ -116,7 +116,7 @@ std::vector<Matrix> m_copy_columns(const Matrix& X)
 
 	X_col.reserve(X.cols());
 
-	for ( size_t i = 0; i < X.cols(); i++ ) {
+	for ( int i = 0; i < X.cols(); i++ ) {
 		X_col.push_back(X(i));
 	}
 

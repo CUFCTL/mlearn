@@ -101,53 +101,34 @@ void ParameterSet::initialize(const Matrix& X)
 	// choose k means randomly from data
 	this->_mu = m_random_sample(X, this->_k);
 
-	// compute conditional probabilities (using nearest neighbor)
-	Matrix c = Matrix::zeros(n, this->_k);
-
-	for ( int i = 0; i < n; i++ ) {
-		int min_j = -1;
-		float min_dist;
-
-		for ( int j = 0; j < this->_k; j++ ) {
-			float dist = m_dist_L2(X, i, this->_mu[j], 0);
-
-			if ( min_j == -1 || dist < min_dist ) {
-				min_j = j;
-				min_dist = dist;
-			}
-		}
-
-		c.elem(i, min_j) = 1;
-	}
-
-	// update mixture proportions, covariances
+	// initialize mixture proportions, covariances
 	for ( int j = 0; j < this->_k; j++ ) {
-		// compute n_j = sum(c_ij, i=1:n)
-		float n_j = 0;
-		for ( int i = 0; i < n; i++ ) {
-			n_j += c.elem(i, j);
-		}
+		// initialize p_j = 1 / k
+		this->_p.push_back(1.0f / this->_k);
 
-		// compute p_j = sum(c_ij, i=1:n) / n
-		this->_p.push_back(n_j / n);
-
-		// compute S_j = W_j / n_j
-		Matrix W_j = Matrix::zeros(d, d);
-
-		for ( int i = 0; i < n; i++ ) {
-			if ( c.elem(i, j) > 0 ) {
-				Matrix x_i = X(i) - this->_mu[j];
-				Matrix W_ji = x_i * x_i.T();
-
-				W_ji *= c.elem(i, j);
-				W_j += W_ji;
-			}
-		}
-
-		W_j /= n_j;
-
-		this->_S.push_back(W_j);
+		// initialize S_j = I_d
+		this->_S.push_back(Matrix::identity(d));
 	}
+}
+
+/**
+ * Print a parameter set.
+ */
+void ParameterSet::print() const
+{
+	std::cout << "k = " << this->_k << "\n";
+
+	for ( int i = 0; i < this->_k; i++ ) {
+		std::cout << "p_" << i + 1 << " = " << this->_p[i] << "\n";
+
+		std::cout << "mu_" << i + 1 << " =\n";
+		this->_mu[i].print(std::cout);
+
+		std::cout << "S_" << i + 1 << " =\n";
+		this->_S[i].print(std::cout);
+	}
+
+	std::cout << "\n";
 }
 
 }

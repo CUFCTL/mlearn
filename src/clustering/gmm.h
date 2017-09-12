@@ -20,7 +20,7 @@ private:
 	int _num_samples;
 	std::vector<int> _output;
 
-	ParameterSet initialize(const Matrix& X, int num_init, bool small_em=false);
+	ParameterSet initialize(const Matrix& X, int num_init, bool small_em);
 	void E_step(const Matrix& X, const ParameterSet& theta, Matrix& c);
 	void M_step(const Matrix& X, const Matrix& c, ParameterSet& theta);
 
