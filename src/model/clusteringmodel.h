@@ -9,7 +9,6 @@
 #include "clustering/clustering.h"
 #include "criterion/criterion.h"
 #include "data/dataset.h"
-#include "feature/feature.h"
 
 namespace ML {
 
@@ -18,26 +17,26 @@ private:
 	// input data
 	Dataset _input;
 
-	// feature layer
-	FeatureLayer *_feature;
-	Matrix _P;
+	// clustering layers
+	std::vector<ClusteringLayer *> _clustering;
 
-	// clustering layer
-	ClusteringLayer *_clustering;
+	// criterion layer
+	CriterionLayer *_criterion;
+
+	// selected clustering layer
+	ClusteringLayer *_min_c;
 
 	// performance, accuracy stats
 	struct {
 		float error_rate;
-		float extract_time;
 		float predict_time;
 	} _stats;
 
 public:
-	ClusteringModel(FeatureLayer *feature, ClusteringLayer *clustering);
+	ClusteringModel(const std::vector<ClusteringLayer *>& clustering, CriterionLayer *criterion);
 	~ClusteringModel() {};
 
-	void extract(const Dataset& input);
-	std::vector<int> predict();
+	std::vector<int> predict(const Dataset& input);
 	void validate(const std::vector<int>& Y_pred);
 
 	void print_results(const std::vector<int>& Y_pred) const;

@@ -13,76 +13,72 @@ namespace ML {
 /**
  * Construct a clustering model.
  *
- * @param feature
  * @param clustering
+ * @param criterion
  */
-ClusteringModel::ClusteringModel(FeatureLayer *feature, ClusteringLayer *clustering)
+ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clustering, CriterionLayer *criterion)
 {
 	// initialize layers
-	this->_feature = feature;
 	this->_clustering = clustering;
+	this->_criterion = criterion;
 
 	// initialize stats
 	this->_stats.error_rate = 0.0f;
-	this->_stats.extract_time = 0.0f;
 	this->_stats.predict_time = 0.0f;
 
 	// log hyperparameters
 	log(LL_VERBOSE, "Hyperparameters");
 
-	this->_feature->print();
-	this->_clustering->print();
-
-	log(LL_VERBOSE, "");
-}
-
-/**
- * Extract features from input data.
- *
- * @param input
- */
-void ClusteringModel::extract(const Dataset& input)
-{
-	timer_push("Feature extraction");
-
-	this->_input = input;
-
-	log(LL_VERBOSE, "Input data: %d samples, %d classes",
-		input.entries().size(),
-		input.labels().size());
-
-	// get data matrix X
-	Matrix X = input.load_data();
-
-	// subtract mean from X
-	Matrix mu = X.mean_column();
-
-	X.subtract_columns(mu);
-
-	// project X into feature space
-	this->_feature->compute(X, this->_input.entries(), this->_input.labels().size());
-	this->_P = this->_feature->project(X);
-
-	// record extraction time
-	this->_stats.extract_time = timer_pop();
+	for ( ClusteringLayer *c : this->_clustering ) {
+		c->print();
+	}
 
 	log(LL_VERBOSE, "");
 }
 
 /**
  * Perform clustering on the input data.
+ *
+ * @param input
  */
-std::vector<int> ClusteringModel::predict()
+std::vector<int> ClusteringModel::predict(const Dataset& input)
 {
+	timer_push("Load data");
+
+	this->_input = input;
+
+	Matrix X = this->_input.load_data();
+
+	timer_pop();
+
 	timer_push("Clustering");
 
-	// run clustering layer
-	this->_clustering->compute(this->_P);
+	// run clustering layers
+	for ( ClusteringLayer *c : this->_clustering ) {
+		c->compute(X);
+	}
 
 	// record prediction time
 	this->_stats.predict_time = timer_pop();
 
-	return this->_clustering->output();
+	// select model with lowest criterion value
+	ClusteringLayer *min_c = nullptr;
+	float min_value = 0;
+
+	for ( ClusteringLayer *c : this->_clustering ) {
+		float value = this->_criterion->compute(c);
+
+		if ( min_c == nullptr || value < min_value ) {
+			min_c = c;
+			min_value = value;
+		}
+
+		log(LL_VERBOSE, "criterion value: %8.3f", value);
+	}
+
+	this->_min_c = min_c;
+
+	return this->_min_c->output();
 }
 
 /**
@@ -97,7 +93,7 @@ void ClusteringModel::validate(const std::vector<int>& Y_pred)
 
 	int c = this->_input.labels().size();
 	int n = this->_input.entries().size();
-	int k = this->_clustering->num_clusters();
+	int k = this->_min_c->num_clusters();
 
 	for ( int i = 0; i < k; i++ ) {
 		int max_correct = 0;
@@ -155,7 +151,6 @@ void ClusteringModel::print_stats() const
 {
 	std::cout
 		<< std::setw(12) << std::setprecision(3) << this->_stats.error_rate
-		<< std::setw(12) << std::setprecision(3) << this->_stats.extract_time
 		<< std::setw(12) << std::setprecision(3) << this->_stats.predict_time
 		<< "\n";
 }

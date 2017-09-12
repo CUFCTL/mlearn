@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <getopt.h>
 #include <iostream>
-#include <memory>
 #include <mlearn.h>
 
 using namespace ML;
@@ -14,10 +13,10 @@ using namespace ML;
 typedef struct {
 	std::string path_input;
 	std::string data_type;
-	std::string feature;
 	std::string clustering;
+	int min_k;
+	int max_k;
 	std::string criterion;
-	int k;
 } args_t;
 
 void print_usage()
@@ -30,10 +29,10 @@ void print_usage()
 		"  --loglevel LEVEL   log level ([1]=info, 2=verbose, 3=debug)\n"
 		"  --path PATH        path to dataset (default is IRIS dataset)\n"
 		"  --type TYPE        data type ([none], image, genome)\n"
-		"  --feat FEATURE     feature extraction method ([identity], pca, lda, ica)\n"
 		"  --clus CLUSTERING  clustering method ([k-means], gmm)\n"
-		"  --crit CRITERION   model selection criterion ([bic], icl)\n"
-		"  --k K              number of clusters\n";
+		"  --min-k K          minimum number of clusters [1]\n"
+		"  --max-k K          maximum number of clusters [5]\n"
+		"  --crit CRITERION   model selection criterion ([bic], icl)\n";
 }
 
 args_t parse_args(int argc, char **argv)
@@ -41,10 +40,8 @@ args_t parse_args(int argc, char **argv)
 	args_t args = {
 		"test/data/iris.train",
 		"none",
-		"identity",
-		"k-means",
+		"k-means", 1, 5,
 		"bic",
-		0
 	};
 
 	struct option long_options[] = {
@@ -52,10 +49,10 @@ args_t parse_args(int argc, char **argv)
 		{ "loglevel", required_argument, 0, 'e' },
 		{ "path", required_argument, 0, 'p' },
 		{ "type", required_argument, 0, 'd' },
-		{ "feat", required_argument, 0, 'f' },
 		{ "clus", required_argument, 0, 'c' },
+		{ "min-k", required_argument, 0, 'i' },
+		{ "max-k", required_argument, 0, 'a' },
 		{ "crit", required_argument, 0, 'r' },
-		{ "k", required_argument, 0, 'k' },
 		{ 0, 0, 0, 0 }
 	};
 
@@ -74,17 +71,17 @@ args_t parse_args(int argc, char **argv)
 		case 'd':
 			args.data_type = optarg;
 			break;
-		case 'f':
-			args.feature = optarg;
-			break;
 		case 'c':
 			args.clustering = optarg;
 			break;
+		case 'i':
+			args.min_k = atoi(optarg);
+			break;
+		case 'a':
+			args.max_k = atoi(optarg);
+			break;
 		case 'r':
 			args.criterion = optarg;
-			break;
-		case 'k':
-			args.k = atoi(optarg);
 			break;
 		case '?':
 			print_usage();
@@ -92,8 +89,8 @@ args_t parse_args(int argc, char **argv)
 		}
 	}
 
-	if ( args.k == 0 ) {
-		std::cerr << "error: --k is required\n";
+	if ( args.min_k > args.max_k ) {
+		std::cerr << "error: min-k must be less than or equal to max-k\n";
 		print_usage();
 		exit(1);
 	}
@@ -113,16 +110,16 @@ int main(int argc, char **argv)
 	gpu_init();
 
 	// construct data iterator
-	std::unique_ptr<DataIterator> data_iter;
+	DataIterator *data_iter;
 
 	if ( args.data_type == "image" ) {
-		data_iter.reset(new Image());
+		data_iter = new Image();
 	}
 	else if ( args.data_type == "genome" ) {
-		data_iter.reset(new Genome());
+		data_iter = new Genome();
 	}
 	else if ( args.data_type == "none" ) {
-		data_iter.reset(nullptr);
+		data_iter = nullptr;
 	}
 	else {
 		std::cerr << "error: type must be image | genome | none\n";
@@ -130,50 +127,32 @@ int main(int argc, char **argv)
 	}
 
 	// load input data
-	Dataset input_data(data_iter.get(), args.path_input);
+	Dataset input_data(data_iter, args.path_input);
 
-	// construct feature layer
-	std::unique_ptr<FeatureLayer> feature;
+	// construct clustering layers
+	std::vector<ClusteringLayer *> clustering;
 
-	if ( args.feature == "identity" ) {
-		feature.reset(new IdentityLayer());
-	}
-	else if ( args.feature == "pca" ) {
-		feature.reset(new PCALayer());
-	}
-	else if ( args.feature == "lda" ) {
-		feature.reset(new LDALayer());
-	}
-	else if ( args.feature == "ica" ) {
-		feature.reset(new ICALayer());
-	}
-	else {
-		std::cerr << "error: feature must be identity | pca | lda | ica\n";
-		exit(1);
-	}
-
-	// construct clustering layer
-	std::unique_ptr<ClusteringLayer> clustering;
-
-	if ( args.clustering == "gmm" ) {
-		clustering.reset(new GMMLayer(args.k));
-	}
-	else if ( args.clustering == "k-means" ) {
-		clustering.reset(new KMeansLayer(args.k));
-	}
-	else {
-		std::cerr << "error: clustering must be 'gmm' or 'k-means'\n";
-		exit(1);
+	for ( int k = args.min_k; k <= args.max_k; k++ ) {
+		if ( args.clustering == "gmm" ) {
+			clustering.push_back(new GMMLayer(k));
+		}
+		else if ( args.clustering == "k-means" ) {
+			clustering.push_back(new KMeansLayer(k));
+		}
+		else {
+			std::cerr << "error: clustering must be 'gmm' or 'k-means'\n";
+			exit(1);
+		}
 	}
 
 	// construct criterion layer
-	std::unique_ptr<CriterionLayer> criterion;
+	CriterionLayer *criterion;
 
 	if ( args.criterion == "bic" ) {
-		criterion.reset(new BICLayer());
+		criterion = new BICLayer();
 	}
 	else if ( args.criterion == "icl" ) {
-		criterion.reset(new ICLLayer());
+		criterion = new ICLLayer();
 	}
 	else {
 		std::cerr << "error: criterion must be 'bic' or 'icl'\n";
@@ -181,23 +160,14 @@ int main(int argc, char **argv)
 	}
 
 	// create clustering model
-	ClusteringModel model(feature.get(), clustering.get());
-
-	// extract features from input data
-	model.extract(input_data);
+	ClusteringModel model(clustering, criterion);
 
 	// perform clustering on input data
-	std::vector<int> Y_pred = model.predict();
+	std::vector<int> Y_pred = model.predict(input_data);
 
 	// print clustering results
 	model.validate(Y_pred);
 	model.print_results(Y_pred);
-
-	// evaluate criterion of clustering model
-	float value = criterion->compute(clustering.get());
-
-	log(LL_VERBOSE, "criterion value: %f", value);
-	log(LL_VERBOSE, "");
 
 	// print timing results
 	timer_print();

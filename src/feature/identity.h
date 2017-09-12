@@ -12,11 +12,11 @@ namespace ML {
 
 class IdentityLayer : public FeatureLayer {
 public:
-	void compute(const Matrix& X, const std::vector<DataEntry>& y, int c);
+	void compute(const Matrix& X, const std::vector<DataEntry>& y, int c) {};
 	Matrix project(const Matrix& X);
 
-	void save(std::ofstream& file);
-	void load(std::ifstream& file);
+	void save(std::ofstream& file) {};
+	void load(std::ifstream& file) {};
 
 	void print();
 };

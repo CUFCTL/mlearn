@@ -9,21 +9,6 @@
 namespace ML {
 
 /**
- * Compute the features for an identity layer.
- *
- * NOTE: since the identity layer just returns the input,
- * this function does nothing instead of allocating a
- * large identity matrix.
- *
- * @param X
- * @param y
- * @param c
- */
-void IdentityLayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
-{
-}
-
-/**
  * Project an input matrix into the feature space
  * of the identity layer.
  *
@@ -32,24 +17,6 @@ void IdentityLayer::compute(const Matrix& X, const std::vector<DataEntry>& y, in
 Matrix IdentityLayer::project(const Matrix& X)
 {
 	return X;
-}
-
-/**
- * Save an identity layer to a file.
- *
- * @param file
- */
-void IdentityLayer::save(std::ofstream& file)
-{
-}
-
-/**
- * Load an identity layer from a file.
- *
- * @param file
- */
-void IdentityLayer::load(std::ifstream& file)
-{
 }
 
 /**
