@@ -229,9 +229,9 @@ void test_copy_columns()
 void test_determinant()
 {
 	float A_data[] = {
-		 1, -2,  4,
-		-5,  2,  0,
-		 1,  0,  3
+		 2, -1,  0,
+		-1,  2, -1,
+		 0, -1,  2
 	};
 	Matrix A(3, 3, A_data);
 
@@ -242,7 +242,7 @@ void test_determinant()
 		std::cout << "det(A) = " << det << "\n";
 	}
 
-	assert_equal(det, -32, "det(A)");
+	assert_equal(det, 4, "det(A)");
 }
 
 /**
@@ -386,14 +386,14 @@ void test_eigen2()
 void test_inverse()
 {
 	float X_data[] = {
-		 1,  0,  2,
-		-1,  5,  0,
-		 0,  3, -9
+		 2, -1,  0,
+		-1,  2, -1,
+		 0, -1,  2
 	};
 	float Y_data[] = {
-		0.8824, -0.1176,  0.1961,
-		0.1765,  0.1765,  0.0392,
-		0.0588,  0.0588, -0.0980
+		0.7500, 0.5000, 0.2500,
+		0.5000, 1.0000, 0.5000,
+		0.2500, 0.5000, 0.7500
 	};
 	Matrix X(3, 3, X_data);
 	Matrix Y = X.inverse();

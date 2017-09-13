@@ -235,23 +235,11 @@ void GMMLayer::compute(const Matrix& X)
 	float L0 = 0;
 
 	for ( int m = 0; m < NUM_ITER; m++ ) {
-		timer_push("E step");
-
 		this->E_step(X, theta, c);
-
-		timer_pop();
-
-		timer_push("M step");
-
 		this->M_step(X, c, theta);
 
-		timer_pop();
-
-		timer_push("check for convergence");
-
+		// check for convergence
 		float L1 = theta.log_likelihood(X);
-
-		timer_pop();
 
 		if ( L0 != 0 && fabsf(L1 - L0) < EPSILON ) {
 			log(LL_DEBUG, "converged after %d iteratinos", m + 1);

@@ -436,9 +436,10 @@ void Matrix::gpu_write()
 }
 
 /**
- * Compute the determinant of a matrix using LU decomposition.
+ * Compute the determinant of a symmetric matrix using
+ * Cholesky decomposition:
  *
- *   det(M) = det(P * L * U)
+ *   det(M) = det(U)^2
  */
 float Matrix::determinant() const
 {
@@ -447,46 +448,39 @@ float Matrix::determinant() const
 	log(LL_DEBUG, "debug: d <- det(M [%d,%d])",
 		M._rows, M._cols);
 
-	int m = M._rows;
+	assert(is_square(M));
+
 	int n = M._cols;
 	Matrix U = M;
-	int lda = m;
-	int *ipiv = new int[min(m, n)];
+	int lda = M._rows;
 
-	// compute LU decomposition
+	// compute Cholesky decomposition
 	if ( GPU ) {
 		int info;
 
-		magma_sgetrf_gpu(
-			m, n, U._data_gpu, lda,
-			ipiv,
-			&info);
+		magma_spotrf_gpu(
+			MagmaUpper,
+			n, U._data_gpu, lda,
+			&info
+		);
 		assert(info == 0);
 
 		U.gpu_read();
 	}
 	else {
-		int info = LAPACKE_sgetrf_work(
-			LAPACK_COL_MAJOR,
-			m, n, U._data_cpu, lda,
-			ipiv);
+		int info = LAPACKE_spotrf_work(
+			LAPACK_COL_MAJOR, 'U',
+			n, U._data_cpu, lda
+		);
+
 		assert(info == 0);
 	}
 
-	// compute det(A) = det(P * L * U) = 1^S * det(U)
+	// compute det(A) = det(U)^2
 	float det = 1;
-	for ( int i = 0; i < min(m, n); i++ ) {
-		if ( i + 1 != ipiv[i] ) {
-			det *= -1;
-		}
+	for ( int i = 0; i < n; i++ ) {
+		det *= U.elem(i, i) * U.elem(i, i);
 	}
-
-	for ( int i = 0; i < min(m, n); i++ ) {
-		det *= U.elem(i, i);
-	}
-
-	// cleanup
-	delete[] ipiv;
 
 	return det;
 }
@@ -587,13 +581,15 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 		int *iwork = new int[liwork];
 		int info;
 
-		magma_ssyevd_gpu(MagmaVec, MagmaUpper,
+		magma_ssyevd_gpu(
+			MagmaVec, MagmaUpper,
 			n, V._data_gpu, lda,
 			D._data_cpu,
 			wA, ldwa,
 			work, lwork,
 			iwork, liwork,
-			&info);
+			&info
+		);
 		assert(info == 0);
 
 		delete[] wA;
@@ -606,10 +602,12 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 		int lwork = 3 * n;
 		float *work = new float[lwork];
 
-		int info = LAPACKE_ssyev_work(LAPACK_COL_MAJOR, 'V', 'U',
+		int info = LAPACKE_ssyev_work(
+			LAPACK_COL_MAJOR, 'V', 'U',
 			n, V._data_cpu, lda,
 			D._data_cpu,
-			work, lwork);
+			work, lwork
+		);
 		assert(info == 0);
 
 		delete[] work;
@@ -629,7 +627,8 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 }
 
 /**
- * Compute the inverse of a square matrix.
+ * Compute the inverse of a symmetric matrix using
+ * Cholesky decomposition.
  */
 Matrix Matrix::inverse() const
 {
@@ -640,49 +639,48 @@ Matrix Matrix::inverse() const
 
 	assert(is_square(M));
 
-	Matrix M_inv = M;
-
-	int m = M._rows;
 	int n = M._cols;
+	Matrix M_inv = M;
 	int lda = M._rows;
 
 	if ( GPU ) {
-		int nb = magma_get_sgetri_nb(n);
-		int *ipiv = new int[n];
-		int lwork = n * nb;
-		float *dwork = (float *)gpu_malloc(lwork * sizeof(float));
 		int info;
 
-		magma_sgetrf_gpu(m, n, M_inv._data_gpu, lda,
-			ipiv, &info);
+		magma_spotrf_gpu(
+			MagmaUpper,
+			n, M_inv._data_gpu, lda,
+			&info
+		);
 		assert(info == 0);
 
-		magma_sgetri_gpu(n, M_inv._data_gpu, lda,
-			ipiv, dwork, lwork, &info);
+		magma_spotri_gpu(
+			MagmaUpper,
+			n, M_inv._data_gpu, lda,
+			&info
+		);
 		assert(info == 0);
-
-		delete[] ipiv;
-		gpu_free(dwork);
 
 		M_inv.gpu_read();
 	}
 	else {
-		int *ipiv = new int[n];
-		int lwork = n;
-		float *work = new float[lwork];
-
-		int info = LAPACKE_sgetrf_work(LAPACK_COL_MAJOR,
-			m, n, M_inv._data_cpu, lda,
-			ipiv);
+		int info = LAPACKE_spotrf_work(
+			LAPACK_COL_MAJOR, 'U',
+			n, M_inv._data_cpu, lda
+		);
 		assert(info == 0);
 
-		info = LAPACKE_sgetri_work(LAPACK_COL_MAJOR,
-			n, M_inv._data_cpu, lda,
-			ipiv, work, lwork);
+		info = LAPACKE_spotri_work(
+			LAPACK_COL_MAJOR, 'U',
+			n, M_inv._data_cpu, lda
+		);
 		assert(info == 0);
+	}
 
-		delete[] ipiv;
-		delete[] work;
+	// fill lower-triangular data
+	for ( int i = 0; i < M_inv._rows; i++ ) {
+		for ( int j = 0; j < i; j++ ) {
+			M_inv.elem(i, j) = M_inv.elem(j, i);
+		}
 	}
 
 	return M_inv;
