@@ -9,6 +9,7 @@ set_target_properties(openblas PROPERTIES
 	IMPORTED_LOCATION "${OPENBLASDIR}/lib/libopenblas.so"
 	INTERFACE_INCLUDE_DIRECTORIES "${OPENBLASDIR}/include"
 )
+include_directories("${OPENBLASDIR}/include")
 
 set(MAGMADIR "$ENV{HOME}/software/magma-2.2.0")
 add_library(magma SHARED IMPORTED)
