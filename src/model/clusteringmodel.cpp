@@ -21,6 +21,7 @@ ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clusterin
 	// initialize layers
 	this->_clustering = clustering;
 	this->_criterion = criterion;
+	this->_best_layer = nullptr;
 
 	// initialize stats
 	this->_stats.error_rate = 0.0f;
@@ -39,18 +40,10 @@ ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clusterin
 /**
  * Perform clustering on the input data.
  *
- * @param input
+ * @param X
  */
-std::vector<int> ClusteringModel::predict(const Dataset& input)
+std::vector<int> ClusteringModel::predict(const Matrix& X)
 {
-	timer_push("Load data");
-
-	this->_input = input;
-
-	Matrix X = this->_input.load_data();
-
-	timer_pop();
-
 	timer_push("Clustering");
 
 	// run clustering layers
@@ -75,25 +68,27 @@ std::vector<int> ClusteringModel::predict(const Dataset& input)
 
 		log(LL_VERBOSE, "criterion value: %8.3f", value);
 	}
+	log(LL_VERBOSE, "");
 
-	this->_min_c = min_c;
+	this->_best_layer = min_c;
 
-	return this->_min_c->output();
+	return this->_best_layer->output();
 }
 
 /**
  * Validate a set of predicted labels against the ground truth.
  *
+ * @param input
  * @param Y_pred
  */
-void ClusteringModel::validate(const std::vector<int>& Y_pred)
+void ClusteringModel::validate(const Dataset& input, const std::vector<int>& Y_pred)
 {
 	// compute purity
 	float purity = 0;
 
-	int c = this->_input.labels().size();
-	int n = this->_input.entries().size();
-	int k = this->_min_c->num_clusters();
+	int c = input.labels().size();
+	int n = input.entries().size();
+	int k = this->_best_layer->num_clusters();
 
 	for ( int i = 0; i < k; i++ ) {
 		int max_correct = 0;
@@ -102,7 +97,7 @@ void ClusteringModel::validate(const std::vector<int>& Y_pred)
 			int num_correct = 0;
 
 			for ( int p = 0; p < n; p++ ) {
-				if ( Y_pred[p] == i && this->_input.entries()[p].label == this->_input.labels()[j] ) {
+				if ( Y_pred[p] == i && input.entries()[p].label == input.labels()[j] ) {
 					num_correct++;
 				}
 			}
@@ -124,15 +119,16 @@ void ClusteringModel::validate(const std::vector<int>& Y_pred)
 /**
  * Print prediction results of a model.
  *
+ * @oaram input
  * @param Y_pred
  */
-void ClusteringModel::print_results(const std::vector<int>& Y_pred) const
+void ClusteringModel::print_results(const Dataset& input, const std::vector<int>& Y_pred) const
 {
 	log(LL_VERBOSE, "Results");
 
-	for ( size_t i = 0; i < this->_input.entries().size(); i++ ) {
+	for ( size_t i = 0; i < input.entries().size(); i++ ) {
 		int y_pred = Y_pred[i];
-		const DataEntry& entry = this->_input.entries()[i];
+		const DataEntry& entry = input.entries()[i];
 
 		log(LL_VERBOSE, "%-4s (%s) -> %d",
 			entry.name.c_str(),

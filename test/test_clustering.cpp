@@ -163,11 +163,19 @@ int main(int argc, char **argv)
 	ClusteringModel model(clustering, criterion);
 
 	// perform clustering on input data
-	std::vector<int> Y_pred = model.predict(input_data);
+	Matrix X = input_data.load_data();
+
+	std::vector<int> Y_pred = model.predict(X);
 
 	// print clustering results
-	model.validate(Y_pred);
-	model.print_results(Y_pred);
+	log(LL_VERBOSE, "Best clustering model:");
+	log(LL_VERBOSE, "");
+
+	model.best_layer()->print();
+	log(LL_VERBOSE, "");
+
+	model.validate(input_data, Y_pred);
+	model.print_results(input_data, Y_pred);
 
 	// print timing results
 	timer_print();

@@ -14,9 +14,6 @@ namespace ML {
 
 class ClusteringModel {
 private:
-	// input data
-	Dataset _input;
-
 	// clustering layers
 	std::vector<ClusteringLayer *> _clustering;
 
@@ -24,7 +21,7 @@ private:
 	CriterionLayer *_criterion;
 
 	// selected clustering layer
-	ClusteringLayer *_min_c;
+	ClusteringLayer *_best_layer;
 
 	// performance, accuracy stats
 	struct {
@@ -36,10 +33,12 @@ public:
 	ClusteringModel(const std::vector<ClusteringLayer *>& clustering, CriterionLayer *criterion);
 	~ClusteringModel() {};
 
-	std::vector<int> predict(const Dataset& input);
-	void validate(const std::vector<int>& Y_pred);
+	ClusteringLayer * best_layer() const { return this->_best_layer; };
 
-	void print_results(const std::vector<int>& Y_pred) const;
+	std::vector<int> predict(const Matrix& X);
+	void validate(const Dataset& input, const std::vector<int>& Y_pred);
+
+	void print_results(const Dataset& input, const std::vector<int>& Y_pred) const;
 	void print_stats() const;
 };
 
