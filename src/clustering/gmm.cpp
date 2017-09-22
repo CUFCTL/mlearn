@@ -97,7 +97,7 @@ void GMMLayer::E_step(const Matrix& X, const ParameterSet& theta, Matrix& c)
 {
 	// compute h_ij for each i,j
 	int n = X.cols();
-	Matrix h = theta.pdf_all(X);
+	const Matrix& h = theta.h();
 
 	// compute c_ij for each i,j
 	for ( int i = 0; i < n; i++ ) {
@@ -142,7 +142,9 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, ParameterSet& theta)
 			sum += c.elem(i, j) * X(i);
 		}
 
-		theta.mu(j) = sum / n_j;
+		sum /= n_j;
+
+		theta.mu(j) = sum;
 
 		// compute S_j = W_j / n_j
 		Matrix W_j = Matrix::zeros(d, d);
@@ -159,6 +161,9 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, ParameterSet& theta)
 
 		theta.S(j) = W_j;
 	}
+
+	// update h
+	theta.pdf_all(X);
 }
 
 /**
@@ -220,20 +225,18 @@ float compute_entropy(const Matrix& c, const std::vector<int>& y)
  */
 int GMMLayer::compute(const Matrix& X)
 {
+	int status = 0;
+
+	timer_push("Gaussian mixture model");
+
 	try {
 		int n = X.cols();
 		int d = X.rows();
 
-		timer_push("Gaussian mixture model");
-
-		timer_push("initialize parameters");
-
+		// initialize parameters
 		ParameterSet theta = this->initialize(X, NUM_INIT, INIT_SMALL_EM);
 
-		timer_pop();
-
-		timer_push("run EM algorithm");
-
+		// run EM algorithm
 		Matrix c(n, this->_k);
 		float L0 = 0;
 
@@ -252,8 +255,6 @@ int GMMLayer::compute(const Matrix& X)
 			L0 = L1;
 		}
 
-		timer_pop();
-
 		// save outputs
 		std::vector<int> y = compute_labels(c);
 
@@ -262,14 +263,14 @@ int GMMLayer::compute(const Matrix& X)
 		this->_num_parameters = this->_k * (1 + d + d * d);
 		this->_num_samples = n;
 		this->_output = y;
-
-		timer_pop();
-
-		return 0;
 	}
 	catch ( std::runtime_error& e ) {
-		return 1;
+		status = 1;
 	}
+
+	timer_pop();
+
+	return status;
 }
 
 /**

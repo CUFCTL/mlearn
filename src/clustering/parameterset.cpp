@@ -43,21 +43,18 @@ float pdf(Matrix x, const Matrix& mu, float S_det, const Matrix& S_inv)
  *
  * @param X
  */
-Matrix ParameterSet::pdf_all(const Matrix& X) const
+void ParameterSet::pdf_all(const Matrix& X)
 {
 	int n = X.cols();
-	Matrix h(n, this->_k);
 
 	for ( int j = 0; j < this->_k; j++ ) {
 		float S_det = this->_S[j].determinant();
 		Matrix S_inv = this->_S[j].inverse();
 
 		for ( int i = 0; i < n; i++ ) {
-			h.elem(i, j) = pdf(X(i), this->_mu[j], S_det, S_inv);
+			this->_h.elem(i, j) = pdf(X(i), this->_mu[j], S_det, S_inv);
 		}
 	}
-
-	return h;
 }
 
 /**
@@ -70,7 +67,6 @@ Matrix ParameterSet::pdf_all(const Matrix& X) const
 float ParameterSet::log_likelihood(const Matrix& X) const
 {
 	int n = X.cols();
-	Matrix h = this->pdf_all(X);
 
 	// compute L = sum(L_i, i=1:n)
 	float L = 0;
@@ -79,7 +75,7 @@ float ParameterSet::log_likelihood(const Matrix& X) const
 		// compute L_i = log(sum(p_j * h_ij, j=1:k))
 		float sum = 0;
 		for ( int j = 0; j < this->_k; j++ ) {
-			sum += this->_p[j] * h.elem(i, j);
+			sum += this->_p[j] * this->_h.elem(i, j);
 		}
 
 		L += logf(sum);
@@ -102,6 +98,9 @@ void ParameterSet::initialize(const Matrix& X)
 	this->_mu = m_random_sample(X, this->_k);
 
 	// initialize mixture proportions, covariances
+	this->_p.reserve(this->_k);
+	this->_S.reserve(this->_k);
+
 	for ( int j = 0; j < this->_k; j++ ) {
 		// initialize p_j = 1 / k
 		this->_p.push_back(1.0f / this->_k);
@@ -109,6 +108,10 @@ void ParameterSet::initialize(const Matrix& X)
 		// initialize S_j = I_d
 		this->_S.push_back(Matrix::identity(d));
 	}
+
+	// initialize h
+	this->_h = Matrix(n, this->_k);
+	this->pdf_all(X);
 }
 
 /**

@@ -17,6 +17,7 @@ private:
 	std::vector<float> _p;
 	std::vector<Matrix> _mu;
 	std::vector<Matrix> _S;
+	Matrix _h;
 
 public:
 	ParameterSet(int k);
@@ -27,16 +28,17 @@ public:
 	const float& p(int i) const { return this->_p[i]; }
 	const Matrix& mu(int i) const { return this->_mu[i]; }
 	const Matrix& S(int i) const { return this->_S[i]; }
+	const Matrix& h() const { return this->_h; }
 
 	float& p(int i) { return this->_p[i]; }
 	Matrix& mu(int i) { return this->_mu[i]; }
 	Matrix& S(int i) { return this->_S[i]; }
 
 	float log_likelihood(const Matrix& X) const;
-	Matrix pdf_all(const Matrix& X) const;
 
 	// mutator functions
 	void initialize(const Matrix& X);
+	void pdf_all(const Matrix& X);
 };
 
 }
