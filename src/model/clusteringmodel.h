@@ -35,7 +35,7 @@ public:
 
 	ClusteringLayer * best_layer() const { return this->_best_layer; };
 
-	std::vector<int> predict(const Matrix& X);
+	void predict(const Matrix& X);
 	void validate(const Dataset& input, const std::vector<int>& Y_pred);
 
 	void print_results(const Dataset& input, const std::vector<int>& Y_pred) const;

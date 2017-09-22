@@ -164,8 +164,9 @@ int main(int argc, char **argv)
 
 	// perform clustering on input data
 	Matrix X = input_data.load_data();
+	model.predict(X);
 
-	std::vector<int> Y_pred = model.predict(X);
+	std::vector<int> Y_pred = model.best_layer()->output();
 
 	// print clustering results
 	log(LL_VERBOSE, "Best clustering model:");

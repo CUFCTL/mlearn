@@ -43,7 +43,7 @@ float pdf(Matrix x, const Matrix& mu, float var)
  *
  * @param X
  */
-void KMeansLayer::compute(const Matrix& X)
+int KMeansLayer::compute(const Matrix& X)
 {
 	timer_push("k-means");
 
@@ -148,6 +148,8 @@ void KMeansLayer::compute(const Matrix& X)
 	this->_output = y;
 
 	timer_pop();
+
+	return 0;
 }
 
 /**

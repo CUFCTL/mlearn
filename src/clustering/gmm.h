@@ -27,7 +27,7 @@ private:
 public:
 	GMMLayer(int k);
 
-	void compute(const Matrix& X);
+	int compute(const Matrix& X);
 
 	float entropy() const { return this->_entropy; }
 	float log_likelihood() const { return this->_log_likelihood; }

@@ -21,7 +21,7 @@ private:
 public:
 	KMeansLayer(int k);
 
-	void compute(const Matrix& X);
+	int compute(const Matrix& X);
 
 	float entropy() const { return 0; }
 	float log_likelihood() const { return this->_log_likelihood; }

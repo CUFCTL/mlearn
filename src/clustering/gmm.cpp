@@ -4,6 +4,7 @@
  * Implementation of Gaussian mixture models.
  */
 #include <cmath>
+#include <stdexcept>
 #include "clustering/gmm.h"
 #include "util/logger.h"
 #include "util/timer.h"
@@ -211,56 +212,64 @@ float compute_entropy(const Matrix& c, const std::vector<int>& y)
 }
 
 /**
- * Partition a matrix X of observations into
- * clusters using a Gaussian mixture model.
+ * Partition a matrix X of observations into clusters
+ * using a Gaussian mixture model. Returns 0 on success,
+ * 1 otherwise.
  *
  * @param X
  */
-void GMMLayer::compute(const Matrix& X)
+int GMMLayer::compute(const Matrix& X)
 {
-	int n = X.cols();
-	int d = X.rows();
+	try {
+		int n = X.cols();
+		int d = X.rows();
 
-	timer_push("Gaussian mixture model");
+		timer_push("Gaussian mixture model");
 
-	timer_push("initialize parameters");
+		timer_push("initialize parameters");
 
-	ParameterSet theta = this->initialize(X, NUM_INIT, INIT_SMALL_EM);
+		ParameterSet theta = this->initialize(X, NUM_INIT, INIT_SMALL_EM);
 
-	timer_pop();
+		timer_pop();
 
-	timer_push("run EM algorithm");
+		timer_push("run EM algorithm");
 
-	Matrix c(n, this->_k);
-	float L0 = 0;
+		Matrix c(n, this->_k);
+		float L0 = 0;
 
-	for ( int m = 0; m < NUM_ITER; m++ ) {
-		this->E_step(X, theta, c);
-		this->M_step(X, c, theta);
+		for ( int m = 0; m < NUM_ITER; m++ ) {
+			this->E_step(X, theta, c);
+			this->M_step(X, c, theta);
 
-		// check for convergence
-		float L1 = theta.log_likelihood(X);
+			// check for convergence
+			float L1 = theta.log_likelihood(X);
 
-		if ( L0 != 0 && fabsf(L1 - L0) < EPSILON ) {
-			log(LL_DEBUG, "converged after %d iteratinos", m + 1);
-			break;
+			if ( L0 != 0 && fabsf(L1 - L0) < EPSILON ) {
+				log(LL_DEBUG, "converged after %d iteratinos", m + 1);
+				break;
+			}
+
+			L0 = L1;
 		}
 
-		L0 = L1;
+		timer_pop();
+
+		// save outputs
+		std::vector<int> y = compute_labels(c);
+
+		this->_entropy = compute_entropy(c, y);
+		this->_log_likelihood = theta.log_likelihood(X);
+		this->_num_parameters = this->_k * (1 + d + d * d);
+		this->_num_samples = n;
+		this->_output = y;
+
+		timer_pop();
+
+		return 0;
 	}
-
-	timer_pop();
-
-	// save outputs
-	std::vector<int> y = compute_labels(c);
-
-	this->_entropy = compute_entropy(c, y);
-	this->_log_likelihood = theta.log_likelihood(X);
-	this->_num_parameters = this->_k * (1 + d + d * d);
-	this->_num_samples = n;
-	this->_output = y;
-
-	timer_pop();
+	catch ( std::runtime_error& e ) {
+		return 1;
+	}
 }
 
 /**

@@ -15,7 +15,7 @@ class ClusteringLayer {
 public:
 	virtual ~ClusteringLayer() {};
 
-	virtual void compute(const Matrix& X) = 0;
+	virtual int compute(const Matrix& X) = 0;
 
 	virtual float entropy() const = 0;
 	virtual float log_likelihood() const = 0;

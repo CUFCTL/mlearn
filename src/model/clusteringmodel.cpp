@@ -42,13 +42,15 @@ ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clusterin
  *
  * @param X
  */
-std::vector<int> ClusteringModel::predict(const Matrix& X)
+void ClusteringModel::predict(const Matrix& X)
 {
 	timer_push("Clustering");
 
 	// run clustering layers
+	std::vector<int> results;
+
 	for ( ClusteringLayer *c : this->_clustering ) {
-		c->compute(X);
+		results.push_back(c->compute(X));
 	}
 
 	// record prediction time
@@ -58,21 +60,29 @@ std::vector<int> ClusteringModel::predict(const Matrix& X)
 	ClusteringLayer *min_c = nullptr;
 	float min_value = 0;
 
-	for ( ClusteringLayer *c : this->_clustering ) {
-		float value = this->_criterion->compute(c);
+	for ( size_t i = 0; i < this->_clustering.size(); i++ ) {
+		if ( results[i] == 0 ) {
+			ClusteringLayer *c = this->_clustering[i];
+			float value = this->_criterion->compute(c);
 
-		if ( min_c == nullptr || value < min_value ) {
-			min_c = c;
-			min_value = value;
+			if ( min_c == nullptr || value < min_value ) {
+				min_c = c;
+				min_value = value;
+			}
+
+			log(LL_VERBOSE, "model %d: %8.3f", i, value);
 		}
-
-		log(LL_VERBOSE, "criterion value: %8.3f", value);
+		else {
+			log(LL_VERBOSE, "model %d: FAILED", i);
+		}
 	}
 	log(LL_VERBOSE, "");
 
-	this->_best_layer = min_c;
+	if ( min_c == nullptr ) {
+		log(LL_WARN, "warning: all models failed");
+	}
 
-	return this->_best_layer->output();
+	this->_best_layer = min_c;
 }
 
 /**
