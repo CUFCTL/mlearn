@@ -137,29 +137,26 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, ParameterSet& theta)
 		theta.p(j) = n_j / n;
 
 		// compute mu_j = sum(c_ij * x_i, i=1:n) / n_j
-		Matrix sum = Matrix::zeros(d, 1);
+		Matrix& mu_j = theta.mu(j);
+		mu_j.init_zeros();
+
 		for ( int i = 0; i < n; i++ ) {
-			sum += c.elem(i, j) * X(i);
+			mu_j += c.elem(i, j) * X(i);
 		}
+		mu_j /= n_j;
 
-		sum /= n_j;
-
-		theta.mu(j) = sum;
-
-		// compute S_j = W_j / n_j
-		Matrix W_j = Matrix::zeros(d, d);
+		// compute S_j = sum(c_ij * (x_i - mu_j) * (x_i - mu_j)', i=1:n) / n_j
+		Matrix& S_j = theta.S(j);
+		S_j.init_zeros();
 
 		for ( int i = 0; i < n; i++ ) {
 			Matrix x_i = X(i) - theta.mu(j);
-			Matrix W_ji = x_i * x_i.T();
+			Matrix S_ij = x_i * x_i.T();
 
-			W_ji *= c.elem(i, j);
-			W_j += W_ji;
+			S_ij *= c.elem(i, j);
+			S_j += S_ij;
 		}
-
-		W_j /= n_j;
-
-		theta.S(j) = W_j;
+		S_j /= n_j;
 	}
 
 	// update h

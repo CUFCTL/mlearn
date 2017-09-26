@@ -43,6 +43,11 @@ public:
 	Matrix();
 	~Matrix();
 
+	void init_identity();
+	void init_ones();
+	void init_random();
+	void init_zeros();
+
 	static Matrix identity(int rows);
 	static Matrix ones(int rows, int cols);
 	static Matrix random(int rows, int cols);

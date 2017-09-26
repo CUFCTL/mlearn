@@ -271,6 +271,70 @@ Matrix::~Matrix()
 }
 
 /**
+ * Initialize a matrix to identity.
+ */
+void Matrix::init_identity()
+{
+	Matrix& M = *this;
+
+	for ( int i = 0; i < M._rows; i++ ) {
+		for ( int j = 0; j < M._cols; j++ ) {
+			M.elem(i, j) = (i == j);
+		}
+	}
+
+	M.gpu_write();
+}
+
+/**
+ * Initialize a matrix to all ones.
+ */
+void Matrix::init_ones()
+{
+	Matrix& M = *this;
+
+	for ( int i = 0; i < M._rows; i++ ) {
+		for ( int j = 0; j < M._cols; j++ ) {
+			M.elem(i, j) = 1;
+		}
+	}
+
+	M.gpu_write();
+}
+
+/**
+ * Initialize a matrix to normally-distributed random numbers.
+ */
+void Matrix::init_random()
+{
+	Matrix& M = *this;
+
+	for ( int i = 0; i < M._rows; i++ ) {
+		for ( int j = 0; j < M._cols; j++ ) {
+			M.elem(i, j) = RNG_normal();
+		}
+	}
+
+	M.gpu_write();
+}
+
+/**
+ * Initialize a matrix to all zeros.
+ */
+void Matrix::init_zeros()
+{
+	Matrix& M = *this;
+
+	for ( int i = 0; i < M._rows; i++ ) {
+		for ( int j = 0; j < M._cols; j++ ) {
+			M.elem(i, j) = 0;
+		}
+	}
+
+	M.gpu_write();
+}
+
+/**
  * Construct an identity matrix.
  *
  * @param rows
@@ -282,14 +346,7 @@ Matrix Matrix::identity(int rows)
 		rows);
 
 	Matrix M(rows, rows);
-
-	for ( int i = 0; i < rows; i++ ) {
-		for ( int j = 0; j < rows; j++ ) {
-			M.elem(i, j) = (i == j);
-		}
-	}
-
-	M.gpu_write();
+	M.init_identity();
 
 	return M;
 }
@@ -307,14 +364,7 @@ Matrix Matrix::ones(int rows, int cols)
 		rows, cols);
 
 	Matrix M(rows, cols);
-
-	for ( int i = 0; i < rows; i++ ) {
-		for ( int j = 0; j < cols; j++ ) {
-			M.elem(i, j) = 1;
-		}
-	}
-
-	M.gpu_write();
+	M.init_ones();
 
 	return M;
 }
@@ -332,14 +382,7 @@ Matrix Matrix::random(int rows, int cols)
 		rows, cols);
 
 	Matrix M(rows, cols);
-
-	for ( int i = 0; i < rows; i++ ) {
-		for ( int j = 0; j < cols; j++ ) {
-			M.elem(i, j) = RNG_normal();
-		}
-	}
-
-	M.gpu_write();
+	M.init_random();
 
 	return M;
 }
@@ -352,15 +395,12 @@ Matrix Matrix::random(int rows, int cols)
  */
 Matrix Matrix::zeros(int rows, int cols)
 {
+	log(LL_DEBUG, "debug: M [%d,%d] <- zeros(%d, %d)",
+		rows, cols,
+		rows, cols);
+
 	Matrix M(rows, cols);
-
-	for ( int i = 0; i < rows; i++ ) {
-		for ( int j = 0; j < cols; j++ ) {
-			M.elem(i, j) = 0;
-		}
-	}
-
-	M.gpu_write();
+	M.init_zeros();
 
 	return M;
 }
