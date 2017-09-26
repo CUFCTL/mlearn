@@ -83,6 +83,7 @@ public:
 
 	// mutator functions
 	void add(const Matrix& B);
+	void add_product(float alpha, const Matrix& A, const Matrix& B, float beta);
 	void assign_column(int i, const Matrix& B, int j);
 	void assign_row(int i, const Matrix& B, int j);
 	void elem_apply(elem_func_t f);
