@@ -75,7 +75,7 @@ ParameterSet GMMLayer::initialize(const Matrix& X, int num_init, bool small_em)
 		float L_test = theta_test.log_likelihood(X);
 
 		if ( L_theta == 0 || L_theta < L_test ) {
-			theta = theta_test;
+			theta = std::move(theta_test);
 			L_theta = L_test;
 		}
 	}

@@ -20,6 +20,37 @@ ParameterSet::ParameterSet(int k)
 }
 
 /**
+ * Move-construct a parameter set.
+ *
+ * @param theta
+ */
+ParameterSet::ParameterSet(ParameterSet&& theta)
+	: ParameterSet()
+{
+	swap(*this, theta);
+}
+
+/**
+ * Print a parameter set.
+ */
+void ParameterSet::print() const
+{
+	std::cout << "k = " << this->_k << "\n";
+
+	for ( int i = 0; i < this->_k; i++ ) {
+		std::cout << "p_" << i + 1 << " = " << this->_p[i] << "\n";
+
+		std::cout << "mu_" << i + 1 << " =\n";
+		this->_mu[i].print(std::cout);
+
+		std::cout << "S_" << i + 1 << " =\n";
+		this->_S[i].print(std::cout);
+	}
+
+	std::cout << "\n";
+}
+
+/**
  * Compute the value of a Gaussian distribution at x:
  *
  *   h(x | mu, S) = (2pi)^(d/2) |S|^-0.5 e^(-1/2 (x - mu)' S^-1 (x - mu))
@@ -115,23 +146,18 @@ void ParameterSet::initialize(const Matrix& X)
 }
 
 /**
- * Print a parameter set.
+ * Swap function for ParameterSet.
+ *
+ * @param lhs
+ * @param rhs
  */
-void ParameterSet::print() const
+void swap(ParameterSet& lhs, ParameterSet& rhs)
 {
-	std::cout << "k = " << this->_k << "\n";
-
-	for ( int i = 0; i < this->_k; i++ ) {
-		std::cout << "p_" << i + 1 << " = " << this->_p[i] << "\n";
-
-		std::cout << "mu_" << i + 1 << " =\n";
-		this->_mu[i].print(std::cout);
-
-		std::cout << "S_" << i + 1 << " =\n";
-		this->_S[i].print(std::cout);
-	}
-
-	std::cout << "\n";
+	std::swap(lhs._k, rhs._k);
+	std::swap(lhs._p, rhs._p);
+	std::swap(lhs._mu, rhs._mu);
+	std::swap(lhs._S, rhs._S);
+	std::swap(lhs._h, rhs._h);
 }
 
 }

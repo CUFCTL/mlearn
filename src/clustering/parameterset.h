@@ -20,8 +20,13 @@ private:
 	Matrix _h;
 
 public:
+	// constructor/destructor functions
 	ParameterSet(int k);
+	ParameterSet(ParameterSet&& theta);
+	ParameterSet() {};
+	~ParameterSet() {};
 
+	// I/O functions
 	void print() const;
 
 	// getter functions
@@ -39,6 +44,12 @@ public:
 	// mutator functions
 	void initialize(const Matrix& X);
 	void pdf_all(const Matrix& X);
+
+	// operators
+	inline ParameterSet& operator=(ParameterSet rhs) { swap(*this, rhs); return *this; }
+
+	// friend functions
+	friend void swap(ParameterSet& lhs, ParameterSet& rhs);
 };
 
 }
