@@ -141,7 +141,10 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, ParameterSet& theta)
 		mu_j.init_zeros();
 
 		for ( int i = 0; i < n; i++ ) {
-			mu_j += c.elem(i, j) * X(i);
+			Matrix x_i = X(i);
+			x_i *= c.elem(i, j);
+
+			mu_j += x_i;
 		}
 		mu_j /= n_j;
 
@@ -150,10 +153,12 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, ParameterSet& theta)
 		S_j.init_zeros();
 
 		for ( int i = 0; i < n; i++ ) {
-			Matrix x_i = X(i) - theta.mu(j);
-			Matrix S_ij = x_i * x_i.T();
+			Matrix x_i = X(i);
+			x_i -= theta.mu(j);
 
+			Matrix S_ij = x_i * x_i.T();
 			S_ij *= c.elem(i, j);
+
 			S_j += S_ij;
 		}
 		S_j /= n_j;
