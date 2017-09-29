@@ -15,7 +15,6 @@ done
 INSTALL_PREFIX=$HOME/software
 NUM_JOBS=$(nproc)
 
-export CUDADIR=/usr/local/cuda
 export MAGMADIR=$INSTALL_PREFIX/magma-2.2.0
 export OPENBLASDIR=$INSTALL_PREFIX/OpenBLAS-0.2.19
 
@@ -31,7 +30,7 @@ tar -xf v0.2.19.tar.gz
 
 cd OpenBLAS-0.2.19
 cp lapack-netlib/make.inc.example lapack-netlib/make.inc
-make -s -j $NUM_JOBS NO_LAPACK=0 TARGET=SANDYBRIDGE
+make -s -j $NUM_JOBS NO_LAPACK=0 TARGET=NEHALEM
 make -s install PREFIX=$OPENBLASDIR
 
 cd ..
