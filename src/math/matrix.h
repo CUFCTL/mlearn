@@ -70,12 +70,10 @@ public:
 
 	float determinant() const;
 	Matrix diagonalize() const;
-	float dot(const Matrix& b) const;
 	void eigen(int n1, Matrix& V, Matrix& D) const;
 	Matrix inverse() const;
 	Matrix mean_column() const;
 	Matrix mean_row() const;
-	float norm() const;
 	Matrix product(const Matrix& B) const;
 	float sum() const;
 	void svd(Matrix& U, Matrix& S, Matrix& V) const;
@@ -86,14 +84,16 @@ public:
 	void assign_column(int i, const Matrix& B, int j);
 	void assign_row(int i, const Matrix& B, int j);
 	void elem_apply(elem_func_t f);
-	void elem_mult(float c);
 	void subtract(const Matrix& B);
 	void subtract_columns(const Matrix& a);
 	void subtract_rows(const Matrix& a);
 
 	// BLAS wrapper functions
 	void axpy(float alpha, const Matrix& A);
+	float dot(const Matrix& y) const;
 	void gemm(float alpha, const Matrix& A, const Matrix& B, float beta);
+	float nrm2() const;
+	void scal(float c);
 	void syr(float alpha, const Matrix& x);
 
 	// operators
@@ -102,8 +102,8 @@ public:
 	inline Matrix& operator=(Matrix B) { swap(*this, B); return *this; }
 	inline Matrix& operator+=(const Matrix& B) { this->add(B); return *this; }
 	inline Matrix& operator-=(const Matrix& B) { this->subtract(B); return *this; }
-	inline Matrix& operator*=(float c) { this->elem_mult(c); return *this; }
-	inline Matrix& operator/=(float c) { this->elem_mult(1 / c); return *this; }
+	inline Matrix& operator*=(float c) { this->scal(c); return *this; }
+	inline Matrix& operator/=(float c) { this->scal(1 / c); return *this; }
 
 	// friend functions
 	friend void swap(Matrix& A, Matrix& B);

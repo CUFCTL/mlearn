@@ -458,20 +458,20 @@ void test_mean_row()
 /**
  * Test vector norm.
  */
-void test_norm()
+void test_nrm2()
 {
 	float v_data[] = {
 		-2, 3, 1
 	};
 	Matrix v(1, 3, v_data);
-	float n = v.norm();
+	float n = v.nrm2();
 
 	if ( LOGGER(LL_VERBOSE) ) {
 		std::cout << v;
-		std::cout << "norm(v) = " << n << "\n";
+		std::cout << "nrm2(v) = " << n << "\n";
 	}
 
-	assert_equal(n, 3.7417, "norm(v)");
+	assert_equal(n, 3.7417, "nrm2(v)");
 }
 
 /**
@@ -777,7 +777,7 @@ void test_elem_apply()
 /**
  * Test matrix multiplication by scalar.
  */
-void test_elem_mult()
+void test_scal()
 {
 	float A_data1[] = {
 		1, 0, 2,
@@ -960,7 +960,7 @@ int main(int argc, char **argv)
 		test_inverse,
 		test_mean_column,
 		test_mean_row,
-		test_norm,
+		test_nrm2,
 		test_product,
 		test_sum,
 		test_svd,
@@ -970,7 +970,7 @@ int main(int argc, char **argv)
 		test_assign_column,
 		test_assign_row,
 		test_elem_apply,
-		test_elem_mult,
+		test_scal,
 		test_subtract_columns,
 		test_subtract_rows
 	};

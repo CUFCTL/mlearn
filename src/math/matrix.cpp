@@ -569,38 +569,6 @@ Matrix Matrix::diagonalize() const
 }
 
 /**
- * Compute the dot product of two vectors.
- *
- * @param b
- */
-float Matrix::dot(const Matrix& b) const
-{
-	const Matrix& a = *this;
-
-	log(LL_DEBUG, "debug: d = dot(a [%d,%d], b [%d,%d])",
-		a._rows, a._cols, b._rows, b._cols);
-
-	throw_on_fail(is_vector(a) && is_vector(b));
-	throw_on_fail(length(a) == length(b));
-
-	int n = length(a);
-	int incX = 1;
-	int incY = 1;
-	float dot;
-
-	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-
-		dot = magma_sdot(n, a._data_gpu, incX, b._data_gpu, incY, queue);
-	}
-	else {
-		dot = cblas_sdot(n, a._data_cpu, incX, b._data_cpu, incY);
-	}
-
-	return dot;
-}
-
-/**
  * Compute the eigenvalues and eigenvectors of a symmetric matrix.
  *
  * The eigenvalues are returned as a diagonal matrix, and the
@@ -790,34 +758,6 @@ Matrix Matrix::mean_row() const
 	mu /= M._rows;
 
 	return mu;
-}
-
-/**
- * Compute the 2-norm of a vector.
- */
-float Matrix::norm() const
-{
-	const Matrix& v = *this;
-
-	log(LL_DEBUG, "debug: n = norm(v [%d,%d])",
-		v._rows, v._cols);
-
-	throw_on_fail(is_vector(v));
-
-	int n = length(v);
-	int incX = 1;
-	float norm;
-
-	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-
-		norm = magma_snrm2(n, v._data_gpu, incX, queue);
-	}
-	else {
-		norm = cblas_snrm2(n, v._data_cpu, incX);
-	}
-
-	return norm;
 }
 
 /**
@@ -1034,33 +974,6 @@ void Matrix::elem_apply(elem_func_t f)
 }
 
 /**
- * Multiply a matrix by a scalar.
- *
- * @param c
- */
-void Matrix::elem_mult(float c)
-{
-	Matrix& M = *this;
-
-	log(LL_DEBUG, "debug: M [%d,%d] <- %g * M [%d,%d]",
-		M._rows, M._cols, c, M._rows, M._cols);
-
-	int n = M._rows * M._cols;
-	int incX = 1;
-
-	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-
-		magma_sscal(n, c, M._data_gpu, incX, queue);
-
-		M.gpu_read();
-	}
-	else {
-		cblas_sscal(n, c, M._data_cpu, incX);
-	}
-}
-
-/**
  * Subtract a matrix from another matrix.
  *
  * @param B
@@ -1133,7 +1046,7 @@ void Matrix::subtract_rows(const Matrix& a)
 /**
  * Wrapper function for BLAS axpy:
  *
- *   B := alpha * A + B
+ *   B <- alpha * A + B
  *
  * @param alpha
  * @param A
@@ -1165,9 +1078,43 @@ void Matrix::axpy(float alpha, const Matrix& A)
 }
 
 /**
+ * Wrapper function for BLAS dot:
+ *
+ *   dot <- x' * y
+ *
+ * @param y
+ */
+float Matrix::dot(const Matrix& y) const
+{
+	const Matrix& x = *this;
+
+	log(LL_DEBUG, "debug: dot <- x' [%d,%d] * y [%d,%d]",
+		x._rows, x._cols, y._rows, y._cols);
+
+	throw_on_fail(is_vector(x) && is_vector(y));
+	throw_on_fail(length(x) == length(y));
+
+	int n = length(x);
+	int incX = 1;
+	int incY = 1;
+	float dot;
+
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
+
+		dot = magma_sdot(n, x._data_gpu, incX, y._data_gpu, incY, queue);
+	}
+	else {
+		dot = cblas_sdot(n, x._data_cpu, incX, y._data_cpu, incY);
+	}
+
+	return dot;
+}
+
+/**
  * Wrapper function for BLAS gemm:
  *
- *   C := alpha * A * B + beta * C
+ *   C <- alpha * A * B + beta * C
  *
  * @param alpha
  * @param A
@@ -1183,10 +1130,11 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 	int k2 = B._transposed ? B._cols : B._rows;
 	int n = B._transposed ? B._rows : B._cols;
 
-	log(LL_DEBUG, "debug: C [%d,%d] <- A%s [%d,%d] * B%s [%d,%d]",
+	log(LL_DEBUG, "debug: C [%d,%d] <- A%s [%d,%d] * B%s [%d,%d] + %g * C",
 		C._rows, C._cols,
 		A._transposed ? "'" : "", m, k1,
-		B._transposed ? "'" : "", k2, n);
+		B._transposed ? "'" : "", k2, n,
+		beta);
 
 	throw_on_fail(C._rows == m && C._cols == n && k1 == k2);
 
@@ -1215,9 +1163,68 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 }
 
 /**
- * Perform the following operation on a symmetric matrix:
+ * Wrapper function for BLAS nrm2:
  *
- *   A := alpha * x * x' + A
+ *   nrm2 <- ||x||
+ */
+float Matrix::nrm2() const
+{
+	const Matrix& x = *this;
+
+	log(LL_DEBUG, "debug: nrm2 <- ||x [%d,%d]||",
+		x._rows, x._cols);
+
+	throw_on_fail(is_vector(x));
+
+	int n = length(x);
+	int incX = 1;
+	float nrm2;
+
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
+
+		nrm2 = magma_snrm2(n, x._data_gpu, incX, queue);
+	}
+	else {
+		nrm2 = cblas_snrm2(n, x._data_cpu, incX);
+	}
+
+	return nrm2;
+}
+
+/**
+ * Wrapper function for BLAS scal:
+ *
+ *   M <- alpha * M
+ *
+ * @param alpha
+ */
+void Matrix::scal(float alpha)
+{
+	Matrix& M = *this;
+
+	log(LL_DEBUG, "debug: M [%d,%d] <- %g * M",
+		M._rows, M._cols, alpha);
+
+	int n = M._rows * M._cols;
+	int incX = 1;
+
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
+
+		magma_sscal(n, alpha, M._data_gpu, incX, queue);
+
+		M.gpu_read();
+	}
+	else {
+		cblas_sscal(n, alpha, M._data_cpu, incX);
+	}
+}
+
+/**
+ * Wrapper function for BLAS syr:
+ *
+ *   A <- alpha * x * x' + A
  *
  * @param alpha
  * @param x

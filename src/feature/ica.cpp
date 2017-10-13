@@ -296,7 +296,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 
 		// compute w = w - B * B' * w, normalize w
 		w -= B * B.T() * w;
-		w /= w.norm();
+		w /= w.nrm2();
 
 		// initialize w0
 		Matrix w0 = Matrix::zeros(w.rows(), w.cols());
@@ -305,11 +305,11 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 		for ( j = 0; j < this->max_iter; j++ ) {
 			// compute w = w - B * B' * w, normalize w
 			w -= B * B.T() * w;
-			w /= w.norm();
+			w /= w.nrm2();
 
 			// determine whether the direction of w and w0 are equal
-			float norm1 = (w - w0).norm();
-			float norm2 = (w + w0).norm();
+			float norm1 = (w - w0).nrm2();
+			float norm2 = (w + w0).nrm2();
 
 			// terminate round if w converges
 			if ( norm1 < this->eps || norm2 < this->eps ) {
@@ -330,7 +330,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 			w = fpica_update(w0, X);
 
 			// compute w* = w+ / ||w+||
-			w /= w.norm();
+			w /= w.nrm2();
 		}
 
 		log(LL_VERBOSE, "      iterations: %d", j);
