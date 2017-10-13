@@ -180,7 +180,7 @@ int main(int argc, char **argv)
 	model.print_results(input_data, Y_pred);
 
 	// print timing results
-	timer_print();
+	Timer::print();
 
 	gpu_finalize();
 

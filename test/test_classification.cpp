@@ -168,7 +168,7 @@ int main(int argc, char **argv)
 	model.print_results(test_set, Y_pred);
 
 	// print timing results
-	timer_print();
+	Timer::print();
 
 	gpu_finalize();
 

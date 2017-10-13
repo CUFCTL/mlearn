@@ -44,7 +44,7 @@ ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clusterin
  */
 void ClusteringModel::predict(const std::vector<Matrix>& X)
 {
-	timer_push("Clustering");
+	Timer::push("Clustering");
 
 	// run clustering layers
 	std::vector<int> results;
@@ -54,7 +54,7 @@ void ClusteringModel::predict(const std::vector<Matrix>& X)
 	}
 
 	// record prediction time
-	this->_stats.predict_time = timer_pop();
+	this->_stats.predict_time = Timer::pop();
 
 	// select model with lowest criterion value
 	ClusteringLayer *min_c = nullptr;

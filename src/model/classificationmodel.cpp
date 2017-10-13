@@ -77,7 +77,7 @@ void ClassificationModel::load(const std::string& path)
  */
 void ClassificationModel::train(const Dataset& train_set)
 {
-	timer_push("Training");
+	Timer::push("Training");
 
 	this->_train_set = train_set;
 
@@ -98,7 +98,7 @@ void ClassificationModel::train(const Dataset& train_set)
 	this->_P = this->_feature->project(X);
 
 	// record training time
-	this->_stats.train_time = timer_pop();
+	this->_stats.train_time = Timer::pop();
 
 	log(LL_VERBOSE, "");
 }
@@ -110,7 +110,7 @@ void ClassificationModel::train(const Dataset& train_set)
  */
 std::vector<DataLabel> ClassificationModel::predict(const Dataset& test_set)
 {
-	timer_push("Prediction");
+	Timer::push("Prediction");
 
 	log(LL_VERBOSE, "Test set: %d samples, %d classes",
 		test_set.entries().size(),
@@ -131,7 +131,7 @@ std::vector<DataLabel> ClassificationModel::predict(const Dataset& test_set)
 	);
 
 	// record prediction time
-	this->_stats.predict_time = timer_pop();
+	this->_stats.predict_time = Timer::pop();
 
 	log(LL_VERBOSE, "");
 

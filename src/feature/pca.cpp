@@ -38,43 +38,43 @@ void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 		? min(X.rows(), X.cols())
 		: this->n1;
 
-	timer_push("PCA");
+	Timer::push("PCA");
 
 	if ( X.rows() > X.cols() ) {
-		timer_push("compute surrogate of covariance matrix L");
+		Timer::push("compute surrogate of covariance matrix L");
 
 		Matrix L = X.T() * X;
 
-		timer_pop();
+		Timer::pop();
 
-		timer_push("compute eigendecomposition of L");
+		Timer::push("compute eigendecomposition of L");
 
 		Matrix V;
 		L.eigen(n1, V, this->D);
 
-		timer_pop();
+		Timer::pop();
 
-		timer_push("compute principal components");
+		Timer::push("compute principal components");
 
 		this->W = X * V;
 
-		timer_pop();
+		Timer::pop();
 	}
 	else {
-		timer_push("compute covariance matrix C");
+		Timer::push("compute covariance matrix C");
 
 		Matrix C = X * X.T();
 
-		timer_pop();
+		Timer::pop();
 
-		timer_push("compute eigendecomposition of C");
+		Timer::push("compute eigendecomposition of C");
 
 		C.eigen(n1, this->W, this->D);
 
-		timer_pop();
+		Timer::pop();
 	}
 
-	timer_pop();
+	Timer::pop();
 }
 
 /**

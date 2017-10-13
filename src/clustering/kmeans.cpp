@@ -45,20 +45,20 @@ float pdf(Matrix x, const Matrix& mu, float var)
  */
 int KMeansLayer::compute(const std::vector<Matrix>& X)
 {
-	timer_push("k-means");
+	Timer::push("k-means");
 
 	int n = X.size();
 	int d = X[0].rows();
 	std::vector<int> y;
 
-	timer_push("initialize means");
+	Timer::push("initialize means");
 
 	std::vector<Matrix> mu = m_random_sample(X, this->_k);
 
-	timer_pop();
+	Timer::pop();
 
 	while ( true ) {
-		timer_push("assignment step");
+		Timer::push("assignment step");
 
 		std::vector<int> y_next(n);
 
@@ -79,7 +79,7 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 			y_next[i] = min_j;
 		}
 
-		timer_pop();
+		Timer::pop();
 
 		if ( y == y_next ) {
 			break;
@@ -87,7 +87,7 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 
 		y = y_next;
 
-		timer_push("update step");
+		Timer::push("update step");
 
 		for ( int j = 0; j < this->_k; j++ ) {
 			// compute mu_j = mean of all x_i in cluster j
@@ -104,10 +104,10 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 			mu[j] /= n_j;
 		}
 
-		timer_pop();
+		Timer::pop();
 	}
 
-	timer_push("compute log-likelihood");
+	Timer::push("compute log-likelihood");
 
 	// compute L = sum(L_j, j=1:k)
 	float L = 0;
@@ -138,7 +138,7 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 		L += logf(sum);
 	}
 
-	timer_pop();
+	Timer::pop();
 
 	// save outputs
 	this->_log_likelihood = L;
@@ -146,7 +146,7 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 	this->_num_samples = n;
 	this->_output = y;
 
-	timer_pop();
+	Timer::pop();
 
 	return 0;
 }

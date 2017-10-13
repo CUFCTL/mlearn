@@ -222,7 +222,7 @@ int GMMLayer::compute(const std::vector<Matrix>& X)
 {
 	int status = 0;
 
-	timer_push("Gaussian mixture model");
+	Timer::push("Gaussian mixture model");
 
 	try {
 		int n = X.size();
@@ -263,7 +263,7 @@ int GMMLayer::compute(const std::vector<Matrix>& X)
 		status = 1;
 	}
 
-	timer_pop();
+	Timer::pop();
 
 	return status;
 }

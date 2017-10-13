@@ -47,26 +47,26 @@ void LDALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 		exit(1);
 	}
 
-	timer_push("LDA");
+	Timer::push("LDA");
 
-	timer_push("compute eigenfaces");
+	Timer::push("compute eigenfaces");
 
 	PCALayer pca(n1);
 	pca.compute(X, y, c);
 	Matrix P_pca = pca.project(X);
 
-	timer_pop();
+	Timer::pop();
 
-	timer_push("compute scatter matrices S_b and S_w");
+	Timer::push("compute scatter matrices S_b and S_w");
 
 	std::vector<Matrix> X_c = m_copy_classes(P_pca, y, c);
 	std::vector<Matrix> U = m_class_means(X_c);
 	Matrix S_b = m_scatter_between(X_c, U);
 	Matrix S_w = m_scatter_within(X_c, U);
 
-	timer_pop();
+	Timer::pop();
 
-	timer_push("compute eigendecomposition of S_b and S_w");
+	Timer::push("compute eigendecomposition of S_b and S_w");
 
 	Matrix S_w_inv = S_w.inverse();
 	Matrix J = S_w_inv * S_b;
@@ -75,15 +75,15 @@ void LDALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 	Matrix J_eval;
 	J.eigen(n2, W_fld, J_eval);
 
-	timer_pop();
+	Timer::pop();
 
-	timer_push("compute Fisherfaces");
+	Timer::push("compute Fisherfaces");
 
 	this->W = pca.W * W_fld;
 
-	timer_pop();
+	Timer::pop();
 
-	timer_pop();
+	Timer::pop();
 }
 
 /**

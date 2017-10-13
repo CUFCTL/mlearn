@@ -41,9 +41,9 @@ ICALayer::ICALayer(int n1, int n2, ICANonl nonl, int max_iter, float eps)
  */
 void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 {
-	timer_push("ICA");
+	Timer::push("ICA");
 
-	timer_push("subtract mean from input matrix");
+	Timer::push("subtract mean from input matrix");
 
 	// compute mixedsig = X', subtract mean column
 	Matrix mixedsig = X.transpose();
@@ -51,9 +51,9 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 
 	mixedsig.subtract_columns(mixedmean);
 
-	timer_pop();
+	Timer::pop();
 
-	timer_push("compute whitening matrix and whitened input matrix");
+	Timer::push("compute whitening matrix and whitened input matrix");
 
 	// compute whitening matrix W_z = inv(sqrt(D)) * W_pca'
 	PCALayer pca(this->n1);
@@ -69,16 +69,16 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 	// compute whitened input U = W_z * mixedsig
 	Matrix U = W_z * mixedsig;
 
-	timer_pop();
+	Timer::pop();
 
-	timer_push("compute mixing matrix");
+	Timer::push("compute mixing matrix");
 
 	// compute mixing matrix
 	Matrix W_mix = this->fpica(U, W_z);
 
-	timer_pop();
+	Timer::pop();
 
-	timer_push("compute ICA projection matrix");
+	Timer::push("compute ICA projection matrix");
 
 	// compute independent components
 	// icasig = W_mix * (mixedsig + mixedmean * ones(1, mixedsig.cols()))
@@ -90,9 +90,9 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 	// compute W_ica = icasig'
 	this->W = icasig.transpose();
 
-	timer_pop();
+	Timer::pop();
 
-	timer_pop();
+	Timer::pop();
 }
 
 /**

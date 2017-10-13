@@ -20,14 +20,16 @@ typedef struct {
 	float duration;
 } timer_item_t;
 
-typedef struct {
-	std::vector<timer_item_t> items;
-	int level;
-} timekeeper_t;
+class Timer {
+private:
+	static std::vector<timer_item_t> _items;
+	static int _level;
 
-void timer_push(const std::string& name);
-float timer_pop(void);
-void timer_print(void);
+public:
+	static void push(const std::string& name);
+	static float pop();
+	static void print();
+};
 
 }
 
