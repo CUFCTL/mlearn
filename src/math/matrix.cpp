@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <stdexcept>
 #include "math/matrix.h"
-#include "math/math_utils.h"
+#include "math/random.h"
 #include "util/logger.h"
 
 #include <cuda_runtime.h>
@@ -323,7 +323,7 @@ void Matrix::init_random()
 
 	for ( int i = 0; i < M._rows; i++ ) {
 		for ( int j = 0; j < M._cols; j++ ) {
-			M.elem(i, j) = RNG_normal();
+			M.elem(i, j) = Random::normal();
 		}
 	}
 

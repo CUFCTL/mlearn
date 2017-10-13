@@ -24,9 +24,9 @@
 #include "feature/lda.h"
 #include "feature/pca.h"
 
-#include "math/math_utils.h"
 #include "math/matrix.h"
 #include "math/matrix_utils.h"
+#include "math/random.h"
 
 #include "model/classificationmodel.h"
 #include "model/clusteringmodel.h"

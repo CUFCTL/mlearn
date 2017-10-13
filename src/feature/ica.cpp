@@ -6,7 +6,6 @@
 #include <cmath>
 #include "feature/ica.h"
 #include "feature/pca.h"
-#include "math/math_utils.h"
 #include "util/logger.h"
 #include "util/timer.h"
 
@@ -152,6 +151,26 @@ void ICALayer::print()
 }
 
 /**
+ * Compute the second power (square) of a number.
+ *
+ * @param x
+ */
+float pow2f(float x)
+{
+    return powf(x, 2);
+}
+
+/**
+ * Compute the third power (cube) of a number.
+ *
+ * @param x
+ */
+float pow3f(float x)
+{
+    return powf(x, 3);
+}
+
+/**
  * Compute the parameter update for fpica
  * with the pow3 nonlinearity:
  *
@@ -175,6 +194,16 @@ Matrix fpica_pow3 (const Matrix& w0, const Matrix& X)
 	w -= 3 * w0;
 
 	return w;
+}
+
+/**
+ * Compute the hyperbolic secant of a number.
+ *
+ * @param x
+ */
+float sechf(float x)
+{
+    return 1.0f / coshf(x);
 }
 
 /**

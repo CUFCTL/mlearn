@@ -5,8 +5,8 @@
  */
 #include <cassert>
 #include <cmath>
-#include "math/math_utils.h"
 #include "math/matrix_utils.h"
+#include "math/random.h"
 
 namespace ML {
 
@@ -136,7 +136,7 @@ std::vector<Matrix> m_random_sample(const std::vector<Matrix>& X, int k)
 	samples.reserve(k);
 
 	for ( int i = 0; i < k; i++ ) {
-		int j = RNG_int(0, X.size());
+		int j = Random::uniform_int(0, X.size());
 
 		samples.push_back(X[j]);
 	}

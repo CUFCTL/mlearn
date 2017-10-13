@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 	args_t args = parse_args(argc, argv);
 
 	// initialize random number engine
-	RNG_seed();
+	Random::seed();
 
 	// initialize GPU if enabled
 	gpu_init();
