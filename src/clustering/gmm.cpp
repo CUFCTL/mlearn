@@ -41,9 +41,9 @@ GMMLayer::GMMLayer(int k)
  * @param num_init
  * @param small_em
  */
-ParameterSet GMMLayer::initialize(const Matrix& X, int num_init, bool small_em)
+ParameterSet GMMLayer::initialize(const std::vector<Matrix>& X, int num_init, bool small_em)
 {
-	int n = X.cols();
+	int n = X.size();
 	ParameterSet theta(this->_k);
 	float L_theta = 0;
 
@@ -93,10 +93,10 @@ ParameterSet GMMLayer::initialize(const Matrix& X, int num_init, bool small_em)
  * @param theta
  * @param c
  */
-void GMMLayer::E_step(const Matrix& X, const ParameterSet& theta, Matrix& c)
+void GMMLayer::E_step(const std::vector<Matrix>& X, const ParameterSet& theta, Matrix& c)
 {
 	// compute h_ij for each i,j
-	int n = X.cols();
+	int n = X.size();
 	const Matrix& h = theta.h();
 
 	// compute c_ij for each i,j
@@ -121,10 +121,9 @@ void GMMLayer::E_step(const Matrix& X, const ParameterSet& theta, Matrix& c)
  * @param c
  * @param theta
  */
-void GMMLayer::M_step(const Matrix& X, const Matrix& c, ParameterSet& theta)
+void GMMLayer::M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSet& theta)
 {
-	int n = X.cols();
-	int d = X.rows();
+	int n = X.size();
 
 	for ( int j = 0; j < this->_k; j++ ) {
 		// compute n_j = sum(c_ij, i=1:n)
@@ -141,7 +140,7 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, ParameterSet& theta)
 		mu_j.init_zeros();
 
 		for ( int i = 0; i < n; i++ ) {
-			mu_j.axpy(c.elem(i, j), X(i));
+			mu_j.axpy(c.elem(i, j), X[i]);
 		}
 		mu_j /= n_j;
 
@@ -150,7 +149,7 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, ParameterSet& theta)
 		S_j.init_zeros();
 
 		for ( int i = 0; i < n; i++ ) {
-			Matrix x_i = X(i);
+			Matrix x_i = X[i];
 			x_i -= theta.mu(j);
 
 			S_j.syr(c.elem(i, j), x_i);
@@ -219,15 +218,15 @@ float compute_entropy(const Matrix& c, const std::vector<int>& y)
  *
  * @param X
  */
-int GMMLayer::compute(const Matrix& X)
+int GMMLayer::compute(const std::vector<Matrix>& X)
 {
 	int status = 0;
 
 	timer_push("Gaussian mixture model");
 
 	try {
-		int n = X.cols();
-		int d = X.rows();
+		int n = X.size();
+		int d = X[0].rows();
 
 		// initialize parameters
 		ParameterSet theta = this->initialize(X, NUM_INIT, INIT_SMALL_EM);

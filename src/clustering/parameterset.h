@@ -39,11 +39,11 @@ public:
 	Matrix& mu(int i) { return this->_mu[i]; }
 	Matrix& S(int i) { return this->_S[i]; }
 
-	float log_likelihood(const Matrix& X) const;
+	float log_likelihood(const std::vector<Matrix>& X) const;
 
 	// mutator functions
-	void initialize(const Matrix& X);
-	void pdf_all(const Matrix& X);
+	void initialize(const std::vector<Matrix>& X);
+	void pdf_all(const std::vector<Matrix>& X);
 
 	// operators
 	inline ParameterSet& operator=(ParameterSet rhs) { swap(*this, rhs); return *this; }

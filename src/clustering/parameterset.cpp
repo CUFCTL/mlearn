@@ -57,10 +57,10 @@ void ParameterSet::print() const
  *
  * @param X
  */
-void ParameterSet::pdf_all(const Matrix& X)
+void ParameterSet::pdf_all(const std::vector<Matrix>& X)
 {
-	int n = X.cols();
-	int d = X.rows();
+	int n = X.size();
+	int d = X[0].rows();
 
 	float temp1 = powf(2 * M_PI, d / 2.0f);
 
@@ -69,7 +69,7 @@ void ParameterSet::pdf_all(const Matrix& X)
 		Matrix S_inv = this->_S[j].inverse();
 
 		for ( int i = 0; i < n; i++ ) {
-			Matrix x_i = X(i);
+			Matrix x_i = X[i];
 			x_i -= this->_mu[j];
 
 			this->_h.elem(i, j) = temp1 * temp2 * expf(-0.5f * (x_i.T() * S_inv).dot(x_i));
@@ -84,9 +84,9 @@ void ParameterSet::pdf_all(const Matrix& X)
  *
  * @param X
  */
-float ParameterSet::log_likelihood(const Matrix& X) const
+float ParameterSet::log_likelihood(const std::vector<Matrix>& X) const
 {
-	int n = X.cols();
+	int n = X.size();
 
 	// compute L = sum(L_i, i=1:n)
 	float L = 0;
@@ -109,10 +109,10 @@ float ParameterSet::log_likelihood(const Matrix& X) const
  *
  * @param X
  */
-void ParameterSet::initialize(const Matrix& X)
+void ParameterSet::initialize(const std::vector<Matrix>& X)
 {
-	int n = X.cols();
-	int d = X.rows();
+	int n = X.size();
+	int d = X[0].rows();
 
 	// choose k means randomly from data
 	this->_mu = m_random_sample(X, this->_k);

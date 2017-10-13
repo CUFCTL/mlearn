@@ -19,7 +19,7 @@ float m_dist_L1(const Matrix& A, int i, const Matrix& B, int j);
 float m_dist_L2(const Matrix& A, int i, const Matrix& B, int j);
 
 std::vector<Matrix> m_copy_columns(const Matrix& X);
-std::vector<Matrix> m_random_sample(const Matrix& X, int k);
+std::vector<Matrix> m_random_sample(const std::vector<Matrix>& X, int k);
 
 std::vector<Matrix> m_copy_classes(const Matrix& X, const std::vector<DataEntry>& y, int c);
 std::vector<Matrix> m_class_means(const std::vector<Matrix>& X_c);

@@ -43,13 +43,12 @@ float pdf(Matrix x, const Matrix& mu, float var)
  *
  * @param X
  */
-int KMeansLayer::compute(const Matrix& X)
+int KMeansLayer::compute(const std::vector<Matrix>& X)
 {
 	timer_push("k-means");
 
-	int n = X.cols();
-	int d = X.rows();
-	std::vector<Matrix> X_col = m_copy_columns(X);
+	int n = X.size();
+	int d = X[0].rows();
 	std::vector<int> y;
 
 	timer_push("initialize means");
@@ -69,7 +68,7 @@ int KMeansLayer::compute(const Matrix& X)
 			float min_dist;
 
 			for ( int j = 0; j < this->_k; j++ ) {
-				float dist = m_dist_L2(X_col[i], 0, mu[j], 0);
+				float dist = m_dist_L2(X[i], 0, mu[j], 0);
 
 				if ( min_j == -1 || dist < min_dist ) {
 					min_j = j;
@@ -97,7 +96,7 @@ int KMeansLayer::compute(const Matrix& X)
 
 			for ( int i = 0; i < n; i++ ) {
 				if ( y[i] == j ) {
-					mu[j] += X_col[i];
+					mu[j] += X[i];
 					n_j++;
 				}
 			}
@@ -120,7 +119,7 @@ int KMeansLayer::compute(const Matrix& X)
 
 		for ( int i = 0; i < n; i++ ) {
 			if ( y[i] == j ) {
-				var_j += m_dist_L2(X_col[i], 0, mu[j], 0);
+				var_j += m_dist_L2(X[i], 0, mu[j], 0);
 				n_j++;
 			}
 		}
@@ -133,7 +132,7 @@ int KMeansLayer::compute(const Matrix& X)
 		// compute L_j = log(sum(p_j * h(x_i | mu_j, var_j), i=1:n))
 		float sum = 0;
 		for ( int i = 0; i < n; i++ ) {
-			sum += p_j * pdf(X_col[i], mu[j], var_j);
+			sum += p_j * pdf(X[i], mu[j], var_j);
 		}
 
 		L += logf(sum);

@@ -42,7 +42,7 @@ ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clusterin
  *
  * @param X
  */
-void ClusteringModel::predict(const Matrix& X)
+void ClusteringModel::predict(const std::vector<Matrix>& X)
 {
 	timer_push("Clustering");
 

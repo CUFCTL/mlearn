@@ -20,14 +20,14 @@ private:
 	int _num_samples;
 	std::vector<int> _output;
 
-	ParameterSet initialize(const Matrix& X, int num_init, bool small_em);
-	void E_step(const Matrix& X, const ParameterSet& theta, Matrix& c);
-	void M_step(const Matrix& X, const Matrix& c, ParameterSet& theta);
+	ParameterSet initialize(const std::vector<Matrix>& X, int num_init, bool small_em);
+	void E_step(const std::vector<Matrix>& X, const ParameterSet& theta, Matrix& c);
+	void M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSet& theta);
 
 public:
 	GMMLayer(int k);
 
-	int compute(const Matrix& X);
+	int compute(const std::vector<Matrix>& X);
 
 	float entropy() const { return this->_entropy; }
 	float log_likelihood() const { return this->_log_likelihood; }

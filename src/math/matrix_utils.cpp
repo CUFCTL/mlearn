@@ -129,16 +129,16 @@ std::vector<Matrix> m_copy_columns(const Matrix& X)
  * @param X
  * @param k
  */
-std::vector<Matrix> m_random_sample(const Matrix& X, int k)
+std::vector<Matrix> m_random_sample(const std::vector<Matrix>& X, int k)
 {
 	std::vector<Matrix> samples;
 
 	samples.reserve(k);
 
 	for ( int i = 0; i < k; i++ ) {
-		int j = RNG_int(0, X.cols());
+		int j = RNG_int(0, X.size());
 
-		samples.push_back(X(j));
+		samples.push_back(X[j]);
 	}
 
 	return samples;
