@@ -277,6 +277,10 @@ void Matrix::init_identity()
 {
 	Matrix& M = *this;
 
+	log(LL_DEBUG, "debug: M [%d,%d] <- eye(%d)",
+		M._rows, M._rows,
+		M._rows);
+
 	for ( int i = 0; i < M._rows; i++ ) {
 		for ( int j = 0; j < M._cols; j++ ) {
 			M.elem(i, j) = (i == j);
@@ -292,6 +296,10 @@ void Matrix::init_identity()
 void Matrix::init_ones()
 {
 	Matrix& M = *this;
+
+	log(LL_DEBUG, "debug: M [%d,%d] <- ones(%d, %d)",
+		M._rows, M._cols,
+		M._rows, M._cols);
 
 	for ( int i = 0; i < M._rows; i++ ) {
 		for ( int j = 0; j < M._cols; j++ ) {
@@ -309,6 +317,10 @@ void Matrix::init_random()
 {
 	Matrix& M = *this;
 
+	log(LL_DEBUG, "debug: M [%d,%d] <- randn(%d, %d)",
+		M._rows, M._cols,
+		M._rows, M._cols);
+
 	for ( int i = 0; i < M._rows; i++ ) {
 		for ( int j = 0; j < M._cols; j++ ) {
 			M.elem(i, j) = RNG_normal();
@@ -324,6 +336,10 @@ void Matrix::init_random()
 void Matrix::init_zeros()
 {
 	Matrix& M = *this;
+
+	log(LL_DEBUG, "debug: M [%d,%d] <- zeros(%d, %d)",
+		M._rows, M._cols,
+		M._rows, M._cols);
 
 	for ( int i = 0; i < M._rows; i++ ) {
 		for ( int j = 0; j < M._cols; j++ ) {
@@ -341,10 +357,6 @@ void Matrix::init_zeros()
  */
 Matrix Matrix::identity(int rows)
 {
-	log(LL_DEBUG, "debug: M [%d,%d] <- eye(%d)",
-		rows, rows,
-		rows);
-
 	Matrix M(rows, rows);
 	M.init_identity();
 
@@ -359,10 +371,6 @@ Matrix Matrix::identity(int rows)
  */
 Matrix Matrix::ones(int rows, int cols)
 {
-	log(LL_DEBUG, "debug: M [%d,%d] <- ones(%d, %d)",
-		rows, cols,
-		rows, cols);
-
 	Matrix M(rows, cols);
 	M.init_ones();
 
@@ -377,10 +385,6 @@ Matrix Matrix::ones(int rows, int cols)
  */
 Matrix Matrix::random(int rows, int cols)
 {
-	log(LL_DEBUG, "debug: M [%d,%d] <- randn(%d, %d)",
-		rows, cols,
-		rows, cols);
-
 	Matrix M(rows, cols);
 	M.init_random();
 
@@ -395,10 +399,6 @@ Matrix Matrix::random(int rows, int cols)
  */
 Matrix Matrix::zeros(int rows, int cols)
 {
-	log(LL_DEBUG, "debug: M [%d,%d] <- zeros(%d, %d)",
-		rows, cols,
-		rows, cols);
-
 	Matrix M(rows, cols);
 	M.init_zeros();
 
