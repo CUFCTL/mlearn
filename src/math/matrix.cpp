@@ -833,7 +833,7 @@ Matrix Matrix::product(const Matrix& B) const
 	int n = B._transposed ? B._rows : B._cols;
 
 	Matrix C = Matrix(m, n);
-	C.add_product(1.0f, A, B, 0.0f);
+	C.gemm(1.0f, A, B, 0.0f);
 
 	return C;
 }
@@ -959,79 +959,7 @@ void Matrix::add(const Matrix& B)
 {
 	Matrix& A = *this;
 
-	log(LL_DEBUG, "debug: A [%d,%d] <- A [%d,%d] + B [%d,%d]",
-		A._rows, A._cols,
-		A._rows, A._cols,
-		B._rows, B._cols);
-
-	throw_on_fail(A._rows == B._rows && A._cols == B._cols);
-
-	int n = A._rows * A._cols;
-	float alpha = 1.0f;
-	int incX = 1;
-	int incY = 1;
-
-	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-
-		magma_saxpy(n, alpha, B._data_gpu, incX, A._data_gpu, incY, queue);
-
-		A.gpu_read();
-	}
-	else {
-		cblas_saxpy(n, alpha, B._data_cpu, incX, A._data_cpu, incY);
-	}
-}
-
-/**
- * Add a product to a matrix:
- *
- *   C := alpha * A * B + beta * C
- *
- * @param alpha
- * @param A
- * @param B
- * @param beta
- */
-void Matrix::add_product(float alpha, const Matrix& A, const Matrix& B, float beta)
-{
-	Matrix& C = *this;
-
-	int m = A._transposed ? A._cols : A._rows;
-	int k1 = A._transposed ? A._rows : A._cols;
-	int k2 = B._transposed ? B._cols : B._rows;
-	int n = B._transposed ? B._rows : B._cols;
-
-	log(LL_DEBUG, "debug: C [%d,%d] <- A%s [%d,%d] * B%s [%d,%d]",
-		C._rows, C._cols,
-		A._transposed ? "'" : "", m, k1,
-		B._transposed ? "'" : "", k2, n);
-
-	throw_on_fail(C._rows == m && C._cols == n && k1 == k2);
-
-	// C := alpha * A * B + beta * C
-	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-		magma_trans_t TransA = A._transposed ? MagmaTrans : MagmaNoTrans;
-		magma_trans_t TransB = B._transposed ? MagmaTrans : MagmaNoTrans;
-
-		magma_sgemm(TransA, TransB,
-			m, n, k1,
-			alpha, A._data_gpu, A._rows, B._data_gpu, B._rows,
-			beta, C._data_gpu, C._rows,
-			queue);
-
-		C.gpu_read();
-	}
-	else {
-		CBLAS_TRANSPOSE TransA = A._transposed ? CblasTrans : CblasNoTrans;
-		CBLAS_TRANSPOSE TransB = B._transposed ? CblasTrans : CblasNoTrans;
-
-		cblas_sgemm(CblasColMajor, TransA, TransB,
-			m, n, k1,
-			alpha, A._data_cpu, A._rows, B._data_cpu, B._rows,
-			beta, C._data_cpu, C._rows);
-	}
+	A.axpy(1.0f, B);
 }
 
 /**
@@ -1141,28 +1069,7 @@ void Matrix::subtract(const Matrix& B)
 {
 	Matrix& A = *this;
 
-	log(LL_DEBUG, "debug: A [%d,%d] <- A [%d,%d] - B [%d,%d]",
-		A._rows, A._cols,
-		A._rows, A._cols,
-		B._rows, B._cols);
-
-	throw_on_fail(A._rows == B._rows && A._cols == B._cols);
-
-	int n = A._rows * A._cols;
-	float alpha = -1.0f;
-	int incX = 1;
-	int incY = 1;
-
-	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-
-		magma_saxpy(n, alpha, B._data_gpu, incX, A._data_gpu, incY, queue);
-
-		A.gpu_read();
-	}
-	else {
-		cblas_saxpy(n, alpha, B._data_cpu, incX, A._data_cpu, incY);
-	}
+	A.axpy(-1.0f, B);
 }
 
 /**
@@ -1221,6 +1128,90 @@ void Matrix::subtract_rows(const Matrix& a)
 		}
 	}
 	M.gpu_write();
+}
+
+/**
+ * Wrapper function for BLAS axpy:
+ *
+ *   B := alpha * A + B
+ *
+ * @param alpha
+ * @param A
+ */
+void Matrix::axpy(float alpha, const Matrix& A)
+{
+	Matrix& B = *this;
+
+	log(LL_DEBUG, "debug: B [%d,%d] <- %g * A [%d,%d] + B",
+		B._rows, B._cols,
+		alpha, A._rows, A._cols);
+
+	throw_on_fail(A._rows == B._rows && A._cols == B._cols);
+
+	int n = B._rows * B._cols;
+	int incX = 1;
+	int incY = 1;
+
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
+
+		magma_saxpy(n, alpha, A._data_gpu, incX, B._data_gpu, incY, queue);
+
+		B.gpu_read();
+	}
+	else {
+		cblas_saxpy(n, alpha, A._data_cpu, incX, B._data_cpu, incY);
+	}
+}
+
+/**
+ * Wrapper function for BLAS gemm:
+ *
+ *   C := alpha * A * B + beta * C
+ *
+ * @param alpha
+ * @param A
+ * @param B
+ * @param beta
+ */
+void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
+{
+	Matrix& C = *this;
+
+	int m = A._transposed ? A._cols : A._rows;
+	int k1 = A._transposed ? A._rows : A._cols;
+	int k2 = B._transposed ? B._cols : B._rows;
+	int n = B._transposed ? B._rows : B._cols;
+
+	log(LL_DEBUG, "debug: C [%d,%d] <- A%s [%d,%d] * B%s [%d,%d]",
+		C._rows, C._cols,
+		A._transposed ? "'" : "", m, k1,
+		B._transposed ? "'" : "", k2, n);
+
+	throw_on_fail(C._rows == m && C._cols == n && k1 == k2);
+
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
+		magma_trans_t TransA = A._transposed ? MagmaTrans : MagmaNoTrans;
+		magma_trans_t TransB = B._transposed ? MagmaTrans : MagmaNoTrans;
+
+		magma_sgemm(TransA, TransB,
+			m, n, k1,
+			alpha, A._data_gpu, A._rows, B._data_gpu, B._rows,
+			beta, C._data_gpu, C._rows,
+			queue);
+
+		C.gpu_read();
+	}
+	else {
+		CBLAS_TRANSPOSE TransA = A._transposed ? CblasTrans : CblasNoTrans;
+		CBLAS_TRANSPOSE TransB = B._transposed ? CblasTrans : CblasNoTrans;
+
+		cblas_sgemm(CblasColMajor, TransA, TransB,
+			m, n, k1,
+			alpha, A._data_cpu, A._rows, B._data_cpu, B._rows,
+			beta, C._data_cpu, C._rows);
+	}
 }
 
 /**

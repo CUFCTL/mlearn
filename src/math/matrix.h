@@ -83,7 +83,6 @@ public:
 
 	// mutator functions
 	void add(const Matrix& B);
-	void add_product(float alpha, const Matrix& A, const Matrix& B, float beta);
 	void assign_column(int i, const Matrix& B, int j);
 	void assign_row(int i, const Matrix& B, int j);
 	void elem_apply(elem_func_t f);
@@ -91,6 +90,10 @@ public:
 	void subtract(const Matrix& B);
 	void subtract_columns(const Matrix& a);
 	void subtract_rows(const Matrix& a);
+
+	// BLAS wrapper functions
+	void axpy(float alpha, const Matrix& A);
+	void gemm(float alpha, const Matrix& A, const Matrix& B, float beta);
 
 	// operators
 	inline Matrix operator()(int i, int j) const { return Matrix(*this, i, j); }
