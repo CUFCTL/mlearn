@@ -51,23 +51,6 @@ void ParameterSet::print() const
 }
 
 /**
- * Compute the value of a Gaussian distribution at x:
- *
- *   h(x | mu, S) = (2pi)^(d/2) |S|^-0.5 e^(-1/2 (x - mu)' S^-1 (x - mu))
- *
- * @param x
- * @param mu
- * @param S_det
- * @param S_inv
- */
-float pdf(Matrix x, const Matrix& mu, float S_det, const Matrix& S_inv)
-{
-	x -= mu;
-
-	return powf(2 * M_PI, x.rows() / 2.0f) * powf(S_det, -0.5f) * expf(-0.5f * (x.T() * S_inv).dot(x));
-}
-
-/**
  * Compute h_ij for all i, j:
  *
  *   h_ij = h(x_i | mu_j, S_j)
@@ -77,13 +60,19 @@ float pdf(Matrix x, const Matrix& mu, float S_det, const Matrix& S_inv)
 void ParameterSet::pdf_all(const Matrix& X)
 {
 	int n = X.cols();
+	int d = X.rows();
+
+	float temp1 = powf(2 * M_PI, d / 2.0f);
 
 	for ( int j = 0; j < this->_k; j++ ) {
-		float S_det = this->_S[j].determinant();
+		float temp2 = powf(this->_S[j].determinant(), -0.5f);
 		Matrix S_inv = this->_S[j].inverse();
 
 		for ( int i = 0; i < n; i++ ) {
-			this->_h.elem(i, j) = pdf(X(i), this->_mu[j], S_det, S_inv);
+			Matrix x_i = X(i);
+			x_i -= this->_mu[j];
+
+			this->_h.elem(i, j) = temp1 * temp2 * expf(-0.5f * (x_i.T() * S_inv).dot(x_i));
 		}
 	}
 }
