@@ -94,6 +94,7 @@ public:
 	// BLAS wrapper functions
 	void axpy(float alpha, const Matrix& A);
 	void gemm(float alpha, const Matrix& A, const Matrix& B, float beta);
+	void syr(float alpha, const Matrix& x);
 
 	// operators
 	inline Matrix operator()(int i, int j) const { return Matrix(*this, i, j); }

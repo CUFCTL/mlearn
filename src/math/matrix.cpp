@@ -1215,6 +1215,44 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 }
 
 /**
+ * Perform the following operation on a symmetric matrix:
+ *
+ *   A := alpha * x * x' + A
+ *
+ * @param alpha
+ * @param x
+ */
+void Matrix::syr(float alpha, const Matrix& x)
+{
+	Matrix& A = *this;
+
+	log(LL_DEBUG, "debug: A [%d,%d] <- %g * x [%d,%d] * x' [%d,%d] + A",
+		A._rows, A._cols,
+		alpha, x._rows, x._cols, x._cols, x._rows);
+
+	throw_on_fail(A._rows == A._cols && is_vector(x) && A._rows == length(x));
+
+	int n = A._rows;
+	int incX = 1;
+
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
+
+		magma_ssyr(MagmaUpper,
+			n, alpha, x._data_gpu, incX,
+			A._data_gpu, A._rows,
+			queue);
+
+		A.gpu_read();
+	}
+	else {
+		cblas_ssyr(CblasColMajor, CblasUpper,
+			n, alpha, x._data_cpu, incX,
+			A._data_cpu, A._rows);
+	}
+}
+
+/**
  * Swap function for Matrix.
  *
  * @param A

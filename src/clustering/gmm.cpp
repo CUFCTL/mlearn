@@ -153,7 +153,7 @@ void GMMLayer::M_step(const Matrix& X, const Matrix& c, ParameterSet& theta)
 			Matrix x_i = X(i);
 			x_i -= theta.mu(j);
 
-			S_j.gemm(c.elem(i, j), x_i, x_i.T(), 1.0f);
+			S_j.syr(c.elem(i, j), x_i);
 		}
 		S_j /= n_j;
 	}
