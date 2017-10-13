@@ -248,10 +248,7 @@ Matrix m_scatter_between(const std::vector<Matrix>& X_c, const std::vector<Matri
 	for ( size_t i = 0; i < X_c.size(); i++ ) {
 		Matrix U_i = U[i] - u;
 
-		Matrix S_b_i = U_i * U_i.T();
-		S_b_i *= X_c[i].cols();
-
-		S_b += S_b_i;
+		S_b.gemm(X_c[i].cols(), U_i, U_i.T(), 1.0f);
 	}
 
 	return S_b;
@@ -275,7 +272,7 @@ Matrix m_scatter_within(const std::vector<Matrix>& X_c, const std::vector<Matrix
 		Matrix X_c_i = X_c[i];
 		X_c_i.subtract_columns(U[i]);
 
-		S_w += X_c_i * X_c_i.T();
+		S_w.gemm(1.0f, X_c_i, X_c_i.T(), 1.0f);
 	}
 
 	return S_w;
