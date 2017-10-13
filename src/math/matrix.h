@@ -95,6 +95,7 @@ public:
 	float nrm2() const;
 	void scal(float c);
 	void syr(float alpha, const Matrix& x);
+	void syrk(bool trans, float alpha, const Matrix& A, float beta);
 
 	// operators
 	inline Matrix operator()(int i, int j) const { return Matrix(*this, i, j); }

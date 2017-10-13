@@ -1260,6 +1260,53 @@ void Matrix::syr(float alpha, const Matrix& x)
 }
 
 /**
+ * Wrapper function for BLAS syrk:
+ *
+ *   C <- alpha * A * A' + beta * C
+ *   C <- alpha * A' * A + beta * C
+ *
+ * @param trans
+ * @param alpha
+ * @param A
+ * @param beta
+ */
+void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
+{
+	Matrix& C = *this;
+
+	int n = trans ? A._cols : A._rows;
+	int k = trans ? A._rows : A._cols;
+
+	log(LL_DEBUG, "debug: C [%d,%d] <- %g * A%s [%d,%d] * A%s [%d,%d] + %g * C",
+		C._rows, C._cols,
+		alpha,
+		trans ? "'" : "", n, k,
+		trans ? "" : "'", k, n,
+		beta);
+
+	throw_on_fail(C._rows == C._cols && C._rows == n);
+
+	if ( GPU ) {
+		magma_queue_t queue = magma_queue();
+		magma_trans_t Trans = trans ? MagmaTrans : MagmaNoTrans;
+
+		magma_ssyrk(MagmaUpper, Trans,
+			n, k, alpha, A._data_gpu, A._rows,
+			beta, C._data_gpu, C._rows,
+			queue);
+
+		C.gpu_read();
+	}
+	else {
+		CBLAS_TRANSPOSE Trans = trans ? CblasTrans : CblasNoTrans;
+
+		cblas_ssyrk(CblasColMajor, CblasUpper, Trans,
+			n, k, alpha, A._data_cpu, A._rows,
+			beta, C._data_cpu, C._rows);
+	}
+}
+
+/**
  * Swap function for Matrix.
  *
  * @param A
