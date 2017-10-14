@@ -61,7 +61,7 @@ ParameterSet GMMLayer::initialize(const std::vector<Matrix>& X, int num_init, bo
 				this->E_step(X, theta_test, c);
 				this->M_step(X, c, theta_test);
 
-				float L1 = theta_test.log_likelihood(X);
+				float L1 = theta_test.log_likelihood();
 
 				if ( L0 != 0 && fabsf(L1 - L0) < INIT_EPSILON ) {
 					break;
@@ -72,7 +72,7 @@ ParameterSet GMMLayer::initialize(const std::vector<Matrix>& X, int num_init, bo
 		}
 
 		// keep the parameter set with greater log-likelihood
-		float L_test = theta_test.log_likelihood(X);
+		float L_test = theta_test.log_likelihood();
 
 		if ( L_theta == 0 || L_theta < L_test ) {
 			theta = std::move(theta_test);
@@ -167,7 +167,7 @@ void GMMLayer::M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSe
 	}
 
 	// update pdf matrix
-	theta.pdf_all(X);
+	theta.pdf_all();
 }
 
 /**
@@ -210,7 +210,6 @@ std::vector<int> compute_labels(const Matrix& c)
 float compute_entropy(const Matrix& c, const std::vector<int>& y)
 {
 	int n = c.rows();
-	int k = c.cols();
 	float E = 0;
 
 	for ( int i = 0; i < n; i++ ) {
@@ -249,7 +248,7 @@ int GMMLayer::compute(const std::vector<Matrix>& X)
 			this->M_step(X, c, theta);
 
 			// check for convergence
-			float L1 = theta.log_likelihood(X);
+			float L1 = theta.log_likelihood();
 
 			if ( L0 != 0 && fabsf(L1 - L0) < EPSILON ) {
 				log(LL_DEBUG, "converged after %d iteratinos", m + 1);
@@ -263,7 +262,7 @@ int GMMLayer::compute(const std::vector<Matrix>& X)
 		std::vector<int> y = compute_labels(c);
 
 		this->_entropy = compute_entropy(c, y);
-		this->_log_likelihood = theta.log_likelihood(X);
+		this->_log_likelihood = theta.log_likelihood();
 		this->_num_parameters = this->_k * (1 + d + d * d);
 		this->_num_samples = n;
 		this->_output = y;

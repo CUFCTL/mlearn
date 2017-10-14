@@ -51,73 +51,6 @@ void ParameterSet::print() const
 }
 
 /**
- * Compute the mean-subtracted data of X for each mu.
- *
- * @param X
- */
-void ParameterSet::subtract_means(const std::vector<Matrix>& X)
-{
-	for ( int j = 0; j < this->_k; j++ ) {
-		for ( int i = 0; i < X.size(); i++ ) {
-			Matrix& x_i = this->_Xsubs[j][i];
-			x_i.assign_column(0, X[i], 0);
-			x_i -= this->_mu[j];
-		}
-	}
-}
-
-/**
- * Compute h_ij for all i, j:
- *
- *   h_ij = h(x_i | mu_j, S_j)
- *
- * @param X
- */
-void ParameterSet::pdf_all(const std::vector<Matrix>& X)
-{
-	int n = X.size();
-	int d = X[0].rows();
-
-	float temp1 = powf(2 * M_PI, d / 2.0f);
-
-	for ( int j = 0; j < this->_k; j++ ) {
-		float temp2 = powf(this->_S[j].determinant(), -0.5f);
-		Matrix S_inv = this->_S[j].inverse();
-
-		for ( int i = 0; i < n; i++ ) {
-			this->_h.elem(i, j) = temp1 * temp2 * expf(-0.5f * (_Xsubs[j][i].T() * S_inv).dot(_Xsubs[j][i]));
-		}
-	}
-}
-
-/**
- * Compute the log-likelihood of a parameter set:
- *
- *   L = sum(log(sum(p_j * h_ij, j=1:k)), i=1:n)
- *
- * @param X
- */
-float ParameterSet::log_likelihood(const std::vector<Matrix>& X) const
-{
-	int n = X.size();
-
-	// compute L = sum(L_i, i=1:n)
-	float L = 0;
-
-	for ( int i = 0; i < n; i++ ) {
-		// compute L_i = log(sum(p_j * h_ij, j=1:k))
-		float sum = 0;
-		for ( int j = 0; j < this->_k; j++ ) {
-			sum += this->_p[j] * this->_h.elem(i, j);
-		}
-
-		L += logf(sum);
-	}
-
-	return L;
-}
-
-/**
  * Initialize a parameter set by selecting k means randomly.
  *
  * @param X
@@ -154,7 +87,68 @@ void ParameterSet::initialize(const std::vector<Matrix>& X)
 
 	// initialize pdf matrix
 	this->_h = Matrix(n, this->_k);
-	this->pdf_all(X);
+	this->pdf_all();
+}
+
+/**
+ * Compute the mean-subtracted data of X for each mu.
+ *
+ * @param X
+ */
+void ParameterSet::subtract_means(const std::vector<Matrix>& X)
+{
+	for ( int j = 0; j < this->_k; j++ ) {
+		for ( int i = 0; i < X.size(); i++ ) {
+			Matrix& x_i = this->_Xsubs[j][i];
+			x_i.assign_column(0, X[i], 0);
+			x_i -= this->_mu[j];
+		}
+	}
+}
+
+/**
+ * Compute h_ij for all i, j:
+ *
+ *   h_ij = h(x_i | mu_j, S_j)
+ */
+void ParameterSet::pdf_all()
+{
+	int n = _Xsubs[0].size();
+	int d = _Xsubs[0][0].rows();
+
+	float temp1 = powf(2 * M_PI, d / 2.0f);
+
+	for ( int j = 0; j < this->_k; j++ ) {
+		float temp2 = powf(this->_S[j].determinant(), -0.5f);
+		Matrix S_inv = this->_S[j].inverse();
+
+		for ( int i = 0; i < n; i++ ) {
+			this->_h.elem(i, j) = temp1 * temp2 * expf(-0.5f * (_Xsubs[j][i].T() * S_inv).dot(_Xsubs[j][i]));
+		}
+	}
+}
+
+/**
+ * Compute the log-likelihood of a parameter set:
+ *
+ *   L = sum(log(sum(p_j * h_ij, j=1:k)), i=1:n)
+ */
+float ParameterSet::log_likelihood() const
+{
+	int n = this->_h.rows();
+	float L = 0;
+
+	for ( int i = 0; i < n; i++ ) {
+		float sum = 0;
+
+		for ( int j = 0; j < this->_k; j++ ) {
+			sum += this->_p[j] * this->_h.elem(i, j);
+		}
+
+		L += logf(sum);
+	}
+
+	return L;
 }
 
 /**

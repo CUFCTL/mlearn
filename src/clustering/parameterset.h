@@ -46,12 +46,12 @@ public:
 	const std::vector<std::vector<Matrix>>& Xsubs() const { return this->_Xsubs; }
 	const Matrix& h() const { return this->_h; }
 
-	float log_likelihood(const std::vector<Matrix>& X) const;
+	float log_likelihood() const;
 
 	// mutator functions
 	void initialize(const std::vector<Matrix>& X);
-	void pdf_all(const std::vector<Matrix>& X);
 	void subtract_means(const std::vector<Matrix>& X);
+	void pdf_all();
 
 	// operators
 	inline ParameterSet& operator=(ParameterSet rhs) { swap(*this, rhs); return *this; }

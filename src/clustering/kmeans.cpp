@@ -157,11 +157,11 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 	}
 
 	// update pdf matrix
-	theta.pdf_all(X);
+	theta.pdf_all();
 
 	// save outputs
 	this->_entropy = 0;
-	this->_log_likelihood = theta.log_likelihood(X);
+	this->_log_likelihood = theta.log_likelihood();
 	this->_num_parameters = this->_k * (1 + d + d * d);
 	this->_num_samples = n;
 	this->_output = y;
