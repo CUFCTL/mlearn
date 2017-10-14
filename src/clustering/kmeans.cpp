@@ -96,78 +96,85 @@ void KMeansLayer::M_step(const std::vector<Matrix>& X, const std::vector<int>& y
  */
 int KMeansLayer::compute(const std::vector<Matrix>& X)
 {
+	int status = 0;
+
 	Timer::push("K-means");
 
-	int n = X.size();
-	int d = X[0].rows();
+	try {
+		int n = X.size();
+		int d = X[0].rows();
 
-	// initialize parameters
-	ParameterSet theta(this->_k);
-	theta.initialize(X);
+		// initialize parameters
+		ParameterSet theta(this->_k);
+		theta.initialize(X);
 
-	// run k-means algorithm
-	std::vector<int> y;
-	std::vector<int> y_next(n);
+		// run k-means algorithm
+		std::vector<int> y;
+		std::vector<int> y_next(n);
 
-	while ( true ) {
-		E_step(X, theta, y_next);
+		while ( true ) {
+			E_step(X, theta, y_next);
 
-		if ( y == y_next ) {
-			break;
+			if ( y == y_next ) {
+				break;
+			}
+
+			y = y_next;
+
+			M_step(X, y, theta);
 		}
 
-		y = y_next;
+		// compute n_j, the number of samples in cluster j
+		for ( int j = 0; j < this->_k; j++ ) {
+			float& n_j = theta.n(j);
+			n_j = 0;
 
-		M_step(X, y, theta);
-	}
-
-	// compute n_j, the number of samples in cluster j
-	for ( int j = 0; j < this->_k; j++ ) {
-		float& n_j = theta.n(j);
-		n_j = 0;
-
-		for ( int i = 0; i < n; i++ ) {
-			if ( y[i] == j ) {
-				n_j++;
+			for ( int i = 0; i < n; i++ ) {
+				if ( y[i] == j ) {
+					n_j++;
+				}
 			}
 		}
-	}
 
-	// compute p_j = n_j / n
-	for ( int j = 0; j < this->_k; j++ ) {
-		theta.p(j) = theta.n(j) / n;
-	}
+		// compute p_j = n_j / n
+		for ( int j = 0; j < this->_k; j++ ) {
+			theta.p(j) = theta.n(j) / n;
+		}
 
-	// update mean-subtracted data array
-	theta.subtract_means(X);
+		// update mean-subtracted data array
+		theta.subtract_means(X);
 
-	// compute S_j = sum((x_i - mu_j) * (x_i - mu_j)', x_i in cluster j) / n_j
-	const auto& Xsubs = theta.Xsubs();
+		// compute S_j = sum((x_i - mu_j) * (x_i - mu_j)', x_i in cluster j) / n_j
+		const auto& Xsubs = theta.Xsubs();
 
-	for ( int j = 0; j < this->_k; j++ ) {
-		Matrix& S_j = theta.S(j);
-		S_j.init_zeros();
+		for ( int j = 0; j < this->_k; j++ ) {
+			Matrix& S_j = theta.S(j);
+			S_j.init_zeros();
 
-		for ( int i = 0; i < n; i++ ) {
-			if ( y[i] == j ) {
-				S_j.gemm(1 / theta.n(j), Xsubs[j][i], Xsubs[j][i].T(), 1.0f);
+			for ( int i = 0; i < n; i++ ) {
+				if ( y[i] == j ) {
+					S_j.gemm(1 / theta.n(j), Xsubs[j][i], Xsubs[j][i].T(), 1.0f);
+				}
 			}
 		}
+
+		// update pdf matrix
+		theta.pdf_all();
+
+		// save outputs
+		this->_entropy = 0;
+		this->_log_likelihood = theta.log_likelihood();
+		this->_num_parameters = this->_k * (1 + d + d * d);
+		this->_num_samples = n;
+		this->_output = y;
 	}
-
-	// update pdf matrix
-	theta.pdf_all();
-
-	// save outputs
-	this->_entropy = 0;
-	this->_log_likelihood = theta.log_likelihood();
-	this->_num_parameters = this->_k * (1 + d + d * d);
-	this->_num_samples = n;
-	this->_output = y;
+	catch ( std::runtime_error& e ) {
+		status = 1;
+	}
 
 	Timer::pop();
 
-	return 0;
+	return status;
 }
 
 /**
