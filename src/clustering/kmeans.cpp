@@ -150,10 +150,9 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 
 		for ( int i = 0; i < n; i++ ) {
 			if ( y[i] == j ) {
-				S_j.gemm(1.0f, Xsubs[j][i], Xsubs[j][i].T(), 1.0f);
+				S_j.gemm(1 / theta.n(j), Xsubs[j][i], Xsubs[j][i].T(), 1.0f);
 			}
 		}
-		S_j /= theta.n(j);
 	}
 
 	// update pdf matrix

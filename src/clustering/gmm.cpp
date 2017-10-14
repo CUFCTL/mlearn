@@ -145,9 +145,8 @@ void GMMLayer::M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSe
 		mu_j.init_zeros();
 
 		for ( int i = 0; i < n; i++ ) {
-			mu_j.axpy(c.elem(i, j), X[i]);
+			mu_j.axpy(c.elem(i, j) / theta.n(j), X[i]);
 		}
-		mu_j /= theta.n(j);
 	}
 
 	// update mean-subtracted data array
@@ -161,9 +160,8 @@ void GMMLayer::M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSe
 		S_j.init_zeros();
 
 		for ( int i = 0; i < n; i++ ) {
-			S_j.gemm(c.elem(i, j), Xsubs[j][i], Xsubs[j][i].T(), 1.0f);
+			S_j.gemm(c.elem(i, j) / theta.n(j), Xsubs[j][i], Xsubs[j][i].T(), 1.0f);
 		}
-		S_j /= theta.n(j);
 	}
 
 	// update pdf matrix
