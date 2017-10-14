@@ -106,6 +106,23 @@ float m_dist_L2(const Matrix& A, int i, const Matrix& B, int j)
 }
 
 /**
+ * Compute the mean of a list of column vectors.
+ *
+ * @param X
+ */
+Matrix m_mean(const std::vector<Matrix>& X)
+{
+	Matrix mu = Matrix::zeros(X[0].rows(), 1);
+
+	for ( const Matrix& x_i : X ) {
+		mu += x_i;
+	}
+	mu /= X.size();
+
+	return mu;
+}
+
+/**
  * Copy a matrix X into a list of column vectors.
  *
  * @param X
@@ -142,6 +159,44 @@ std::vector<Matrix> m_random_sample(const std::vector<Matrix>& X, int k)
 	}
 
 	return samples;
+}
+
+/**
+ * Subtract a vector mu from each vector in X.
+ *
+ * @param X
+ * @param mu
+ */
+std::vector<Matrix> m_subtract_mean(const std::vector<Matrix>& X, const Matrix& mu)
+{
+	std::vector<Matrix> X_sub;
+
+	X_sub.reserve(X.size());
+
+	for ( const Matrix& x_i : X ) {
+		X_sub.push_back(x_i - mu);
+	}
+
+	return X_sub;
+}
+
+/**
+ * For each mu_j in mu, compute the mean-subtracted data X.
+ *
+ * @param X
+ * @param mu
+ */
+std::vector<std::vector<Matrix>> m_subtract_means(const std::vector<Matrix>& X, const std::vector<Matrix>& mu)
+{
+	std::vector<std::vector<Matrix>> X_subs;
+
+	X_subs.reserve(mu.size());
+
+	for ( const Matrix& mu_j : mu ) {
+		X_subs.push_back(m_subtract_mean(X, mu_j));
+	}
+
+	return X_subs;
 }
 
 /**
@@ -232,15 +287,10 @@ std::vector<Matrix> m_class_scatters(const std::vector<Matrix>& X_c, const std::
  */
 Matrix m_scatter_between(const std::vector<Matrix>& X_c, const std::vector<Matrix>& U)
 {
-	int N = U[0].rows();
+	int N = X_c[0].rows();
 
 	// compute the mean of all classes
-	Matrix u(N, 1);
-
-	for ( const Matrix& U_i : U ) {
-		u += U_i;
-	}
-	u /= X_c.size();
+	Matrix u = m_mean(U);
 
 	// compute the between-scatter S_b
 	Matrix S_b = Matrix::zeros(N, N);

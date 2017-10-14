@@ -30,10 +30,14 @@ public:
 	void print() const;
 
 	// getter functions
+	const std::vector<float>& p() const { return this->_p; }
+	const std::vector<Matrix>& mu() const { return this->_mu; }
+	const std::vector<Matrix>& S() const { return this->_S; }
+	const Matrix& h() const { return this->_h; }
+
 	const float& p(int i) const { return this->_p[i]; }
 	const Matrix& mu(int i) const { return this->_mu[i]; }
 	const Matrix& S(int i) const { return this->_S[i]; }
-	const Matrix& h() const { return this->_h; }
 
 	float& p(int i) { return this->_p[i]; }
 	Matrix& mu(int i) { return this->_mu[i]; }
