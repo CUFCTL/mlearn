@@ -85,7 +85,7 @@ ParameterSet GMMLayer::initialize(const std::vector<Matrix>& X, int num_init, bo
 
 /**
  * Compute the conditional probability that z_ik = 1
- * for all i,j:
+ * for all i,j given theta:
  *
  *   c_ij = p_j * h_ij / sum(p_l * h_il, l=1:k)
  *
@@ -95,9 +95,8 @@ ParameterSet GMMLayer::initialize(const std::vector<Matrix>& X, int num_init, bo
  */
 void GMMLayer::E_step(const std::vector<Matrix>& X, const ParameterSet& theta, Matrix& c)
 {
-	// compute h_ij for each i,j
-	int n = X.size();
 	const Matrix& h = theta.h();
+	int n = h.rows();
 
 	// compute c_ij for each i,j
 	for ( int i = 0; i < n; i++ ) {
@@ -125,39 +124,49 @@ void GMMLayer::M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSe
 {
 	int n = X.size();
 
+	// compute n_j = sum(c_ij, i=1:n)
 	for ( int j = 0; j < this->_k; j++ ) {
-		// compute n_j = sum(c_ij, i=1:n)
-		float n_j = 0;
+		float& n_j = theta.n(j);
+		n_j = 0;
+
 		for ( int i = 0; i < n; i++ ) {
 			n_j += c.elem(i, j);
 		}
+	}
 
-		// compute p_j = sum(c_ij, i=1:n) / n
-		theta.p(j) = n_j / n;
+	// compute p_j = n_j / n
+	for ( int j = 0; j < this->_k; j++ ) {
+		theta.p(j) = theta.n(j) / n;
+	}
 
-		// compute mu_j = sum(c_ij * x_i, i=1:n) / n_j
+	// compute mu_j = sum(c_ij * x_i, i=1:n) / n_j
+	for ( int j = 0; j < this->_k; j++ ) {
 		Matrix& mu_j = theta.mu(j);
 		mu_j.init_zeros();
 
 		for ( int i = 0; i < n; i++ ) {
 			mu_j.axpy(c.elem(i, j), X[i]);
 		}
-		mu_j /= n_j;
+		mu_j /= theta.n(j);
+	}
 
-		// compute S_j = sum(c_ij * (x_i - mu_j) * (x_i - mu_j)', i=1:n) / n_j
+	// update mean-subtracted data array
+	theta.subtract_means(X);
+
+	// compute S_j = sum(c_ij * (x_i - mu_j) * (x_i - mu_j)', i=1:n) / n_j
+	const auto& Xsubs = theta.Xsubs();
+
+	for ( int j = 0; j < this->_k; j++ ) {
 		Matrix& S_j = theta.S(j);
 		S_j.init_zeros();
 
 		for ( int i = 0; i < n; i++ ) {
-			Matrix x_i = X[i];
-			x_i -= theta.mu(j);
-
-			S_j.gemm(c.elem(i, j), x_i, x_i.T(), 1.0f);
+			S_j.gemm(c.elem(i, j), Xsubs[j][i], Xsubs[j][i].T(), 1.0f);
 		}
-		S_j /= n_j;
+		S_j /= theta.n(j);
 	}
 
-	// update h
+	// update pdf matrix
 	theta.pdf_all(X);
 }
 

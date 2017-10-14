@@ -51,6 +51,22 @@ void ParameterSet::print() const
 }
 
 /**
+ * Compute the mean-subtracted data of X for each mu.
+ *
+ * @param X
+ */
+void ParameterSet::subtract_means(const std::vector<Matrix>& X)
+{
+	for ( int j = 0; j < this->_k; j++ ) {
+		for ( int i = 0; i < X.size(); i++ ) {
+			Matrix& x_i = this->_Xsubs[j][i];
+			x_i.assign_column(0, X[i], 0);
+			x_i -= this->_mu[j];
+		}
+	}
+}
+
+/**
  * Compute h_ij for all i, j:
  *
  *   h_ij = h(x_i | mu_j, S_j)
@@ -69,10 +85,7 @@ void ParameterSet::pdf_all(const std::vector<Matrix>& X)
 		Matrix S_inv = this->_S[j].inverse();
 
 		for ( int i = 0; i < n; i++ ) {
-			Matrix x_i = X[i];
-			x_i -= this->_mu[j];
-
-			this->_h.elem(i, j) = temp1 * temp2 * expf(-0.5f * (x_i.T() * S_inv).dot(x_i));
+			this->_h.elem(i, j) = temp1 * temp2 * expf(-0.5f * (_Xsubs[j][i].T() * S_inv).dot(_Xsubs[j][i]));
 		}
 	}
 }
@@ -129,7 +142,17 @@ void ParameterSet::initialize(const std::vector<Matrix>& X)
 		this->_S.push_back(Matrix::identity(d));
 	}
 
-	// initialize h
+	// initialize n_j for each j
+	this->_n.resize(this->_k, n / this->_k);
+
+	// initialize mean-subtracted data array
+	this->_Xsubs.reserve(this->_k);
+
+	for ( int j = 0; j < this->_k; j++ ) {
+		this->_Xsubs.push_back(m_subtract_mean(X, this->_mu[j]));
+	}
+
+	// initialize pdf matrix
 	this->_h = Matrix(n, this->_k);
 	this->pdf_all(X);
 }
@@ -143,9 +166,11 @@ void ParameterSet::initialize(const std::vector<Matrix>& X)
 void swap(ParameterSet& lhs, ParameterSet& rhs)
 {
 	std::swap(lhs._k, rhs._k);
+	std::swap(lhs._n, rhs._n);
 	std::swap(lhs._p, rhs._p);
 	std::swap(lhs._mu, rhs._mu);
 	std::swap(lhs._S, rhs._S);
+	std::swap(lhs._Xsubs, rhs._Xsubs);
 	std::swap(lhs._h, rhs._h);
 }
 

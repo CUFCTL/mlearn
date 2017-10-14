@@ -181,25 +181,6 @@ std::vector<Matrix> m_subtract_mean(const std::vector<Matrix>& X, const Matrix& 
 }
 
 /**
- * For each mu_j in mu, compute the mean-subtracted data X.
- *
- * @param X
- * @param mu
- */
-std::vector<std::vector<Matrix>> m_subtract_means(const std::vector<Matrix>& X, const std::vector<Matrix>& mu)
-{
-	std::vector<std::vector<Matrix>> X_subs;
-
-	X_subs.reserve(mu.size());
-
-	for ( const Matrix& mu_j : mu ) {
-		X_subs.push_back(m_subtract_mean(X, mu_j));
-	}
-
-	return X_subs;
-}
-
-/**
  * Copy a matrix X into a list X_c of class
  * submatrices.
  *

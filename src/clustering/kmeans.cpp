@@ -66,7 +66,8 @@ void KMeansLayer::M_step(const std::vector<Matrix>& X, const std::vector<int>& y
 
 	for ( int j = 0; j < this->_k; j++ ) {
 		// compute n_j, the number of samples in cluster j
-		int n_j = 0;
+		float& n_j = theta.n(j);
+		n_j = 0;
 
 		for ( int i = 0; i < n; i++ ) {
 			if ( y[i] == j ) {
@@ -120,35 +121,42 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 		M_step(X, y, theta);
 	}
 
-	// compute mean-subtracted data for each mean
-	std::vector<std::vector<Matrix>> X_subs = m_subtract_means(X, theta.mu());
-
-	// compute additional parameters
+	// compute n_j, the number of samples in cluster j
 	for ( int j = 0; j < this->_k; j++ ) {
-		// compute n_j, the number of samples in cluster j
-		float n_j = 0;
+		float& n_j = theta.n(j);
+		n_j = 0;
 
 		for ( int i = 0; i < n; i++ ) {
 			if ( y[i] == j ) {
 				n_j++;
 			}
 		}
+	}
 
-		// compute p_j = n_j / n
-		theta.p(j) = n_j / n;
+	// compute p_j = n_j / n
+	for ( int j = 0; j < this->_k; j++ ) {
+		theta.p(j) = theta.n(j) / n;
+	}
 
-		// compute S_j = sum(c_ij * (x_i - mu_j) * (x_i - mu_j)', i=1:n) / n_j
+	// update mean-subtracted data array
+	theta.subtract_means(X);
+
+	// compute S_j = sum((x_i - mu_j) * (x_i - mu_j)', x_i in cluster j) / n_j
+	const auto& Xsubs = theta.Xsubs();
+
+	for ( int j = 0; j < this->_k; j++ ) {
 		Matrix& S_j = theta.S(j);
 		S_j.init_zeros();
 
 		for ( int i = 0; i < n; i++ ) {
 			if ( y[i] == j ) {
-				S_j.gemm(1.0f, X_subs[j][i], X_subs[j][i].T(), 1.0f);
+				S_j.gemm(1.0f, Xsubs[j][i], Xsubs[j][i].T(), 1.0f);
 			}
 		}
-		S_j /= n_j;
+		S_j /= theta.n(j);
 	}
 
+	// update pdf matrix
 	theta.pdf_all(X);
 
 	// save outputs
