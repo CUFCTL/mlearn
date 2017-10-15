@@ -298,7 +298,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 	// if n2 is -1, use default value
 	int n2 = (this->n2 == -1)
 		? X.rows()
-		: min(X.rows(), this->n2);
+		: std::min(X.rows(), this->n2);
 
 	// determine nonlinearity function
 	ica_nonl_func_t fpica_update = nullptr;

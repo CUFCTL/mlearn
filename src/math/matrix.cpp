@@ -504,7 +504,7 @@ float Matrix::determinant() const
 	int n = M._cols;
 	Matrix U = M;
 	int lda = m;
-	int *ipiv = new int[min(m, n)];
+	int *ipiv = new int[std::min(m, n)];
 
 	// compute LU decomposition
 	if ( GPU ) {
@@ -528,13 +528,13 @@ float Matrix::determinant() const
 
 	// compute det(A) = det(P * L * U) = 1^S * det(U)
 	float det = 1;
-	for ( int i = 0; i < min(m, n); i++ ) {
+	for ( int i = 0; i < std::min(m, n); i++ ) {
 		if ( i + 1 != ipiv[i] ) {
 			det *= -1;
 		}
 	}
 
-	for ( int i = 0; i < min(m, n); i++ ) {
+	for ( int i = 0; i < std::min(m, n); i++ ) {
 		det *= U.elem(i, i);
 	}
 
@@ -602,7 +602,7 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 		int nb = magma_get_ssytrd_nb(n);
 		int ldwa = n;
 		float *wA = new float[ldwa * n];
-		int lwork = max(2*n + n*nb, 1 + 6*n + 2*n*n);
+		int lwork = std::max(2*n + n*nb, 1 + 6*n + 2*n*n);
 		float *work = new float[lwork];
 		int liwork = 3 + 5*n;
 		int *iwork = new int[liwork];
@@ -647,7 +647,7 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 	}
 
 	// take only the n1 largest eigenvalues
-	i = max(i, D._cols - n1);
+	i = std::max(i, D._cols - n1);
 
 	V = V(i, V._cols);
 	D = D(i, D._cols).diagonalize();
@@ -821,16 +821,16 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 	int n = M._cols;
 	int lda = m;
 	int ldu = m;
-	int ldvt = min(m, n);
+	int ldvt = std::min(m, n);
 
-	U = Matrix(ldu, min(m, n));
-	S = Matrix(1, min(m, n));
+	U = Matrix(ldu, std::min(m, n));
+	S = Matrix(1, std::min(m, n));
 	Matrix VT = Matrix(ldvt, n);
 
 	if ( GPU ) {
 		Matrix wA = M;
 		int nb = magma_get_sgesvd_nb(m, n);
-		int lwork = 2 * min(m, n) + (max(m, n) + min(m, n)) * nb;
+		int lwork = 2 * std::min(m, n) + (std::max(m, n) + std::min(m, n)) * nb;
 		float *work = new float[lwork];
 		int info;
 
@@ -848,7 +848,7 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 	}
 	else {
 		Matrix wA = M;
-		int lwork = 5 * min(m, n);
+		int lwork = 5 * std::min(m, n);
 		float *work = new float[lwork];
 
 		int info = LAPACKE_sgesvd_work(

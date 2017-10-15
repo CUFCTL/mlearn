@@ -35,7 +35,7 @@ void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 {
 	// if n1 = -1, use default value
 	int n1 = (this->n1 == -1)
-		? min(X.rows(), X.cols())
+		? std::min(X.rows(), X.cols())
 		: this->n1;
 
 	Timer::push("PCA");
