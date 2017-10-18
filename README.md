@@ -29,13 +29,10 @@ git clone https://github.com/CUFCTL/libmlearn.git
 cd libmlearn
 
 # install OpenBLAS and MAGMA
-./scripts/install-deps.sh
+make install-deps -j [num-jobs]
 
 # install library
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/software/libmlearn
-make install -j $(nproc)
+make install -j [num-jobs]
 ```
 
 ## Usage

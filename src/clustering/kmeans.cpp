@@ -4,6 +4,7 @@
  * Implementation of k-means clustering.
  */
 #include <cmath>
+#include <stdexcept>
 #include "clustering/kmeans.h"
 #include "math/matrix_utils.h"
 #include "util/logger.h"
