@@ -8,8 +8,8 @@ MLEARNDIR   ?= $(INSTALL_PREFIX)/libmlearn
 
 all: mlearn
 
-install-deps:
-	@echo -e "\nBuilding OpenBLAS...\n"
+install-openblas:
+	@echo -e "\nInstalling OpenBLAS...\n"
 
 	mkdir -p $(OPENBLASDIR)
 	wget -q https://github.com/xianyi/OpenBLAS/archive/v0.2.19.tar.gz
@@ -21,7 +21,8 @@ install-deps:
 
 	rm -rf v0.2.19.tar.gz OpenBLAS-0.2.19
 
-	@echo -e "\nBuilding MAGMA...\n"
+install-magma: install-openblas
+	@echo -e "\nInstalling MAGMA...\n"
 
 	mkdir -p $(MAGMADIR)
 	wget -q http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.2.0.tar.gz
@@ -33,6 +34,7 @@ install-deps:
 
 	rm -rf magma-2.2.0.tar.gz magma-2.2.0
 
+install-deps: install-openblas install-magma
 	@echo -e "\nInstallation complete.\n"
 
 $(BUILD):
