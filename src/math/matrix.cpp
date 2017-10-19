@@ -4,6 +4,7 @@
  * Implementation of the matrix library.
  */
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <cstring>
 #include <iomanip>
@@ -214,7 +215,7 @@ Matrix::Matrix(const Matrix& M, int i, int j)
 		this->_rows, this->_cols,
 		i + 1, j, M._rows, j - i);
 
-	throw_on_fail(0 <= i && i < j && j <= M._cols);
+	assert(0 <= i && i < j && j <= M._cols);
 
 	memcpy(this->_data_cpu, &ELEM(M, 0, i), this->_rows * this->_cols * sizeof(float));
 
@@ -514,7 +515,7 @@ float Matrix::determinant() const
 			m, n, U._data_gpu, lda,
 			ipiv,
 			&info);
-		throw_on_fail(info >= 0);
+		assert(info >= 0);
 
 		U.gpu_read();
 	}
@@ -523,7 +524,7 @@ float Matrix::determinant() const
 			LAPACK_COL_MAJOR,
 			m, n, U._data_cpu, lda,
 			ipiv);
-		throw_on_fail(info >= 0);
+		assert(info >= 0);
 	}
 
 	// compute det(A) = det(P * L * U) = 1^S * det(U)
@@ -554,7 +555,7 @@ Matrix Matrix::diagonalize() const
 	log(LL_DEBUG, "debug: D [%d,%d] <- diag(v [%d,%d])",
 		length(v), length(v), v._rows, v._cols);
 
-	throw_on_fail(is_vector(v));
+	assert(is_vector(v));
 
 	int n = length(v);
 	Matrix D = Matrix::zeros(n, n);
@@ -589,7 +590,7 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 		n1, n1,
 		M._rows, M._cols, n1);
 
-	throw_on_fail(is_square(M));
+	assert(is_square(M));
 
 	V = M;
 	D = Matrix(1, M._cols);
@@ -617,7 +618,7 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 			iwork, liwork,
 			&info
 		);
-		throw_on_fail(info == 0);
+		assert(info == 0);
 
 		delete[] wA;
 		delete[] work;
@@ -635,7 +636,7 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 			D._data_cpu,
 			work, lwork
 		);
-		throw_on_fail(info == 0);
+		assert(info == 0);
 
 		delete[] work;
 	}
@@ -663,7 +664,7 @@ Matrix Matrix::inverse() const
 	log(LL_DEBUG, "debug: M^-1 [%d,%d] <- inv(M [%d,%d])",
 		M._rows, M._cols, M._rows, M._cols);
 
-	throw_on_fail(is_square(M));
+	assert(is_square(M));
 
 	int m = M._rows;
 	int n = M._cols;
@@ -679,14 +680,15 @@ Matrix Matrix::inverse() const
 
 		magma_sgetrf_gpu(m, n, M_inv._data_gpu, lda,
 			ipiv, &info);
-		throw_on_fail(info >= 0);
+		assert(info >= 0);
 
 		magma_sgetri_gpu(n, M_inv._data_gpu, lda,
 			ipiv, dwork, lwork, &info);
-		throw_on_fail(info == 0, "Failed to compute inverse");
 
 		delete[] ipiv;
 		gpu_free(dwork);
+
+		throw_on_fail(info == 0, "Failed to compute inverse");
 
 		M_inv.gpu_read();
 	}
@@ -698,15 +700,16 @@ Matrix Matrix::inverse() const
 		int info = LAPACKE_sgetrf_work(LAPACK_COL_MAJOR,
 			m, n, M_inv._data_cpu, lda,
 			ipiv);
-		throw_on_fail(info >= 0);
+		assert(info >= 0);
 
 		info = LAPACKE_sgetri_work(LAPACK_COL_MAJOR,
 			n, M_inv._data_cpu, lda,
 			ipiv, work, lwork);
-		throw_on_fail(info == 0, "Failed to compute inverse");
 
 		delete[] ipiv;
 		delete[] work;
+
+		throw_on_fail(info == 0, "Failed to compute inverse");
 	}
 
 	return M_inv;
@@ -788,7 +791,7 @@ float Matrix::sum() const
 	log(LL_DEBUG, "debug: s = sum(v [%d,%d])",
 		v._rows, v._cols);
 
-	throw_on_fail(is_vector(v));
+	assert(is_vector(v));
 
 	int n = length(v);
 	float sum = 0.0f;
@@ -842,7 +845,7 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 			VT._data_cpu, ldvt,
 			work, lwork,
 			&info);
-		throw_on_fail(info == 0);
+		assert(info == 0);
 
 		delete[] work;
 	}
@@ -858,7 +861,7 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 			U._data_cpu, ldu,
 			VT._data_cpu, ldvt,
 			work, lwork);
-		throw_on_fail(info == 0);
+		assert(info == 0);
 
 		delete[] work;
 	}
@@ -917,9 +920,9 @@ void Matrix::assign_column(int i, const Matrix& B, int j)
 		i + 1, A._rows, 1,
 		j + 1, B._rows, 1);
 
-	throw_on_fail(A._rows == B._rows);
-	throw_on_fail(0 <= i && i < A._cols);
-	throw_on_fail(0 <= j && j < B._cols);
+	assert(A._rows == B._rows);
+	assert(0 <= i && i < A._cols);
+	assert(0 <= j && j < B._cols);
 
 	memcpy(&ELEM(A, 0, i), B._data_cpu, B._rows * sizeof(float));
 
@@ -941,9 +944,9 @@ void Matrix::assign_row(int i, const Matrix& B, int j)
 		i + 1, 1, A._cols,
 		j + 1, 1, B._cols);
 
-	throw_on_fail(A._cols == B._cols);
-	throw_on_fail(0 <= i && i < A._rows);
-	throw_on_fail(0 <= j && j < B._rows);
+	assert(A._cols == B._cols);
+	assert(0 <= i && i < A._rows);
+	assert(0 <= j && j < B._rows);
 
 	for ( int k = 0; k < A._cols; k++ ) {
 		A.elem(i, k) = B.elem(j, k);
@@ -1004,7 +1007,7 @@ void Matrix::subtract_columns(const Matrix& a)
 		a._rows, a._cols,
 		1, M._cols);
 
-	throw_on_fail(M._rows == a._rows && a._cols == 1);
+	assert(M._rows == a._rows && a._cols == 1);
 
 	for ( int i = 0; i < M._cols; i++ ) {
 		for ( int j = 0; j < M._rows; j++ ) {
@@ -1033,7 +1036,7 @@ void Matrix::subtract_rows(const Matrix& a)
 		M._rows, 1,
 		a._rows, a._cols);
 
-	throw_on_fail(M._cols == a._cols && a._rows == 1);
+	assert(M._cols == a._cols && a._rows == 1);
 
 	for ( int i = 0; i < M._rows; i++ ) {
 		for ( int j = 0; j < M._cols; j++ ) {
@@ -1059,7 +1062,7 @@ void Matrix::axpy(float alpha, const Matrix& A)
 		B._rows, B._cols,
 		alpha, A._rows, A._cols);
 
-	throw_on_fail(A._rows == B._rows && A._cols == B._cols);
+	assert(A._rows == B._rows && A._cols == B._cols);
 
 	int n = B._rows * B._cols;
 	int incX = 1;
@@ -1091,8 +1094,8 @@ float Matrix::dot(const Matrix& y) const
 	log(LL_DEBUG, "debug: dot <- x' [%d,%d] * y [%d,%d]",
 		x._rows, x._cols, y._rows, y._cols);
 
-	throw_on_fail(is_vector(x) && is_vector(y));
-	throw_on_fail(length(x) == length(y));
+	assert(is_vector(x) && is_vector(y));
+	assert(length(x) == length(y));
 
 	int n = length(x);
 	int incX = 1;
@@ -1136,7 +1139,7 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 		B._transposed ? "'" : "", k2, n,
 		beta);
 
-	throw_on_fail(C._rows == m && C._cols == n && k1 == k2);
+	assert(C._rows == m && C._cols == n && k1 == k2);
 
 	if ( GPU ) {
 		magma_queue_t queue = magma_queue();
@@ -1174,7 +1177,7 @@ float Matrix::nrm2() const
 	log(LL_DEBUG, "debug: nrm2 <- ||x [%d,%d]||",
 		x._rows, x._cols);
 
-	throw_on_fail(is_vector(x));
+	assert(is_vector(x));
 
 	int n = length(x);
 	int incX = 1;
@@ -1237,7 +1240,7 @@ void Matrix::syr(float alpha, const Matrix& x)
 		A._rows, A._cols,
 		alpha, x._rows, x._cols, x._cols, x._rows);
 
-	throw_on_fail(A._rows == A._cols && is_vector(x) && A._rows == length(x));
+	assert(A._rows == A._cols && is_vector(x) && A._rows == length(x));
 
 	int n = A._rows;
 	int incX = 1;
@@ -1284,7 +1287,7 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 		trans ? "" : "'", k, n,
 		beta);
 
-	throw_on_fail(C._rows == C._cols && C._rows == n);
+	assert(C._rows == C._cols && C._rows == n);
 
 	if ( GPU ) {
 		magma_queue_t queue = magma_queue();
