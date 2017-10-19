@@ -130,7 +130,6 @@ Matrix m_mean(const std::vector<Matrix>& X)
 std::vector<Matrix> m_copy_columns(const Matrix& X)
 {
 	std::vector<Matrix> X_col;
-
 	X_col.reserve(X.cols());
 
 	for ( int i = 0; i < X.cols(); i++ ) {
@@ -149,7 +148,6 @@ std::vector<Matrix> m_copy_columns(const Matrix& X)
 std::vector<Matrix> m_random_sample(const std::vector<Matrix>& X, int k)
 {
 	std::vector<Matrix> samples;
-
 	samples.reserve(k);
 
 	for ( int i = 0; i < k; i++ ) {
@@ -170,7 +168,6 @@ std::vector<Matrix> m_random_sample(const std::vector<Matrix>& X, int k)
 std::vector<Matrix> m_subtract_mean(const std::vector<Matrix>& X, const Matrix& mu)
 {
 	std::vector<Matrix> X_sub;
-
 	X_sub.reserve(X.size());
 
 	for ( const Matrix& x_i : X ) {
@@ -194,7 +191,6 @@ std::vector<Matrix> m_subtract_mean(const std::vector<Matrix>& X, const Matrix& 
 std::vector<Matrix> m_copy_classes(const Matrix& X, const std::vector<DataEntry>& y, int c)
 {
 	std::vector<Matrix> X_c;
-
 	X_c.reserve(c);
 
 	int i, j;
@@ -222,7 +218,6 @@ std::vector<Matrix> m_copy_classes(const Matrix& X, const std::vector<DataEntry>
 std::vector<Matrix> m_class_means(const std::vector<Matrix>& X_c)
 {
 	std::vector<Matrix> U;
-
 	U.reserve(X_c.size());
 
 	for ( const Matrix& X_c_i : X_c ) {
@@ -244,7 +239,6 @@ std::vector<Matrix> m_class_means(const std::vector<Matrix>& X_c)
 std::vector<Matrix> m_class_scatters(const std::vector<Matrix>& X_c, const std::vector<Matrix>& U)
 {
 	std::vector<Matrix> S;
-
 	S.reserve(X_c.size());
 
 	for ( size_t i = 0; i < X_c.size(); i++ ) {

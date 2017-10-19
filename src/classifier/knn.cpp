@@ -96,10 +96,12 @@ KNNLayer::KNNLayer(int k, dist_func_t dist)
 std::vector<DataLabel> KNNLayer::predict(const Matrix& X, const std::vector<DataEntry>& Y, const std::vector<DataLabel>& C, const Matrix& X_test)
 {
 	std::vector<DataLabel> Y_pred;
+	Y_pred.reserve(X_test.cols());
 
 	for ( int i = 0; i < X_test.cols(); i++ ) {
 		// compute distance between X_test_i and each X_i
 		std::vector<neighbor_t> neighbors;
+		neighbors.reserve(X.cols());
 
 		for ( int j = 0; j < X.cols(); j++ ) {
 			neighbor_t n;

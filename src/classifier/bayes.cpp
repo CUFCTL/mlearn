@@ -53,6 +53,7 @@ std::vector<DataLabel> BayesLayer::predict(const Matrix& X, const std::vector<Da
 
 	// compute inverses of each S_i
 	std::vector<Matrix> S_inv;
+	S_inv.reserve(C.size());
 
 	for ( size_t i = 0; i < C.size(); i++ ) {
 		S_inv.push_back(S[i].inverse());
@@ -60,9 +61,11 @@ std::vector<DataLabel> BayesLayer::predict(const Matrix& X, const std::vector<Da
 
 	// compute label for each test vector
 	std::vector<DataLabel> Y_pred;
+	Y_pred.reserve(X_test.cols());
 
 	for ( int i = 0; i < X_test.cols(); i++ ) {
 		std::vector<float> probs;
+		probs.reserve(C.size());
 
 		// compute the Bayes probability for each class
 		for ( size_t j = 0; j < C.size(); j++ ) {

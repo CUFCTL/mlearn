@@ -114,6 +114,8 @@ Dataset::Dataset(DataIterator *iter, const std::string& path, bool is_labeled)
 		}
 
 		// construct entries
+		this->_entries.reserve(num_entries);
+
 		for ( int i = 0; i < num_entries; i++ ) {
 			// construct entry name
 			std::string name(files[i]->d_name);
@@ -160,6 +162,8 @@ Dataset::Dataset(DataIterator *iter, const std::string& path, bool is_labeled)
 		file >> n >> m;
 
 		// construct entries
+		this->_entries.reserve(n);
+
 		for ( int i = 0; i < n; i++ ) {
 			// skip data
 			float data;
@@ -291,6 +295,8 @@ void Dataset::load(std::ifstream& file)
 	// read labels
 	int num_labels = read_int(file);
 
+	this->_labels.reserve(num_labels);
+
 	for ( int i = 0; i < num_labels; i++ ) {
 		DataLabel label(read_string(file));
 
@@ -299,6 +305,8 @@ void Dataset::load(std::ifstream& file)
 
 	// read entries
 	int num_entries = read_int(file);
+
+	this->_entries.reserve(num_entries);
 
 	for ( int i = 0; i < num_entries; i++ ) {
 		DataEntry entry;

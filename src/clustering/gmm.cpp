@@ -180,6 +180,8 @@ std::vector<int> compute_labels(const Matrix& c)
 	int k = c.cols();
 	std::vector<int> y;
 
+	y.reserve(n);
+
 	for ( int i = 0; i < n; i++ ) {
 		int max_j = -1;
 		float max_c;
