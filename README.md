@@ -23,6 +23,18 @@ Clustering
 
 ## Installation
 
+Before running any commands, you should add the path to your CUDA installation to `~/.bashrc`:
+```
+# Ubuntu
+export CUDADIR=/usr/local/cuda
+export PATH=$PATH:$CUDADIR/bin
+
+# Palmetto (example)
+export CUDADIR=/software/cuda-toolkit/7.5.18
+export PATH=$PATH:$CUDADIR/bin
+```
+
+You should then be able to install mlearn and its dependencies:
 ```
 # clone repository
 git clone https://github.com/CUFCTL/libmlearn.git
@@ -32,7 +44,7 @@ cd libmlearn
 make install-deps -j [num-jobs]
 
 # install library
-make install -j [num-jobs]
+make -j [num-jobs]
 ```
 
 ## Usage
