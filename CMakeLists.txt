@@ -1,6 +1,3 @@
-# CMakeLists files in this project can
-# refer to the root source directory of the project as ${MLEARN_SOURCE_DIR} and
-# to the root binary directory of the project as ${MLEARN_BINARY_DIR}.
 cmake_minimum_required(VERSION 3.3)
 project(MLEARN)
 
@@ -23,7 +20,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wno-unused-result")
 
 # recurse into subdirectories
 add_subdirectory(src)
-add_subdirectory(test)
 
 # install additional files
 install(

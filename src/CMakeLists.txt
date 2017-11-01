@@ -2,23 +2,6 @@
 # The extension is already found. Any number of sources could be listed here.
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-# external libraries
-set(OPENBLASDIR "$ENV{HOME}/software/OpenBLAS-0.2.19")
-add_library(openblas SHARED IMPORTED)
-set_target_properties(openblas PROPERTIES
-	IMPORTED_LOCATION "${OPENBLASDIR}/lib/libopenblas.so"
-	INTERFACE_INCLUDE_DIRECTORIES "${OPENBLASDIR}/include"
-)
-include_directories("${OPENBLASDIR}/include")
-
-set(MAGMADIR "$ENV{HOME}/software/magma-2.2.0")
-add_library(magma SHARED IMPORTED)
-set_target_properties(magma PROPERTIES
-	IMPORTED_LOCATION "${MAGMADIR}/lib/libmagma.so"
-	INTERFACE_INCLUDE_DIRECTORIES "${MAGMADIR}/include"
-)
-include_directories("${MAGMADIR}/include")
-
 # build mlearn library
 file(GLOB_RECURSE mlearn_src ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
@@ -53,7 +36,7 @@ install(
 		${CMAKE_SOURCE_DIR}/src/math
 		${CMAKE_SOURCE_DIR}/src/model
 		${CMAKE_SOURCE_DIR}/src/util
-	DESTINATION include
+	DESTINATION include/mlearn
 	COMPONENT dev
 	FILES_MATCHING
 		PATTERN "*.h"

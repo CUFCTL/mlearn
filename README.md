@@ -57,13 +57,9 @@ bin/test-data [type] [infile] [outfile]
 bin/test-matrix
 ```
 
-To include this library in your project, you need to add the library folder to `LD_LIBRARY_PATH`:
+To include this library in your project, append these lines to your `~/.bashrc`:
 ```
-export MLEARNDIR=$HOME/software/libmlearn
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MLEARNDIR/lib
-
-export OPENBLASDIR=$HOME/software/OpenBLAS-0.2.19
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OPENBLASDIR/lib
+export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$HOME/software/include
+export LIBRARY_PATH=$LIBRARY_PATH:$HOME/software/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/software/lib
 ```
-
-Append the above lines to `~/.bashrc` for ease of use.

@@ -6,32 +6,32 @@
 #ifndef MLEARN_H
 #define MLEARN_H
 
-#include "classifier/bayes.h"
-#include "classifier/knn.h"
+#include "mlearn/classifier/bayes.h"
+#include "mlearn/classifier/knn.h"
 
-#include "clustering/gmm.h"
-#include "clustering/kmeans.h"
+#include "mlearn/clustering/gmm.h"
+#include "mlearn/clustering/kmeans.h"
 
-#include "criterion/bic.h"
-#include "criterion/icl.h"
+#include "mlearn/criterion/bic.h"
+#include "mlearn/criterion/icl.h"
 
-#include "data/dataset.h"
-#include "data/genome.h"
-#include "data/image.h"
+#include "mlearn/data/dataset.h"
+#include "mlearn/data/genome.h"
+#include "mlearn/data/image.h"
 
-#include "feature/ica.h"
-#include "feature/identity.h"
-#include "feature/lda.h"
-#include "feature/pca.h"
+#include "mlearn/feature/ica.h"
+#include "mlearn/feature/identity.h"
+#include "mlearn/feature/lda.h"
+#include "mlearn/feature/pca.h"
 
-#include "math/matrix.h"
-#include "math/matrix_utils.h"
-#include "math/random.h"
+#include "mlearn/math/matrix.h"
+#include "mlearn/math/matrix_utils.h"
+#include "mlearn/math/random.h"
 
-#include "model/classificationmodel.h"
-#include "model/clusteringmodel.h"
+#include "mlearn/model/classificationmodel.h"
+#include "mlearn/model/clusteringmodel.h"
 
-#include "util/logger.h"
-#include "util/timer.h"
+#include "mlearn/util/logger.h"
+#include "mlearn/util/timer.h"
 
 #endif

@@ -1,3 +1,16 @@
+cmake_minimum_required(VERSION 3.3)
+project(MLEARN)
+
+# build parameters
+if ( NOT CMAKE_BUILD_TYPE STREQUAL "Debug" )
+	set(CMAKE_BUILD_TYPE "Release")
+endif ()
+
+# compiler settings
+set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -pg -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wno-unused-result")
+
 # build executables
 add_executable(test-classification test_classification.cpp)
 add_executable(test-clustering test_clustering.cpp)
