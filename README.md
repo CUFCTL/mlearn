@@ -23,18 +23,19 @@ Clustering
 
 ## Installation
 
-Before running any commands, you should add the path to your CUDA installation to `~/.bashrc`:
+Before running any commands, append these lines to `~/.bashrc`:
 ```
-# Ubuntu
+# CUDADIR should point to your CUDA installation
 export CUDADIR=/usr/local/cuda
 export PATH=$PATH:$CUDADIR/bin
 
-# Palmetto (example)
-export CUDADIR=/software/cuda-toolkit/7.5.18
-export PATH=$PATH:$CUDADIR/bin
+export INSTALL_PREFIX=$HOME/software
+export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$INSTALL_PREFIX/include
+export LIBRARY_PATH=$LIBRARY_PATH:$INSTALL_PREFIX/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PREFIX/lib
 ```
 
-You should then be able to install mlearn and its dependencies:
+You should then be able to install libmlearn and its dependencies:
 ```
 # clone repository
 git clone https://github.com/CUFCTL/libmlearn.git
@@ -49,17 +50,14 @@ make -j [num-jobs]
 
 ## Usage
 
-To run tests:
+Refer to the test programs in the `test` folder for example uses of libmlearn:
 ```
-bin/test-classification
-bin/test-clustering [k ...]
-bin/test-data [type] [infile] [outfile]
-bin/test-matrix
-```
+make examples
 
-To include this library in your project, append these lines to your `~/.bashrc`:
-```
-export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$HOME/software/include
-export LIBRARY_PATH=$LIBRARY_PATH:$HOME/software/lib
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/software/lib
+cd test
+
+build/test-classification
+build/test-clustering
+build/test-data
+build/test-matrix
 ```
