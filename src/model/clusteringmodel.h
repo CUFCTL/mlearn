@@ -6,9 +6,9 @@
 #ifndef CLUSTERINGMODEL_H
 #define CLUSTERINGMODEL_H
 
-#include "clustering/clustering.h"
-#include "criterion/criterion.h"
-#include "data/dataset.h"
+#include "mlearn/clustering/clustering.h"
+#include "mlearn/criterion/criterion.h"
+#include "mlearn/data/dataset.h"
 
 namespace ML {
 

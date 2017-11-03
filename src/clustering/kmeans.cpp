@@ -5,10 +5,10 @@
  */
 #include <cmath>
 #include <stdexcept>
-#include "clustering/kmeans.h"
-#include "math/matrix_utils.h"
-#include "util/logger.h"
-#include "util/timer.h"
+#include "mlearn/clustering/kmeans.h"
+#include "mlearn/math/matrix_utils.h"
+#include "mlearn/util/logger.h"
+#include "mlearn/util/timer.h"
 
 namespace ML {
 

@@ -4,8 +4,8 @@
  * Implementation of the parameter set.
  */
 #include <cmath>
-#include "clustering/parameterset.h"
-#include "math/matrix_utils.h"
+#include "mlearn/clustering/parameterset.h"
+#include "mlearn/math/matrix_utils.h"
 
 namespace ML {
 

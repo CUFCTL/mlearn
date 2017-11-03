@@ -7,7 +7,7 @@
 #define CRITERION_H
 
 #include <vector>
-#include "clustering/clustering.h"
+#include "mlearn/clustering/clustering.h"
 
 namespace ML {
 

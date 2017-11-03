@@ -7,8 +7,8 @@
 #define CLASSIFIER_H
 
 #include <vector>
-#include "data/dataset.h"
-#include "math/matrix.h"
+#include "mlearn/data/dataset.h"
+#include "mlearn/math/matrix.h"
 
 namespace ML {
 

@@ -3,8 +3,8 @@
  *
  * Implementation of identity feature layer.
  */
-#include "feature/identity.h"
-#include "util/logger.h"
+#include "mlearn/feature/identity.h"
+#include "mlearn/util/logger.h"
 
 namespace ML {
 

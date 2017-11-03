@@ -6,8 +6,8 @@
 #ifndef KNN_H
 #define KNN_H
 
-#include "classifier/classifier.h"
-#include "math/matrix_utils.h"
+#include "mlearn/classifier/classifier.h"
+#include "mlearn/math/matrix_utils.h"
 
 namespace ML {
 

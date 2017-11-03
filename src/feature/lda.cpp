@@ -3,11 +3,11 @@
  *
  * Implementation of LDA (Belhumeur et al., 1996; Zhao et al., 1998).
  */
-#include "feature/lda.h"
-#include "feature/pca.h"
-#include "math/matrix_utils.h"
-#include "util/logger.h"
-#include "util/timer.h"
+#include "mlearn/feature/lda.h"
+#include "mlearn/feature/pca.h"
+#include "mlearn/math/matrix_utils.h"
+#include "mlearn/util/logger.h"
+#include "mlearn/util/timer.h"
 
 namespace ML {
 

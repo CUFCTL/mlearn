@@ -6,7 +6,7 @@
 #ifndef IDENTITY_H
 #define IDENTITY_H
 
-#include "feature/feature.h"
+#include "mlearn/feature/feature.h"
 
 namespace ML {
 

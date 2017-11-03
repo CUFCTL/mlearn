@@ -4,8 +4,8 @@
  * Implementation of the timer.
  */
 #include <cassert>
-#include "util/logger.h"
-#include "util/timer.h"
+#include "mlearn/util/logger.h"
+#include "mlearn/util/timer.h"
 
 namespace ML {
 

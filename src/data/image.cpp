@@ -10,8 +10,8 @@
 #include <cassert>
 #include <cctype>
 #include <fstream>
-#include "data/image.h"
-#include "util/logger.h"
+#include "mlearn/data/image.h"
+#include "mlearn/util/logger.h"
 
 namespace ML {
 

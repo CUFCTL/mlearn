@@ -6,7 +6,7 @@
 #ifndef ICA_H
 #define ICA_H
 
-#include "feature/feature.h"
+#include "mlearn/feature/feature.h"
 
 namespace ML {
 

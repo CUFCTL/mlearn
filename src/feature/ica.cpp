@@ -4,10 +4,10 @@
  * Implementation of ICA (Hyvarinen, 1999).
  */
 #include <cmath>
-#include "feature/ica.h"
-#include "feature/pca.h"
-#include "util/logger.h"
-#include "util/timer.h"
+#include "mlearn/feature/ica.h"
+#include "mlearn/feature/pca.h"
+#include "mlearn/util/logger.h"
+#include "mlearn/util/timer.h"
 
 namespace ML {
 

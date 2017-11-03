@@ -4,10 +4,10 @@
  * Implementation of the naive Bayes classifier.
  */
 #include <algorithm>
-#include "classifier/bayes.h"
-#include "feature/lda.h"
-#include "math/matrix_utils.h"
-#include "util/logger.h"
+#include "mlearn/classifier/bayes.h"
+#include "mlearn/feature/lda.h"
+#include "mlearn/math/matrix_utils.h"
+#include "mlearn/util/logger.h"
 
 namespace ML {
 

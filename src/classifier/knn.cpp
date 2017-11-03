@@ -4,8 +4,8 @@
  * Implementation of the k-nearest neighbors classifier.
  */
 #include <algorithm>
-#include "classifier/knn.h"
-#include "util/logger.h"
+#include "mlearn/classifier/knn.h"
+#include "mlearn/util/logger.h"
 
 namespace ML {
 

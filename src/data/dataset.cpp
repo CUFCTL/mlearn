@@ -6,8 +6,8 @@
 #include <dirent.h>
 #include <fstream>
 #include <memory>
-#include "data/dataset.h"
-#include "util/logger.h"
+#include "mlearn/data/dataset.h"
+#include "mlearn/util/logger.h"
 
 namespace ML {
 

@@ -6,10 +6,10 @@
 #ifndef CLASSIFICATIONMODEL_H
 #define CLASSIFICATIONMODEL_H
 
-#include "classifier/classifier.h"
-#include "data/dataset.h"
-#include "feature/feature.h"
-#include "math/matrix.h"
+#include "mlearn/classifier/classifier.h"
+#include "mlearn/data/dataset.h"
+#include "mlearn/feature/feature.h"
+#include "mlearn/math/matrix.h"
 
 namespace ML {
 

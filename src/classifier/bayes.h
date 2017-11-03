@@ -6,7 +6,7 @@
 #ifndef BAYES_H
 #define BAYES_H
 
-#include "classifier/classifier.h"
+#include "mlearn/classifier/classifier.h"
 
 namespace ML {
 

@@ -7,7 +7,7 @@
 #define DATAITERATOR_H
 
 #include <string>
-#include "math/matrix.h"
+#include "mlearn/math/matrix.h"
 
 namespace ML {
 

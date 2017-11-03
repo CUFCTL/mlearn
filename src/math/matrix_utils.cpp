@@ -5,8 +5,8 @@
  */
 #include <cassert>
 #include <cmath>
-#include "math/matrix_utils.h"
-#include "math/random.h"
+#include "mlearn/math/matrix_utils.h"
+#include "mlearn/math/random.h"
 
 namespace ML {
 

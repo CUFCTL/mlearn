@@ -4,9 +4,9 @@
  * Implementation of the clustering model.
  */
 #include <iomanip>
-#include "model/clusteringmodel.h"
-#include "util/logger.h"
-#include "util/timer.h"
+#include "mlearn/model/clusteringmodel.h"
+#include "mlearn/util/logger.h"
+#include "mlearn/util/timer.h"
 
 namespace ML {
 

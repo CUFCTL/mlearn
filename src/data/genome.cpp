@@ -8,8 +8,8 @@
  */
 #include <cassert>
 #include <fstream>
-#include "data/genome.h"
-#include "util/logger.h"
+#include "mlearn/data/genome.h"
+#include "mlearn/util/logger.h"
 
 namespace ML {
 

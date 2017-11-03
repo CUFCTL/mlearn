@@ -4,7 +4,7 @@
  * Implementation of random number generator.
  */
 #include <chrono>
-#include "math/random.h"
+#include "mlearn/math/random.h"
 
 namespace ML {
 

@@ -6,7 +6,7 @@
 #ifndef ICL_H
 #define ICL_H
 
-#include "criterion/criterion.h"
+#include "mlearn/criterion/criterion.h"
 
 namespace ML {
 

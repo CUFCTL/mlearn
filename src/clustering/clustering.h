@@ -7,7 +7,7 @@
 #define CLUSTERING_H
 
 #include <vector>
-#include "math/matrix.h"
+#include "mlearn/math/matrix.h"
 
 namespace ML {
 

@@ -3,8 +3,8 @@
  *
  * Implementation of the BIC layer.
  */
-#include "criterion/bic.h"
-#include "util/logger.h"
+#include "mlearn/criterion/bic.h"
+#include "mlearn/util/logger.h"
 
 namespace ML {
 

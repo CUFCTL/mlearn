@@ -3,9 +3,9 @@
  *
  * Implementation of PCA (Turk and Pentland, 1991).
  */
-#include "feature/pca.h"
-#include "util/logger.h"
-#include "util/timer.h"
+#include "mlearn/feature/pca.h"
+#include "mlearn/util/logger.h"
+#include "mlearn/util/timer.h"
 
 namespace ML {
 

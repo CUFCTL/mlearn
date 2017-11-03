@@ -7,7 +7,7 @@
 #define IMAGE_H
 
 #include <memory>
-#include "data/dataiterator.h"
+#include "mlearn/data/dataiterator.h"
 
 namespace ML {
 

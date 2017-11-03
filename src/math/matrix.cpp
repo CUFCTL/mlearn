@@ -9,14 +9,13 @@
 #include <cstring>
 #include <iomanip>
 #include <stdexcept>
-#include "math/matrix.h"
-#include "math/random.h"
-#include "util/logger.h"
-
-#include <cuda_runtime.h>
-#include "magma_v2.h"
 #include <cblas.h>
+#include <cuda_runtime.h>
 #include <lapacke.h>
+#include <magma_v2.h>
+#include "mlearn/math/matrix.h"
+#include "mlearn/math/random.h"
+#include "mlearn/util/logger.h"
 
 namespace ML {
 

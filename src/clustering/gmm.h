@@ -6,8 +6,8 @@
 #ifndef GMM_H
 #define GMM_H
 
-#include "clustering/clustering.h"
-#include "clustering/parameterset.h"
+#include "mlearn/clustering/clustering.h"
+#include "mlearn/clustering/parameterset.h"
 
 namespace ML {
 

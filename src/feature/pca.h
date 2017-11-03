@@ -6,7 +6,7 @@
 #ifndef PCA_H
 #define PCA_H
 
-#include "feature/feature.h"
+#include "mlearn/feature/feature.h"
 
 namespace ML {
 

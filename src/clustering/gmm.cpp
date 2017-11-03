@@ -5,9 +5,9 @@
  */
 #include <cmath>
 #include <stdexcept>
-#include "clustering/gmm.h"
-#include "util/logger.h"
-#include "util/timer.h"
+#include "mlearn/clustering/gmm.h"
+#include "mlearn/util/logger.h"
+#include "mlearn/util/timer.h"
 
 namespace ML {
 

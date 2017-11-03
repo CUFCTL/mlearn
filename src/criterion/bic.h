@@ -6,7 +6,7 @@
 #ifndef BIC_H
 #define BIC_H
 
-#include "criterion/criterion.h"
+#include "mlearn/criterion/criterion.h"
 
 namespace ML {
 

@@ -6,7 +6,7 @@
 #ifndef LDA_H
 #define LDA_H
 
-#include "feature/feature.h"
+#include "mlearn/feature/feature.h"
 
 namespace ML {
 

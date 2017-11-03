@@ -6,8 +6,8 @@
 #ifndef KMEANS_H
 #define KMEANS_H
 
-#include "clustering/clustering.h"
-#include "clustering/parameterset.h"
+#include "mlearn/clustering/clustering.h"
+#include "mlearn/clustering/parameterset.h"
 
 namespace ML {
 

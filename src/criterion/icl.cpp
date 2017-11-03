@@ -3,8 +3,8 @@
  *
  * Implementation of the ICL layer.
  */
-#include "criterion/icl.h"
-#include "util/logger.h"
+#include "mlearn/criterion/icl.h"
+#include "mlearn/util/logger.h"
 
 namespace ML {
 

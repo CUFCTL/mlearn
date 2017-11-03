@@ -9,8 +9,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "data/dataiterator.h"
-#include "math/matrix.h"
+#include "mlearn/data/dataiterator.h"
+#include "mlearn/math/matrix.h"
 
 namespace ML {
 
