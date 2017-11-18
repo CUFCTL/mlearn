@@ -28,19 +28,11 @@ install(
 # install header files
 install(
 	DIRECTORY
-		${CMAKE_SOURCE_DIR}/src/classifier
-		${CMAKE_SOURCE_DIR}/src/clustering
-		${CMAKE_SOURCE_DIR}/src/criterion
-		${CMAKE_SOURCE_DIR}/src/data
-		${CMAKE_SOURCE_DIR}/src/feature
-		${CMAKE_SOURCE_DIR}/src/math
-		${CMAKE_SOURCE_DIR}/src/model
-		${CMAKE_SOURCE_DIR}/src/util
-	DESTINATION include/mlearn
+		${CMAKE_SOURCE_DIR}/src/mlearn
+	DESTINATION include
 	COMPONENT dev
 	FILES_MATCHING
 		PATTERN "*.h"
-		PATTERN "mlearn.h" EXCLUDE
 )
 
 # Make sure the compiler can find include files for mlearn

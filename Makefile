@@ -51,7 +51,7 @@ $(BUILD):
 $(BUILD_EX):
 	mkdir -p $(BUILD_EX)
 
-mlearn: $(SRC)/**/*.h $(SRC)/**/*.cpp | $(BUILD)
+mlearn: $(SRC)/mlearn/**/*.h $(SRC)/mlearn/**/*.cpp | $(BUILD)
 	cd $(BUILD) && cmake .. $(CMAKEFLAGS)
 	+$(MAKE) -C $(BUILD) install
 
