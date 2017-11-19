@@ -14,13 +14,6 @@
 
 namespace ML {
 
-typedef std::string DataLabel;
-
-typedef struct {
-	DataLabel label;
-	std::string name;
-} DataEntry;
-
 class Dataset {
 private:
 	DataIterator *_iter;
@@ -29,7 +22,7 @@ private:
 	std::vector<DataEntry> _entries;
 
 public:
-	Dataset(DataIterator *iter, const std::string& path, bool is_labeled=true);
+	Dataset(DataIterator *iter);
 	Dataset() {};
 
 	inline const std::string& path() const { return this->_path; }

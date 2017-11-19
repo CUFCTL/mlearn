@@ -15,9 +15,10 @@
 #include "mlearn/criterion/bic.h"
 #include "mlearn/criterion/icl.h"
 
+#include "mlearn/data/csviterator.h"
 #include "mlearn/data/dataset.h"
-#include "mlearn/data/genome.h"
-#include "mlearn/data/image.h"
+#include "mlearn/data/genomeiterator.h"
+#include "mlearn/data/imageiterator.h"
 
 #include "mlearn/feature/ica.h"
 #include "mlearn/feature/identity.h"

@@ -29,7 +29,7 @@ void print_usage()
 		"  --loglevel LEVEL   log level ([1]=info, 2=verbose, 3=debug)\n"
 		"  --path_train PATH  path to training set [iris.train]\n"
 		"  --path_test PATH   path to test set [iris.test]\n"
-		"  --type TYPE        data type ([none], image, genome)\n"
+		"  --type TYPE        data type ([csv], image, genome)\n"
 		"  --feat FEATURE     feature extraction method ([identity], pca, lda, ica)\n"
 		"  --clas CLASSIFIER  classification method ([knn], bayes)\n";
 }
@@ -37,9 +37,9 @@ void print_usage()
 args_t parse_args(int argc, char **argv)
 {
 	args_t args = {
-		"test/data/iris.train",
-		"test/data/iris.test",
-		"none",
+		"data/iris.train",
+		"data/iris.test",
+		"csv",
 		"identity",
 		"knn"
 	};
@@ -99,26 +99,30 @@ int main(int argc, char **argv)
 	// initialize GPU if enabled
 	gpu_init();
 
-	// construct data iterator
-	std::unique_ptr<DataIterator> data_iter;
+	// construct data iterators
+	std::unique_ptr<DataIterator> train_iter;
+	std::unique_ptr<DataIterator> test_iter;
 
 	if ( args.data_type == "image" ) {
-		data_iter.reset(new Image());
+		train_iter.reset(new ImageIterator(args.path_train));
+		test_iter.reset(new ImageIterator(args.path_test));
 	}
 	else if ( args.data_type == "genome" ) {
-		data_iter.reset(new Genome());
+		train_iter.reset(new GenomeIterator(args.path_train));
+		test_iter.reset(new GenomeIterator(args.path_test));
 	}
-	else if ( args.data_type == "none" ) {
-		data_iter.reset(nullptr);
+	else if ( args.data_type == "csv" ) {
+		train_iter.reset(new CSVIterator(args.path_train));
+		test_iter.reset(new CSVIterator(args.path_test));
 	}
 	else {
-		std::cerr << "error: type must be image | genome | none\n";
+		std::cerr << "error: type must be image | genome | csv\n";
 		exit(1);
 	}
 
 	// load train set, test set
-	Dataset train_set(data_iter.get(), args.path_train);
-	Dataset test_set(data_iter.get(), args.path_test);
+	Dataset train_set(train_iter.get());
+	Dataset test_set(test_iter.get());
 
 	// construct feature layer
 	std::unique_ptr<FeatureLayer> feature;

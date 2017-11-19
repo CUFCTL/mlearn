@@ -7,20 +7,28 @@
 #define DATAITERATOR_H
 
 #include <string>
+#include <vector>
 #include "mlearn/math/matrix.h"
 
 namespace ML {
+
+typedef std::string DataLabel;
+
+typedef struct {
+	DataLabel label;
+	std::string name;
+} DataEntry;
 
 class DataIterator {
 public:
 	virtual ~DataIterator() {};
 
-	virtual int size() const = 0;
-	virtual void to_matrix(Matrix& X, int i) const = 0;
-	virtual void from_matrix(Matrix& X, int i) = 0;
+	virtual int num_samples() const = 0;
+	virtual int sample_size() const = 0;
+	virtual const std::vector<DataEntry>& entries() const = 0;
+	virtual const std::vector<DataLabel>& labels() const = 0;
 
-	virtual void load(const std::string& path) = 0;
-	virtual void save(const std::string& path) = 0;
+	virtual void sample(Matrix& X, int i) = 0;
 };
 
 }

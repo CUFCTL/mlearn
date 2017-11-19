@@ -28,7 +28,7 @@ void print_usage()
 		"  --gpu              enable GPU acceleration\n"
 		"  --loglevel LEVEL   log level ([1]=info, 2=verbose, 3=debug)\n"
 		"  --path PATH        path to dataset (default is IRIS dataset)\n"
-		"  --type TYPE        data type ([none], image, genome)\n"
+		"  --type TYPE        data type ([csv], image, genome)\n"
 		"  --clus CLUSTERING  clustering method ([kmeans], gmm)\n"
 		"  --min-k K          minimum number of clusters [1]\n"
 		"  --max-k K          maximum number of clusters [5]\n"
@@ -38,8 +38,8 @@ void print_usage()
 args_t parse_args(int argc, char **argv)
 {
 	args_t args = {
-		"test/data/iris.train",
-		"none",
+		"data/iris.train",
+		"csv",
 		"kmeans", 1, 5,
 		"bic",
 	};
@@ -113,21 +113,21 @@ int main(int argc, char **argv)
 	DataIterator *data_iter;
 
 	if ( args.data_type == "image" ) {
-		data_iter = new Image();
+		data_iter = new ImageIterator(args.path_input);
 	}
 	else if ( args.data_type == "genome" ) {
-		data_iter = new Genome();
+		data_iter = new GenomeIterator(args.path_input);
 	}
-	else if ( args.data_type == "none" ) {
-		data_iter = nullptr;
+	else if ( args.data_type == "csv" ) {
+		data_iter = new CSVIterator(args.path_input);
 	}
 	else {
-		std::cerr << "error: type must be image | genome | none\n";
+		std::cerr << "error: type must be image | genome | csv\n";
 		exit(1);
 	}
 
 	// load input data
-	Dataset input_data(data_iter, args.path_input);
+	Dataset input_data(data_iter);
 
 	// construct clustering layers
 	std::vector<ClusteringLayer *> clustering;
