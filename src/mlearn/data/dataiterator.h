@@ -26,7 +26,6 @@ public:
 	virtual int num_samples() const = 0;
 	virtual int sample_size() const = 0;
 	virtual const std::vector<DataEntry>& entries() const = 0;
-	virtual const std::vector<DataLabel>& labels() const = 0;
 
 	virtual void sample(Matrix& X, int i) = 0;
 };

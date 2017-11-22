@@ -15,7 +15,6 @@ class ImageIterator : public DataIterator {
 private:
 	std::string _path;
 	std::vector<DataEntry> _entries;
-	std::vector<DataLabel> _labels;
 
 	int _channels;
 	int _width;
@@ -32,7 +31,6 @@ public:
 	int num_samples() const { return _entries.size(); }
 	int sample_size() const { return _channels * _width * _height; }
 	const std::vector<DataEntry>& entries() const { return _entries; }
-	const std::vector<DataLabel>& labels() const { return _labels; }
 
 	void sample(Matrix& X, int i);
 };

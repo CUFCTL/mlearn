@@ -50,20 +50,6 @@ CSVIterator::CSVIterator(const std::string& filename)
 			name
 		});
 	}
-
-	// construct labels
-	for ( const DataEntry& entry : this->_entries ) {
-		// search labels for label name
-		size_t j = 0;
-		while ( j < this->_labels.size() && this->_labels[j] != entry.label ) {
-			j++;
-		}
-
-		// append label if not found
-		if ( j == this->_labels.size() ) {
-			this->_labels.push_back(entry.label);
-		}
-	}
 }
 
 /**

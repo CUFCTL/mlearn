@@ -14,7 +14,6 @@ namespace ML {
 class CSVIterator : public DataIterator {
 private:
 	std::vector<DataEntry> _entries;
-	std::vector<DataLabel> _labels;
 
 	int _size;
 	std::unique_ptr<float[]> _data;
@@ -26,7 +25,6 @@ public:
 	int num_samples() const { return _entries.size(); }
 	int sample_size() const { return _size; }
 	const std::vector<DataEntry>& entries() const { return _entries; }
-	const std::vector<DataLabel>& labels() const { return _labels; }
 
 	void sample(Matrix& X, int i);
 };
