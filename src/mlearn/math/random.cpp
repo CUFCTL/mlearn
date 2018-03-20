@@ -9,7 +9,8 @@
 namespace ML {
 
 std::default_random_engine Random::_rng;
-std::uniform_int_distribution<int> Random::_U;
+std::uniform_int_distribution<int> Random::_Ui;
+std::uniform_real_distribution<float> Random::_Ur;
 std::normal_distribution<float> Random::_N;
 
 /**
@@ -32,7 +33,18 @@ void Random::seed(unsigned int value)
  */
 int Random::uniform_int(int a, int b)
 {
-    return _U(_rng) % (a - b) + a;
+    return _Ui(_rng) % (b - a) + a;
+}
+
+/**
+ * Generate a real number from a uniform (a, b) distribution.
+ *
+ * @param a
+ * @param b
+ */
+float Random::uniform_real(float a, float b)
+{
+    return _Ur(_rng) * (b - a) + a;
 }
 
 /**
