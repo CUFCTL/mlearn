@@ -33,7 +33,7 @@ public:
 	int num_clusters() const { return _k; }
 	int num_parameters() const { return _num_parameters; }
 	int num_samples() const { return _num_samples; }
-	inline std::vector<int> output() const { return _output; }
+	const std::vector<int>& output() const { return _output; }
 
 	void print() const;
 };

@@ -63,10 +63,10 @@ public:
 	void gpu_write();
 
 	// getter functions
-	inline int rows() const { return _rows; }
-	inline int cols() const { return _cols; }
-	inline float& elem(int i, int j) const { return ELEM(*this, i, j); }
-	inline Matrix& T() const { return *(_T); }
+	int rows() const { return _rows; }
+	int cols() const { return _cols; }
+	float& elem(int i, int j) const { return ELEM(*this, i, j); }
+	const Matrix& T() const { return *(_T); }
 
 	float determinant() const;
 	Matrix diagonalize() const;
