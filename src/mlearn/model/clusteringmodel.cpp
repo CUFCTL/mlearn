@@ -42,7 +42,7 @@ ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clusterin
  *
  * @param X
  */
-void ClusteringModel::predict(const std::vector<Matrix>& X)
+void ClusteringModel::fit(const std::vector<Matrix>& X)
 {
 	Timer::push("Clustering");
 
@@ -50,7 +50,7 @@ void ClusteringModel::predict(const std::vector<Matrix>& X)
 	std::vector<int> results;
 
 	for ( ClusteringLayer *c : _clustering ) {
-		results.push_back(c->compute(X));
+		results.push_back(c->fit(X));
 	}
 
 	// record prediction time

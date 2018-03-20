@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 	// perform clustering on input data
 	Matrix X = input_data.load_data();
 	std::vector<Matrix> X_col = m_copy_columns(X);
-	model.predict(X_col);
+	model.fit(X_col);
 
 	std::vector<int> Y_pred = model.best_layer()->output();
 

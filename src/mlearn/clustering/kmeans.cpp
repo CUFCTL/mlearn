@@ -95,7 +95,7 @@ void KMeansLayer::M_step(const std::vector<Matrix>& X, const std::vector<int>& y
  *
  * @param X
  */
-int KMeansLayer::compute(const std::vector<Matrix>& X)
+int KMeansLayer::fit(const std::vector<Matrix>& X)
 {
 	int status = 0;
 

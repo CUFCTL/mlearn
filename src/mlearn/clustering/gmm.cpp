@@ -226,7 +226,7 @@ float compute_entropy(const Matrix& c, const std::vector<int>& y)
  *
  * @param X
  */
-int GMMLayer::compute(const std::vector<Matrix>& X)
+int GMMLayer::fit(const std::vector<Matrix>& X)
 {
 	int status = 0;
 

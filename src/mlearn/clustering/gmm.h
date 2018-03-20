@@ -27,7 +27,7 @@ private:
 public:
 	GMMLayer(int k);
 
-	int compute(const std::vector<Matrix>& X);
+	int fit(const std::vector<Matrix>& X);
 
 	float entropy() const { return _entropy; }
 	float log_likelihood() const { return _log_likelihood; }
