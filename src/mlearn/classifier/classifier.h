@@ -7,7 +7,6 @@
 #define CLASSIFIER_H
 
 #include <vector>
-#include "mlearn/data/dataset.h"
 #include "mlearn/math/matrix.h"
 
 namespace ML {
@@ -16,13 +15,8 @@ class ClassifierLayer {
 public:
 	virtual ~ClassifierLayer() {};
 
-	virtual std::vector<DataLabel> predict(
-		const Matrix& X,
-		const std::vector<DataEntry>& Y,
-		const std::vector<DataLabel>& C,
-		const Matrix& X_test
-	) = 0;
-
+	virtual void compute(const Matrix& X, const std::vector<int>& y, int c) = 0;
+	virtual std::vector<int> predict(const Matrix& X_test) = 0;
 	virtual void print() = 0;
 };
 

@@ -31,7 +31,7 @@ PCALayer::PCALayer(int n1)
  * @param y
  * @param c
  */
-void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
+void PCALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 {
 	// if n1 = -1, use default value
 	int n1 = (_n1 == -1)

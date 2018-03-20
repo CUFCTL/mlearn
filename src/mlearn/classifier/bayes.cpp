@@ -12,10 +12,28 @@
 namespace ML {
 
 /**
- * Construct a Bayes classifier.
+ * Compute intermediate data for classification.
+ *
+ * @param X
+ * @param y
+ * @param c
  */
-BayesLayer::BayesLayer()
+void BayesLayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 {
+	std::vector<Matrix> X_c = m_copy_classes(X, y, c);
+
+	// compute class means
+	_mu = m_class_means(X_c);
+
+	// compute class covariances
+	std::vector<Matrix> S = m_class_scatters(X_c, _mu);
+
+	// compute inverses of each class covariance
+	_S_inv.reserve(c);
+
+	for ( size_t i = 0; i < c; i++ ) {
+		_S_inv.push_back(S[i].inverse());
+	}
 }
 
 /**
@@ -39,48 +57,27 @@ float bayes_prob(Matrix x, const Matrix& mu, const Matrix& S_inv)
 /**
  * Classify an observation using naive Bayes.
  *
- * @param X
- * @param Y
- * @param C
  * @param X_test
  * @return predicted labels of the test observations
  */
-std::vector<DataLabel> BayesLayer::predict(const Matrix& X, const std::vector<DataEntry>& Y, const std::vector<DataLabel>& C, const Matrix& X_test)
+std::vector<int> BayesLayer::predict(const Matrix& X_test)
 {
-	std::vector<Matrix> X_c = m_copy_classes(X, Y, C.size());
-	std::vector<Matrix> U = m_class_means(X_c);
-	std::vector<Matrix> S = m_class_scatters(X_c, U);
-
-	// compute inverses of each S_i
-	std::vector<Matrix> S_inv;
-	S_inv.reserve(C.size());
-
-	for ( size_t i = 0; i < C.size(); i++ ) {
-		S_inv.push_back(S[i].inverse());
-	}
-
 	// compute label for each test vector
-	std::vector<DataLabel> Y_pred;
-	Y_pred.reserve(X_test.cols());
+	std::vector<int> y_pred(X_test.cols());
 
 	for ( int i = 0; i < X_test.cols(); i++ ) {
-		std::vector<float> probs;
-		probs.reserve(C.size());
+		std::vector<float> probs(_mu.size());
 
 		// compute the Bayes probability for each class
-		for ( size_t j = 0; j < C.size(); j++ ) {
-			float p = bayes_prob(X_test(i), U[j], S_inv[j]);
-
-			probs.push_back(p);
+		for ( int j = 0; j < probs.size(); j++ ) {
+			probs[j] = bayes_prob(X_test(i), _mu[j], _S_inv[j]);
 		}
 
 		// select the class with the highest probability
-		int index = max_element(probs.begin(), probs.end()) - probs.begin();
-
-		Y_pred.push_back(C[index]);
+		y_pred[i] = max_element(probs.begin(), probs.end()) - probs.begin();
 	}
 
-	return Y_pred;
+	return y_pred;
 }
 
 /**

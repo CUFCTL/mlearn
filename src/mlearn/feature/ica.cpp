@@ -39,7 +39,7 @@ ICALayer::ICALayer(int n1, int n2, ICANonl nonl, int max_iter, float eps)
  * @param y
  * @param c
  */
-void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
+void ICALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 {
 	Timer::push("ICA");
 

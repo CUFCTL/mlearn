@@ -20,6 +20,7 @@ private:
 	std::string _path;
 	std::vector<DataLabel> _labels;
 	std::vector<DataEntry> _entries;
+	std::vector<int> _numeric_entries;
 
 public:
 	Dataset(DataIterator *iter);
@@ -28,6 +29,7 @@ public:
 	const std::string& path() const { return _path; }
 	const std::vector<DataLabel>& labels() const { return _labels; }
 	const std::vector<DataEntry>& entries() const { return _entries; }
+	const std::vector<int>& numeric_entries() const { return _numeric_entries; }
 
 	Matrix load_data() const;
 

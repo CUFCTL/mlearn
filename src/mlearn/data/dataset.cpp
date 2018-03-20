@@ -88,6 +88,9 @@ Dataset::Dataset(DataIterator *iter)
 		if ( j == _labels.size() ) {
 			_labels.push_back(entry.label);
 		}
+
+		// append numeric entry
+		_numeric_entries.push_back(j);
 	}
 }
 

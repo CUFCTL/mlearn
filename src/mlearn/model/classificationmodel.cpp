@@ -94,8 +94,11 @@ void ClassificationModel::train(const Dataset& train_set)
 	X.subtract_columns(_mean);
 
 	// project X into feature space
-	_feature->compute(X, _train_set.entries(), _train_set.labels().size());
+	_feature->compute(X, _train_set.numeric_entries(), _train_set.labels().size());
 	_P = _feature->project(X);
+
+	// train classifier
+	_classifier->compute(_P, _train_set.numeric_entries(), _train_set.labels().size());
 
 	// record training time
 	_stats.train_time = Timer::pop();
@@ -108,7 +111,7 @@ void ClassificationModel::train(const Dataset& train_set)
  *
  * @param test_set
  */
-std::vector<DataLabel> ClassificationModel::predict(const Dataset& test_set)
+std::vector<int> ClassificationModel::predict(const Dataset& test_set)
 {
 	Timer::push("Prediction");
 
@@ -123,33 +126,28 @@ std::vector<DataLabel> ClassificationModel::predict(const Dataset& test_set)
 	Matrix P_test = _feature->project(X_test);
 
 	// compute predicted labels
-	std::vector<DataLabel> Y_pred = _classifier->predict(
-		_P,
-		_train_set.entries(),
-		_train_set.labels(),
-		P_test
-	);
+	std::vector<int> y_pred = _classifier->predict(P_test);
 
 	// record prediction time
 	_stats.predict_time = Timer::pop();
 
 	log(LL_VERBOSE, "");
 
-	return Y_pred;
+	return y_pred;
 }
 
 /**
  * Validate a set of predicted labels against the ground truth.
  *
  * @param test_set
- * @param Y_pred
+ * @param y_pred
  */
-void ClassificationModel::validate(const Dataset& test_set, const std::vector<DataLabel>& Y_pred)
+void ClassificationModel::validate(const Dataset& test_set, const std::vector<int>& y_pred)
 {
 	int num_errors = 0;
 
-	for ( size_t i = 0; i < test_set.entries().size(); i++ ) {
-		if ( Y_pred[i] != test_set.entries()[i].label ) {
+	for ( size_t i = 0; i < test_set.numeric_entries().size(); i++ ) {
+		if ( y_pred[i] != test_set.numeric_entries()[i] ) {
 			num_errors++;
 		}
 	}
@@ -161,21 +159,21 @@ void ClassificationModel::validate(const Dataset& test_set, const std::vector<Da
  * Print prediction results of a model.
  *
  * @param test_set
- * @param Y_pred
+ * @param y_pred
  */
-void ClassificationModel::print_results(const Dataset& test_set, const std::vector<DataLabel>& Y_pred) const
+void ClassificationModel::print_results(const Dataset& test_set, const std::vector<int>& y_pred) const
 {
 	log(LL_VERBOSE, "Results");
 
 	for ( size_t i = 0; i < test_set.entries().size(); i++ ) {
-		const DataLabel& y_pred = Y_pred[i];
-		const DataEntry& entry = test_set.entries()[i];
+		const std::string& name = test_set.entries()[i].name;
+		const DataLabel& label = test_set.labels()[y_pred[i]];
 
-		const char *s = (y_pred != entry.label)
+		const char *s = (y_pred[i] != test_set.numeric_entries()[i])
 			? "(!)"
 			: "";
 
-		log(LL_VERBOSE, "%-12s -> %-4s %s", entry.name.c_str(), y_pred.c_str(), s);
+		log(LL_VERBOSE, "%-12s -> %-4s %s", name.c_str(), label.c_str(), s);
 	}
 
 	log(LL_VERBOSE, "Error rate: %.3f", _stats.error_rate);

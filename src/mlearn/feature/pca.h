@@ -23,7 +23,7 @@ public:
 	const Matrix& W() const { return _W; }
 	const Matrix& D() const { return _D; }
 
-	void compute(const Matrix& X, const std::vector<DataEntry>& y, int c);
+	void compute(const Matrix& X, const std::vector<int>& y, int c);
 	Matrix project(const Matrix& X);
 
 	void save(std::ofstream& file);

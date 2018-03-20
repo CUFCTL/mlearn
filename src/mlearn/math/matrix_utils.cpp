@@ -188,7 +188,7 @@ std::vector<Matrix> m_subtract_mean(const std::vector<Matrix>& X, const Matrix& 
  * @param y
  * @param c
  */
-std::vector<Matrix> m_copy_classes(const Matrix& X, const std::vector<DataEntry>& y, int c)
+std::vector<Matrix> m_copy_classes(const Matrix& X, const std::vector<int>& y, int c)
 {
 	std::vector<Matrix> X_c;
 	X_c.reserve(c);
@@ -196,7 +196,7 @@ std::vector<Matrix> m_copy_classes(const Matrix& X, const std::vector<DataEntry>
 	int i, j;
 	for ( i = 0, j = 0; i < c; i++ ) {
 		int k = j;
-		while ( k < X.cols() && y[k].label == y[j].label ) {
+		while ( k < X.cols() && y[k] == y[j] ) {
 			k++;
 		}
 

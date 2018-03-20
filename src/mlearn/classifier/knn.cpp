@@ -10,12 +10,12 @@
 namespace ML {
 
 typedef struct {
-	DataLabel label;
+	int label;
 	float dist;
 } neighbor_t;
 
 typedef struct {
-	DataLabel id;
+	int id;
 	int count;
 } item_count_t;
 
@@ -35,13 +35,13 @@ bool kNN_compare(const neighbor_t& a, const neighbor_t& b)
  *
  * @param items
  */
-DataLabel kNN_mode(const std::vector<neighbor_t>& items)
+int kNN_mode(const std::vector<neighbor_t>& items)
 {
 	std::vector<item_count_t> counts;
 
 	// compute the frequency of each item in the list
 	for ( const neighbor_t& item : items ) {
-		const DataLabel& id = item.label;
+		int id = item.label;
 
 		size_t j = 0;
 		while ( j < counts.size() && counts[j].id != id ) {
@@ -85,28 +85,36 @@ KNNLayer::KNNLayer(int k, dist_func_t dist)
 }
 
 /**
- * Classify an observation using k-nearest neighbors.
+ * Compute intermediate data for classification.
  *
  * @param X
- * @param Y
- * @param C
- * @param X_test
- * @return predicted labels of the test observations
+ * @param y
+ * @param c
  */
-std::vector<DataLabel> KNNLayer::predict(const Matrix& X, const std::vector<DataEntry>& Y, const std::vector<DataLabel>& C, const Matrix& X_test)
+void KNNLayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 {
-	std::vector<DataLabel> Y_pred;
-	Y_pred.reserve(X_test.cols());
+	_X = X;
+	_y = y;
+}
+
+/**
+ * Classify an observation using k-nearest neighbors.
+ *
+ * @param X_test
+ */
+std::vector<int> KNNLayer::predict(const Matrix& X_test)
+{
+	std::vector<int> y_pred(X_test.cols());
 
 	for ( int i = 0; i < X_test.cols(); i++ ) {
 		// compute distance between X_test_i and each X_i
 		std::vector<neighbor_t> neighbors;
-		neighbors.reserve(X.cols());
+		neighbors.reserve(_X.cols());
 
-		for ( int j = 0; j < X.cols(); j++ ) {
+		for ( int j = 0; j < _X.cols(); j++ ) {
 			neighbor_t n;
-			n.label = Y[j].label;
-			n.dist = _dist(X_test, i, X, j);
+			n.label = _y[j];
+			n.dist = _dist(X_test, i, _X, j);
 
 			neighbors.push_back(n);
 		}
@@ -117,12 +125,10 @@ std::vector<DataLabel> KNNLayer::predict(const Matrix& X, const std::vector<Data
 		neighbors.erase(neighbors.begin() + _k, neighbors.end());
 
 		// determine the mode of the k nearest labels
-		DataLabel y_pred = kNN_mode(neighbors);
-
-		Y_pred.push_back(y_pred);
+		y_pred[i] = kNN_mode(neighbors);
 	}
 
-	return Y_pred;
+	return y_pred;
 }
 
 /**

@@ -15,18 +15,15 @@ class KNNLayer : public ClassifierLayer {
 private:
 	int _k;
 	dist_func_t _dist;
+	Matrix _X;
+	std::vector<int> _y;
 
 public:
 	KNNLayer(int k, dist_func_t dist);
 	KNNLayer() : KNNLayer(1, m_dist_L1) {};
 
-	std::vector<DataLabel> predict(
-		const Matrix& X,
-		const std::vector<DataEntry>& Y,
-		const std::vector<DataLabel>& C,
-		const Matrix& X_test
-	);
-
+	void compute(const Matrix& X, const std::vector<int>& y, int c);
+	std::vector<int> predict(const Matrix& X_test);
 	void print();
 };
 
