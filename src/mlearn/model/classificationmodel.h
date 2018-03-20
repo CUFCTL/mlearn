@@ -22,6 +22,8 @@ public:
 	ClassificationModel(FeatureLayer *feature, ClassifierLayer *classifier);
 	~ClassificationModel() {};
 
+	const Dataset& train_set() const { return _train_set; }
+
 	void save(const std::string& path);
 	void load(const std::string& path);
 
