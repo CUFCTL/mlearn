@@ -24,9 +24,9 @@ public:
 	Dataset() {};
 
 	const std::string& path() const { return _path; }
-	const std::vector<DataLabel>& labels() const { return _labels; }
+	const std::vector<std::string>& classes() const { return _classes; }
 	const std::vector<DataEntry>& entries() const { return _entries; }
-	const std::vector<int>& numeric_entries() const { return _numeric_entries; }
+	const std::vector<int>& labels() const { return _labels; }
 
 	Matrix load_data() const;
 
@@ -38,9 +38,9 @@ public:
 private:
 	DataIterator *_iter;
 	std::string _path;
-	std::vector<DataLabel> _labels;
+	std::vector<std::string> _classes;
 	std::vector<DataEntry> _entries;
-	std::vector<int> _numeric_entries;
+	std::vector<int> _labels;
 };
 
 

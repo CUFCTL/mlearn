@@ -93,7 +93,7 @@ void ClassificationModel::train(const Dataset& train_set)
 
 	log(LL_VERBOSE, "Training set: %d samples, %d classes",
 		train_set.entries().size(),
-		train_set.labels().size());
+		train_set.classes().size());
 
 	// get data matrix X
 	Matrix X = train_set.load_data();
@@ -104,11 +104,11 @@ void ClassificationModel::train(const Dataset& train_set)
 	X.subtract_columns(_mean);
 
 	// project X into feature space
-	_feature->compute(X, _train_set.numeric_entries(), _train_set.labels().size());
+	_feature->compute(X, _train_set.labels(), _train_set.classes().size());
 	_P = _feature->project(X);
 
 	// train classifier
-	_classifier->compute(_P, _train_set.numeric_entries(), _train_set.labels().size());
+	_classifier->compute(_P, _train_set.labels(), _train_set.classes().size());
 
 	// record training time
 	_stats.train_time = Timer::pop();
@@ -129,7 +129,7 @@ std::vector<int> ClassificationModel::predict(const Dataset& test_set)
 
 	log(LL_VERBOSE, "Test set: %d samples, %d classes",
 		test_set.entries().size(),
-		test_set.labels().size());
+		test_set.classes().size());
 
 	// compute projected test images
 	Matrix X_test = test_set.load_data();
@@ -160,8 +160,8 @@ void ClassificationModel::validate(const Dataset& test_set, const std::vector<in
 {
 	int num_errors = 0;
 
-	for ( size_t i = 0; i < test_set.numeric_entries().size(); i++ ) {
-		if ( y_pred[i] != test_set.numeric_entries()[i] ) {
+	for ( size_t i = 0; i < test_set.labels().size(); i++ ) {
+		if ( y_pred[i] != test_set.labels()[i] ) {
 			num_errors++;
 		}
 	}
@@ -183,9 +183,9 @@ void ClassificationModel::print_results(const Dataset& test_set, const std::vect
 
 	for ( size_t i = 0; i < test_set.entries().size(); i++ ) {
 		const std::string& name = test_set.entries()[i].name;
-		const DataLabel& label = test_set.labels()[y_pred[i]];
+		const std::string& label = test_set.classes()[y_pred[i]];
 
-		const char *s = (y_pred[i] != test_set.numeric_entries()[i])
+		const char *s = (y_pred[i] != test_set.labels()[i])
 			? "(!)"
 			: "";
 

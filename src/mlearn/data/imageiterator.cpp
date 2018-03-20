@@ -50,7 +50,7 @@ ImageIterator::ImageIterator(const std::string& path)
 		std::string name(dir.entries()[i]);
 
 		// construct label name
-		DataLabel label = name.substr(0, name.find_first_of('_'));
+		std::string label = name.substr(0, name.find_first_of('_'));
 
 		// append entry
 		_entries.push_back(DataEntry {

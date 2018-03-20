@@ -16,12 +16,8 @@ namespace ML {
 
 
 
-typedef std::string DataLabel;
-
-
-
 typedef struct {
-	DataLabel label;
+	std::string label;
 	std::string name;
 } DataEntry;
 

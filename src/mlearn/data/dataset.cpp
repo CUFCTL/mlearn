@@ -88,21 +88,21 @@ Dataset::Dataset(DataIterator *iter)
 	// construct entries
 	_entries = iter->entries();
 
-	// construct labels
+	// construct classes, labels
 	for ( const DataEntry& entry : _entries ) {
-		// search labels for label name
+		// search for class by name
 		size_t j = 0;
-		while ( j < _labels.size() && _labels[j] != entry.label ) {
+		while ( j < _classes.size() && _classes[j] != entry.label ) {
 			j++;
 		}
 
-		// append label if not found
-		if ( j == _labels.size() ) {
-			_labels.push_back(entry.label);
+		// append class if not found
+		if ( j == _classes.size() ) {
+			_classes.push_back(entry.label);
 		}
 
-		// append numeric entry
-		_numeric_entries.push_back(j);
+		// append label
+		_labels.push_back(j);
 	}
 }
 
@@ -140,10 +140,10 @@ void Dataset::save(std::ofstream& file)
 	write_string(_path.c_str(), file);
 
 	// save labels
-	int num_labels = _labels.size();
-	write_int(num_labels, file);
+	int num_classes = _classes.size();
+	write_int(num_classes, file);
 
-	for ( const DataLabel& label : _labels ) {
+	for ( const std::string& label : _classes ) {
 		write_string(label.c_str(), file);
 	}
 
@@ -170,14 +170,14 @@ void Dataset::load(std::ifstream& file)
 	_path = read_string(file);
 
 	// read labels
-	int num_labels = read_int(file);
+	int num_classes = read_int(file);
 
-	_labels.reserve(num_labels);
+	_classes.reserve(num_classes);
 
-	for ( int i = 0; i < num_labels; i++ ) {
-		DataLabel label(read_string(file));
+	for ( int i = 0; i < num_classes; i++ ) {
+		std::string label(read_string(file));
 
-		_labels.push_back(label);
+		_classes.push_back(label);
 	}
 
 	// read entries
@@ -205,10 +205,10 @@ void Dataset::print() const
 	log(LL_VERBOSE, "path: %s", _path.c_str());
 	log(LL_VERBOSE, "");
 
-	// print labels
-	log(LL_VERBOSE, "%d classes", _labels.size());
+	// print classes
+	log(LL_VERBOSE, "%d classes", _classes.size());
 
-	for ( const DataLabel& label : _labels ) {
+	for ( const std::string& label : _classes ) {
 		log(LL_VERBOSE, "%s", label.c_str());
 	}
 	log(LL_VERBOSE, "");

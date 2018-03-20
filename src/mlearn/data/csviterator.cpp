@@ -45,7 +45,7 @@ CSVIterator::CSVIterator(const std::string& filename)
 		// construct entry
 		std::string name = std::to_string(i);
 
-		DataLabel label;
+		std::string label;
 		file >> label;
 
 		// append entry

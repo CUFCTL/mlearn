@@ -104,7 +104,7 @@ void ClusteringModel::validate(const Dataset& input, const std::vector<int>& y_p
 	// compute purity
 	float purity = 0;
 
-	int c = input.labels().size();
+	int c = input.classes().size();
 	int n = input.entries().size();
 	int k = _best_layer->num_clusters();
 
@@ -115,7 +115,7 @@ void ClusteringModel::validate(const Dataset& input, const std::vector<int>& y_p
 			int num_correct = 0;
 
 			for ( int p = 0; p < n; p++ ) {
-				if ( y_pred[p] == i && input.entries()[p].label == input.labels()[j] ) {
+				if ( y_pred[p] == i && input.entries()[p].label == input.classes()[j] ) {
 					num_correct++;
 				}
 			}
