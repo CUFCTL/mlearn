@@ -19,19 +19,19 @@ namespace ML {
 ClassificationModel::ClassificationModel(FeatureLayer *feature, ClassifierLayer *classifier)
 {
 	// initialize layers
-	this->_feature = feature;
-	this->_classifier = classifier;
+	_feature = feature;
+	_classifier = classifier;
 
 	// initialize stats
-	this->_stats.error_rate = 0.0f;
-	this->_stats.train_time = 0.0f;
-	this->_stats.predict_time = 0.0f;
+	_stats.error_rate = 0.0f;
+	_stats.train_time = 0.0f;
+	_stats.predict_time = 0.0f;
 
 	// log hyperparameters
 	log(LL_VERBOSE, "Hyperparameters");
 
-	this->_feature->print();
-	this->_classifier->print();
+	_feature->print();
+	_classifier->print();
 
 	log(LL_VERBOSE, "");
 }
@@ -45,10 +45,10 @@ void ClassificationModel::save(const std::string& path)
 {
 	std::ofstream file(path, std::ofstream::out);
 
-	this->_train_set.save(file);
-	this->_mean.save(file);
-	this->_feature->save(file);
-	this->_P.save(file);
+	_train_set.save(file);
+	_mean.save(file);
+	_feature->save(file);
+	_P.save(file);
 
 	file.close();
 }
@@ -62,10 +62,10 @@ void ClassificationModel::load(const std::string& path)
 {
 	std::ifstream file(path, std::ifstream::in);
 
-	this->_train_set.load(file);
-	this->_mean.load(file);
-	this->_feature->load(file);
-	this->_P.load(file);
+	_train_set.load(file);
+	_mean.load(file);
+	_feature->load(file);
+	_P.load(file);
 
 	file.close();
 }
@@ -79,7 +79,7 @@ void ClassificationModel::train(const Dataset& train_set)
 {
 	Timer::push("Training");
 
-	this->_train_set = train_set;
+	_train_set = train_set;
 
 	log(LL_VERBOSE, "Training set: %d samples, %d classes",
 		train_set.entries().size(),
@@ -89,16 +89,16 @@ void ClassificationModel::train(const Dataset& train_set)
 	Matrix X = train_set.load_data();
 
 	// subtract mean from X
-	this->_mean = X.mean_column();
+	_mean = X.mean_column();
 
-	X.subtract_columns(this->_mean);
+	X.subtract_columns(_mean);
 
 	// project X into feature space
-	this->_feature->compute(X, this->_train_set.entries(), this->_train_set.labels().size());
-	this->_P = this->_feature->project(X);
+	_feature->compute(X, _train_set.entries(), _train_set.labels().size());
+	_P = _feature->project(X);
 
 	// record training time
-	this->_stats.train_time = Timer::pop();
+	_stats.train_time = Timer::pop();
 
 	log(LL_VERBOSE, "");
 }
@@ -118,20 +118,20 @@ std::vector<DataLabel> ClassificationModel::predict(const Dataset& test_set)
 
 	// compute projected test images
 	Matrix X_test = test_set.load_data();
-	X_test.subtract_columns(this->_mean);
+	X_test.subtract_columns(_mean);
 
-	Matrix P_test = this->_feature->project(X_test);
+	Matrix P_test = _feature->project(X_test);
 
 	// compute predicted labels
-	std::vector<DataLabel> Y_pred = this->_classifier->predict(
-		this->_P,
-		this->_train_set.entries(),
-		this->_train_set.labels(),
+	std::vector<DataLabel> Y_pred = _classifier->predict(
+		_P,
+		_train_set.entries(),
+		_train_set.labels(),
 		P_test
 	);
 
 	// record prediction time
-	this->_stats.predict_time = Timer::pop();
+	_stats.predict_time = Timer::pop();
 
 	log(LL_VERBOSE, "");
 
@@ -154,7 +154,7 @@ void ClassificationModel::validate(const Dataset& test_set, const std::vector<Da
 		}
 	}
 
-	this->_stats.error_rate = (float) num_errors / test_set.entries().size();
+	_stats.error_rate = (float) num_errors / test_set.entries().size();
 }
 
 /**
@@ -178,7 +178,7 @@ void ClassificationModel::print_results(const Dataset& test_set, const std::vect
 		log(LL_VERBOSE, "%-12s -> %-4s %s", entry.name.c_str(), y_pred.c_str(), s);
 	}
 
-	log(LL_VERBOSE, "Error rate: %.3f", this->_stats.error_rate);
+	log(LL_VERBOSE, "Error rate: %.3f", _stats.error_rate);
 	log(LL_VERBOSE, "");
 }
 
@@ -188,9 +188,9 @@ void ClassificationModel::print_results(const Dataset& test_set, const std::vect
 void ClassificationModel::print_stats() const
 {
 	std::cout
-		<< std::setw(12) << std::setprecision(3) << this->_stats.error_rate
-		<< std::setw(12) << std::setprecision(3) << this->_stats.train_time
-		<< std::setw(12) << std::setprecision(3) << this->_stats.predict_time
+		<< std::setw(12) << std::setprecision(3) << _stats.error_rate
+		<< std::setw(12) << std::setprecision(3) << _stats.train_time
+		<< std::setw(12) << std::setprecision(3) << _stats.predict_time
 		<< "\n";
 }
 

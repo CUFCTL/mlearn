@@ -19,8 +19,8 @@ namespace ML {
  */
 LDALayer::LDALayer(int n1, int n2)
 {
-	this->n1 = n1;
-	this->n2 = n2;
+	_n1 = n1;
+	_n2 = n2;
 }
 
 /**
@@ -33,14 +33,14 @@ LDALayer::LDALayer(int n1, int n2)
 void LDALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 {
 	// if n1 = -1, use default value
-	int n1 = (this->n1 == -1)
+	int n1 = (_n1 == -1)
 		? X.cols() - c
-		: this->n1;
+		: _n1;
 
 	// if n2 = -1, use default value
-	int n2 = (this->n2 == -1)
+	int n2 = (_n2 == -1)
 		? c - 1
-		: this->n2;
+		: _n2;
 
 	if ( n1 <= 0 ) {
 		log(LL_ERROR, "error: training set is too small for LDA");
@@ -79,7 +79,7 @@ void LDALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 
 	Timer::push("compute Fisherfaces");
 
-	this->W = pca.W * W_fld;
+	_W = pca.W() * W_fld;
 
 	Timer::pop();
 
@@ -93,7 +93,7 @@ void LDALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
  */
 Matrix LDALayer::project(const Matrix& X)
 {
-	return this->W.T() * X;
+	return _W.T() * X;
 }
 
 /**
@@ -103,7 +103,7 @@ Matrix LDALayer::project(const Matrix& X)
  */
 void LDALayer::save(std::ofstream& file)
 {
-	this->W.save(file);
+	_W.save(file);
 }
 
 /**
@@ -113,7 +113,7 @@ void LDALayer::save(std::ofstream& file)
  */
 void LDALayer::load(std::ifstream& file)
 {
-	this->W.load(file);
+	_W.load(file);
 }
 
 /**
@@ -122,8 +122,8 @@ void LDALayer::load(std::ifstream& file)
 void LDALayer::print()
 {
 	log(LL_VERBOSE, "LDA");
-	log(LL_VERBOSE, "  %-20s  %10d", "n1", this->n1);
-	log(LL_VERBOSE, "  %-20s  %10d", "n2", this->n2);
+	log(LL_VERBOSE, "  %-20s  %10d", "n1", _n1);
+	log(LL_VERBOSE, "  %-20s  %10d", "n2", _n2);
 }
 
 }

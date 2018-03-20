@@ -24,11 +24,11 @@ typedef Matrix (*ica_nonl_func_t)(const Matrix& , const Matrix& );
  */
 ICALayer::ICALayer(int n1, int n2, ICANonl nonl, int max_iter, float eps)
 {
-	this->n1 = n1;
-	this->n2 = n2;
-	this->nonl = nonl;
-	this->max_iter = max_iter;
-	this->eps = eps;
+	_n1 = n1;
+	_n2 = n2;
+	_nonl = nonl;
+	_max_iter = max_iter;
+	_eps = eps;
 }
 
 /**
@@ -56,15 +56,15 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 	Timer::push("compute whitening matrix and whitened input matrix");
 
 	// compute whitening matrix W_z = inv(sqrt(D)) * W_pca'
-	PCALayer pca(this->n1);
+	PCALayer pca(_n1);
 
 	pca.compute(mixedsig, y, c);
 
-	Matrix D = pca.D;
+	Matrix D = pca.D();
 	D.elem_apply(sqrtf);
 	D = D.inverse();
 
-	Matrix W_z = D * pca.W.T();
+	Matrix W_z = D * pca.W().T();
 
 	// compute whitened input U = W_z * mixedsig
 	Matrix U = W_z * mixedsig;
@@ -74,7 +74,7 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 	Timer::push("compute mixing matrix");
 
 	// compute mixing matrix
-	Matrix W_mix = this->fpica(U, W_z);
+	Matrix W_mix = fpica(U, W_z);
 
 	Timer::pop();
 
@@ -88,7 +88,7 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 	Matrix icasig = W_mix * icasig_temp1;
 
 	// compute W_ica = icasig'
-	this->W = icasig.transpose();
+	_W = icasig.transpose();
 
 	Timer::pop();
 
@@ -102,7 +102,7 @@ void ICALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
  */
 Matrix ICALayer::project(const Matrix& X)
 {
-	return this->W.T() * X;
+	return _W.T() * X;
 }
 
 /**
@@ -112,7 +112,7 @@ Matrix ICALayer::project(const Matrix& X)
  */
 void ICALayer::save(std::ofstream& file)
 {
-	this->W.save(file);
+	_W.save(file);
 }
 
 /**
@@ -122,7 +122,7 @@ void ICALayer::save(std::ofstream& file)
  */
 void ICALayer::load(std::ifstream& file)
 {
-	this->W.load(file);
+	_W.load(file);
 }
 
 /**
@@ -132,22 +132,22 @@ void ICALayer::print()
 {
 	const char *nonl_name = "";
 
-	if ( this->nonl == ICANonl::pow3 ) {
+	if ( _nonl == ICANonl::pow3 ) {
 		nonl_name = "pow3";
 	}
-	else if ( this->nonl == ICANonl::tanh ) {
+	else if ( _nonl == ICANonl::tanh ) {
 		nonl_name = "tanh";
 	}
-	else if ( this->nonl == ICANonl::gauss ) {
+	else if ( _nonl == ICANonl::gauss ) {
 		nonl_name = "gauss";
 	}
 
 	log(LL_VERBOSE, "ICA");
-	log(LL_VERBOSE, "  %-20s  %10d", "n1", this->n1);
-	log(LL_VERBOSE, "  %-20s  %10d", "n2", this->n2);
+	log(LL_VERBOSE, "  %-20s  %10d", "n1", _n1);
+	log(LL_VERBOSE, "  %-20s  %10d", "n2", _n2);
 	log(LL_VERBOSE, "  %-20s  %10s", "nonl", nonl_name);
-	log(LL_VERBOSE, "  %-20s  %10d", "max_iter", this->max_iter);
-	log(LL_VERBOSE, "  %-20s  %10f", "eps", this->eps);
+	log(LL_VERBOSE, "  %-20s  %10d", "max_iter", _max_iter);
+	log(LL_VERBOSE, "  %-20s  %10f", "eps", _eps);
 }
 
 /**
@@ -296,20 +296,20 @@ Matrix fpica_gauss (const Matrix& w0, const Matrix& X)
 Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 {
 	// if n2 is -1, use default value
-	int n2 = (this->n2 == -1)
+	int n2 = (_n2 == -1)
 		? X.rows()
-		: std::min(X.rows(), this->n2);
+		: std::min(X.rows(), _n2);
 
 	// determine nonlinearity function
 	ica_nonl_func_t fpica_update = nullptr;
 
-	if ( this->nonl == ICANonl::pow3 ) {
+	if ( _nonl == ICANonl::pow3 ) {
 		fpica_update = fpica_pow3;
 	}
-	else if ( this->nonl == ICANonl::tanh ) {
+	else if ( _nonl == ICANonl::tanh ) {
 		fpica_update = fpica_tanh;
 	}
-	else if ( this->nonl == ICANonl::gauss ) {
+	else if ( _nonl == ICANonl::gauss ) {
 		fpica_update = fpica_gauss;
 	}
 
@@ -331,7 +331,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 		Matrix w0 = Matrix::zeros(w.rows(), w.cols());
 
 		int j;
-		for ( j = 0; j < this->max_iter; j++ ) {
+		for ( j = 0; j < _max_iter; j++ ) {
 			// compute w = w - B * B' * w, normalize w
 			w -= B * B.T() * w;
 			w /= w.nrm2();
@@ -341,7 +341,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 			float norm2 = (w + w0).nrm2();
 
 			// terminate round if w converges
-			if ( norm1 < this->eps || norm2 < this->eps ) {
+			if ( norm1 < _eps || norm2 < _eps ) {
 				// save B(:, i) = w
 				B.assign_column(i, w, 0);
 

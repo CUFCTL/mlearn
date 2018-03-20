@@ -29,12 +29,12 @@ public:
 
 	int compute(const std::vector<Matrix>& X);
 
-	float entropy() const { return this->_entropy; }
-	float log_likelihood() const { return this->_log_likelihood; }
-	int num_clusters() const { return this->_k; }
-	int num_parameters() const { return this->_num_parameters; }
-	int num_samples() const { return this->_num_samples; }
-	inline std::vector<int> output() const { return this->_output; }
+	float entropy() const { return _entropy; }
+	float log_likelihood() const { return _log_likelihood; }
+	int num_clusters() const { return _k; }
+	int num_parameters() const { return _num_parameters; }
+	int num_samples() const { return _num_samples; }
+	inline std::vector<int> output() const { return _output; }
 
 	void print() const;
 };

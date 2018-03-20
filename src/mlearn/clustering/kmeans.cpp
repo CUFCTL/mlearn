@@ -19,7 +19,7 @@ namespace ML {
  */
 KMeansLayer::KMeansLayer(int k)
 {
-	this->_k = k;
+	_k = k;
 }
 
 /**
@@ -40,7 +40,7 @@ void KMeansLayer::E_step(const std::vector<Matrix>& X, const ParameterSet& theta
 		int min_j = -1;
 		float min_dist;
 
-		for ( int j = 0; j < this->_k; j++ ) {
+		for ( int j = 0; j < _k; j++ ) {
 			float dist = m_dist_L2(X[i], 0, theta.mu(j), 0);
 
 			if ( min_j == -1 || dist < min_dist ) {
@@ -65,7 +65,7 @@ void KMeansLayer::M_step(const std::vector<Matrix>& X, const std::vector<int>& y
 {
 	int n = X.size();
 
-	for ( int j = 0; j < this->_k; j++ ) {
+	for ( int j = 0; j < _k; j++ ) {
 		// compute n_j, the number of samples in cluster j
 		float& n_j = theta.n(j);
 		n_j = 0;
@@ -106,7 +106,7 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 		int d = X[0].rows();
 
 		// initialize parameters
-		ParameterSet theta(this->_k);
+		ParameterSet theta(_k);
 		theta.initialize(X);
 
 		// run k-means algorithm
@@ -126,7 +126,7 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 		}
 
 		// compute n_j, the number of samples in cluster j
-		for ( int j = 0; j < this->_k; j++ ) {
+		for ( int j = 0; j < _k; j++ ) {
 			float& n_j = theta.n(j);
 			n_j = 0;
 
@@ -138,7 +138,7 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 		}
 
 		// compute p_j = n_j / n
-		for ( int j = 0; j < this->_k; j++ ) {
+		for ( int j = 0; j < _k; j++ ) {
 			theta.p(j) = theta.n(j) / n;
 		}
 
@@ -148,7 +148,7 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 		// compute S_j = sum((x_i - mu_j) * (x_i - mu_j)', x_i in cluster j) / n_j
 		const auto& Xsubs = theta.Xsubs();
 
-		for ( int j = 0; j < this->_k; j++ ) {
+		for ( int j = 0; j < _k; j++ ) {
 			Matrix& S_j = theta.S(j);
 			S_j.init_zeros();
 
@@ -163,11 +163,11 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 		theta.pdf_all();
 
 		// save outputs
-		this->_entropy = 0;
-		this->_log_likelihood = theta.log_likelihood();
-		this->_num_parameters = this->_k * (1 + d + d * d);
-		this->_num_samples = n;
-		this->_output = y;
+		_entropy = 0;
+		_log_likelihood = theta.log_likelihood();
+		_num_parameters = _k * (1 + d + d * d);
+		_num_samples = n;
+		_output = y;
 	}
 	catch ( std::runtime_error& e ) {
 		status = 1;
@@ -184,7 +184,7 @@ int KMeansLayer::compute(const std::vector<Matrix>& X)
 void KMeansLayer::print() const
 {
 	log(LL_VERBOSE, "K-means");
-	log(LL_VERBOSE, "  %-20s  %10d", "k", this->_k);
+	log(LL_VERBOSE, "  %-20s  %10d", "k", _k);
 }
 
 }

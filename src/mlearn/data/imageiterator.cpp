@@ -34,12 +34,12 @@ namespace ML {
 ImageIterator::ImageIterator(const std::string& path)
 {
 	// get list of files
-	this->_path = path;
+	_path = path;
 
 	Directory dir(path);
 
 	// construct entries
-	this->_entries.reserve(dir.entries().size());
+	_entries.reserve(dir.entries().size());
 
 	for ( int i = 0; i < dir.entries().size(); i++ ) {
 		// construct entry name
@@ -49,20 +49,20 @@ ImageIterator::ImageIterator(const std::string& path)
 		DataLabel label = name.substr(0, name.find_first_of('_'));
 
 		// append entry
-		this->_entries.push_back(DataEntry {
+		_entries.push_back(DataEntry {
 			label,
 			name
 		});
 	}
 
-	this->_channels = 0;
-	this->_width = 0;
-	this->_height = 0;
-	this->_max_value = 0;
-	this->_pixels.reset();
+	_channels = 0;
+	_width = 0;
+	_height = 0;
+	_max_value = 0;
+	_pixels.reset();
 
 	// load first sample to get size
-	this->load(0);
+	load(0);
 }
 
 /**
@@ -73,12 +73,12 @@ ImageIterator::ImageIterator(const std::string& path)
  */
 void ImageIterator::sample(Matrix& X, int i)
 {
-	assert(X.rows() == this->sample_size());
+	assert(X.rows() == sample_size());
 
-	this->load(i);
+	load(i);
 
 	for ( int j = 0; j < X.rows(); j++ ) {
-		X.elem(j, i) = (float) this->_pixels[j];
+		X.elem(j, i) = (float) _pixels[j];
 	}
 }
 
@@ -114,7 +114,7 @@ void skip_to_next_value(std::ifstream& file)
 void ImageIterator::load(int i)
 {
 	// open file
-	std::string path = this->_path + "/" + this->_entries[i].name;
+	std::string path = _path + "/" + _entries[i].name;
 	std::ifstream file(path, std::ifstream::in);
 
 	// read image header
@@ -154,21 +154,21 @@ void ImageIterator::load(int i)
 	// verify that image sizes are equal (if reloading)
 	int num = channels * width * height;
 
-	if ( this->_pixels == nullptr ) {
-		this->_pixels.reset(new unsigned char[num]);
+	if ( _pixels == nullptr ) {
+		_pixels.reset(new unsigned char[num]);
 	}
-	else if ( num != this->sample_size() ) {
+	else if ( num != sample_size() ) {
 		log(LL_ERROR, "error: image \'%s\' has unequal size\n", path.c_str());
 		exit(1);
 	}
 
-	this->_channels = channels;
-	this->_width = width;
-	this->_height = height;
-	this->_max_value = max_value;
+	_channels = channels;
+	_width = width;
+	_height = height;
+	_max_value = max_value;
 
 	// read pixel data
-	file.read(reinterpret_cast<char *>(this->_pixels.get()), num);
+	file.read(reinterpret_cast<char *>(_pixels.get()), num);
 
 	file.close();
 }

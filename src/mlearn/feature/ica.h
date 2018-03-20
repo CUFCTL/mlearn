@@ -19,17 +19,16 @@ enum class ICANonl {
 
 class ICALayer : public FeatureLayer {
 private:
-	int n1;
-	int n2;
-	ICANonl nonl;
-	int max_iter;
-	float eps;
+	int _n1;
+	int _n2;
+	ICANonl _nonl;
+	int _max_iter;
+	float _eps;
+	Matrix _W;
 
 	Matrix fpica(const Matrix& X, const Matrix& W_z);
 
 public:
-	Matrix W;
-
 	ICALayer(int n1, int n2, ICANonl nonl, int max_iter, float eps);
 	ICALayer() : ICALayer(-1, -1, ICANonl::pow3, 1000, 0.0001f) {};
 

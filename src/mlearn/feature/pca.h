@@ -12,14 +12,16 @@ namespace ML {
 
 class PCALayer : public FeatureLayer {
 private:
-	int n1;
+	int _n1;
+	Matrix _W;
+	Matrix _D;
 
 public:
-	Matrix W;
-	Matrix D;
-
 	PCALayer(int n1);
 	PCALayer() : PCALayer(-1) {}
+
+	const Matrix& W() const { return _W; }
+	const Matrix& D() const { return _D; }
 
 	void compute(const Matrix& X, const std::vector<DataEntry>& y, int c);
 	Matrix project(const Matrix& X);

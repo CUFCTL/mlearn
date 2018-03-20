@@ -165,20 +165,20 @@ Matrix::Matrix(int rows, int cols)
 	log(LL_DEBUG, "debug: new Matrix(%d, %d)",
 		rows, cols);
 
-	this->_rows = rows;
-	this->_cols = cols;
-	this->_data_cpu = new float[rows * cols];
-	this->_data_gpu = gpu_malloc_matrix(rows, cols);
-	this->_transposed = false;
-	this->_T = new Matrix();
+	_rows = rows;
+	_cols = cols;
+	_data_cpu = new float[rows * cols];
+	_data_gpu = gpu_malloc_matrix(rows, cols);
+	_transposed = false;
+	_T = new Matrix();
 
 	// initialize transpose
-	this->_T->_rows = rows;
-	this->_T->_cols = cols;
-	this->_T->_data_cpu = this->_data_cpu;
-	this->_T->_data_gpu = this->_data_gpu;
-	this->_T->_transposed = true;
-	this->_T->_T = nullptr;
+	_T->_rows = rows;
+	_T->_cols = cols;
+	_T->_data_cpu = _data_cpu;
+	_T->_data_gpu = _data_gpu;
+	_T->_transposed = true;
+	_T->_T = nullptr;
 }
 
 /**
@@ -193,11 +193,11 @@ Matrix::Matrix(int rows, int cols, float *data)
 {
 	for ( int i = 0; i < rows; i++ ) {
 		for ( int j = 0; j < cols; j++ ) {
-			this->elem(i, j) = data[i * cols + j];
+			elem(i, j) = data[i * cols + j];
 		}
 	}
 
-	this->gpu_write();
+	gpu_write();
 }
 
 /**
@@ -211,14 +211,14 @@ Matrix::Matrix(const Matrix& M, int i, int j)
 	: Matrix(M._rows, j - i)
 {
 	log(LL_DEBUG, "debug: C [%d,%d] <- M(:, %d:%d) [%d,%d]",
-		this->_rows, this->_cols,
+		_rows, _cols,
 		i + 1, j, M._rows, j - i);
 
 	assert(0 <= i && i < j && j <= M._cols);
 
-	memcpy(this->_data_cpu, &ELEM(M, 0, i), this->_rows * this->_cols * sizeof(float));
+	memcpy(_data_cpu, &ELEM(M, 0, i), _rows * _cols * sizeof(float));
 
-	this->gpu_write();
+	gpu_write();
 }
 
 /**
@@ -247,12 +247,12 @@ Matrix::Matrix(Matrix&& M)
  */
 Matrix::Matrix()
 {
-	this->_rows = 0;
-	this->_cols = 0;
-	this->_data_cpu = nullptr;
-	this->_data_gpu = nullptr;
-	this->_transposed = false;
-	this->_T = nullptr;
+	_rows = 0;
+	_cols = 0;
+	_data_cpu = nullptr;
+	_data_gpu = nullptr;
+	_transposed = false;
+	_T = nullptr;
 }
 
 /**
@@ -260,14 +260,14 @@ Matrix::Matrix()
  */
 Matrix::~Matrix()
 {
-	if ( this->_transposed ) {
+	if ( _transposed ) {
 		return;
 	}
 
-	delete[] this->_data_cpu;
-	gpu_free(this->_data_gpu);
+	delete[] _data_cpu;
+	gpu_free(_data_gpu);
 
-	delete this->_T;
+	delete _T;
 }
 
 /**
@@ -412,11 +412,11 @@ Matrix Matrix::zeros(int rows, int cols)
  */
 void Matrix::print(std::ostream& os) const
 {
-	os << "[" << this->_rows << ", " << this->_cols << "]\n";
+	os << "[" << _rows << ", " << _cols << "]\n";
 
-	for ( int i = 0; i < this->_rows; i++ ) {
-		for ( int j = 0; j < this->_cols; j++ ) {
-			os << std::right << std::setw(10) << std::setprecision(4) << this->elem(i, j);
+	for ( int i = 0; i < _rows; i++ ) {
+		for ( int j = 0; j < _cols; j++ ) {
+			os << std::right << std::setw(10) << std::setprecision(4) << elem(i, j);
 		}
 		os << "\n";
 	}
@@ -429,9 +429,9 @@ void Matrix::print(std::ostream& os) const
  */
 void Matrix::save(std::ofstream& file) const
 {
-	file.write(reinterpret_cast<const char *>(&this->_rows), sizeof(int));
-	file.write(reinterpret_cast<const char *>(&this->_cols), sizeof(int));
-	file.write(reinterpret_cast<const char *>(this->_data_cpu), this->_rows * this->_cols * sizeof(float));
+	file.write(reinterpret_cast<const char *>(&_rows), sizeof(int));
+	file.write(reinterpret_cast<const char *>(&_cols), sizeof(int));
+	file.write(reinterpret_cast<const char *>(_data_cpu), _rows * _cols * sizeof(float));
 }
 
 /**
@@ -441,7 +441,7 @@ void Matrix::save(std::ofstream& file) const
  */
 void Matrix::load(std::ifstream& file)
 {
-	if ( this->_rows * this->_cols != 0 ) {
+	if ( _rows * _cols != 0 ) {
 		log(LL_ERROR, "error: cannot load into non-empty matrix");
 		exit(1);
 	}
@@ -451,7 +451,7 @@ void Matrix::load(std::ifstream& file)
 	file.read(reinterpret_cast<char *>(&cols), sizeof(int));
 
 	*this = Matrix(rows, cols);
-	file.read(reinterpret_cast<char *>(this->_data_cpu), this->_rows * this->_cols * sizeof(float));
+	file.read(reinterpret_cast<char *>(_data_cpu), _rows * _cols * sizeof(float));
 }
 
 /**
@@ -465,9 +465,9 @@ void Matrix::gpu_read()
 
 	magma_queue_t queue = magma_queue();
 
-	magma_getmatrix(this->_rows, this->_cols, sizeof(float),
-		this->_data_gpu, this->_rows,
-		this->_data_cpu, this->_rows,
+	magma_getmatrix(_rows, _cols, sizeof(float),
+		_data_gpu, _rows,
+		_data_cpu, _rows,
 		queue);
 }
 
@@ -482,9 +482,9 @@ void Matrix::gpu_write()
 
 	magma_queue_t queue = magma_queue();
 
-	magma_setmatrix(this->_rows, this->_cols, sizeof(float),
-		this->_data_cpu, this->_rows,
-		this->_data_gpu, this->_rows,
+	magma_setmatrix(_rows, _cols, sizeof(float),
+		_data_cpu, _rows,
+		_data_gpu, _rows,
 		queue);
 }
 

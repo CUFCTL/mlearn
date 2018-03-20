@@ -26,16 +26,16 @@ CSVIterator::CSVIterator(const std::string& filename)
 	int n;
 	file >> n >> m;
 
-	this->_size = m;
-	this->_data.reset(new float[m * n]);
+	_size = m;
+	_data.reset(new float[m * n]);
 
 	// construct entries
-	this->_entries.reserve(n);
+	_entries.reserve(n);
 
 	for ( int i = 0; i < n; i++ ) {
 		// read data
 		for ( int j = 0; j < m; j++ ) {
-			file >> this->_data[i * m + j];
+			file >> _data[i * m + j];
 		}
 
 		// construct entry
@@ -45,7 +45,7 @@ CSVIterator::CSVIterator(const std::string& filename)
 		file >> label;
 
 		// append entry
-		this->_entries.push_back(DataEntry {
+		_entries.push_back(DataEntry {
 			label,
 			name
 		});
@@ -60,7 +60,7 @@ CSVIterator::CSVIterator(const std::string& filename)
  */
 void CSVIterator::sample(Matrix& X, int i)
 {
-	assert(X.rows() == this->sample_size());
+	assert(X.rows() == sample_size());
 
 	for ( int j = 0; j < X.rows(); j++ ) {
 		X.elem(j, i) = (float) _data[i * _size + j];

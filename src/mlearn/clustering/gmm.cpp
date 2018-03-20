@@ -26,7 +26,7 @@ const float EPSILON = 1e-3;
  */
 GMMLayer::GMMLayer(int k)
 {
-	this->_k = k;
+	_k = k;
 }
 
 /**
@@ -44,22 +44,22 @@ GMMLayer::GMMLayer(int k)
 ParameterSet GMMLayer::initialize(const std::vector<Matrix>& X, int num_init, bool small_em)
 {
 	int n = X.size();
-	ParameterSet theta(this->_k);
+	ParameterSet theta(_k);
 	float L_theta = 0;
 
 	for ( int t = 0; t < num_init; t++ ) {
-		ParameterSet theta_test(this->_k);
+		ParameterSet theta_test(_k);
 
 		theta_test.initialize(X);
 
 		if ( small_em ) {
 			// run the EM algorithm briefly
-			Matrix c(n, this->_k);
+			Matrix c(n, _k);
 			float L0 = 0;
 
 			for ( int m = 0; m < INIT_NUM_ITER; m++ ) {
-				this->E_step(X, theta_test, c);
-				this->M_step(X, c, theta_test);
+				E_step(X, theta_test, c);
+				M_step(X, c, theta_test);
 
 				float L1 = theta_test.log_likelihood();
 
@@ -102,11 +102,11 @@ void GMMLayer::E_step(const std::vector<Matrix>& X, const ParameterSet& theta, M
 	for ( int i = 0; i < n; i++ ) {
 		float sum = 0;
 
-		for ( int j = 0; j < this->_k; j++ ) {
+		for ( int j = 0; j < _k; j++ ) {
 			sum += theta.p(j) * h.elem(i, j);
 		}
 
-		for ( int j = 0; j < this->_k; j++ ) {
+		for ( int j = 0; j < _k; j++ ) {
 			c.elem(i, j) = theta.p(j) * h.elem(i, j) / sum;
 		}
 	}
@@ -125,7 +125,7 @@ void GMMLayer::M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSe
 	int n = X.size();
 
 	// compute n_j = sum(c_ij, i=1:n)
-	for ( int j = 0; j < this->_k; j++ ) {
+	for ( int j = 0; j < _k; j++ ) {
 		float& n_j = theta.n(j);
 		n_j = 0;
 
@@ -135,12 +135,12 @@ void GMMLayer::M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSe
 	}
 
 	// compute p_j = n_j / n
-	for ( int j = 0; j < this->_k; j++ ) {
+	for ( int j = 0; j < _k; j++ ) {
 		theta.p(j) = theta.n(j) / n;
 	}
 
 	// compute mu_j = sum(c_ij * x_i, i=1:n) / n_j
-	for ( int j = 0; j < this->_k; j++ ) {
+	for ( int j = 0; j < _k; j++ ) {
 		Matrix& mu_j = theta.mu(j);
 		mu_j.init_zeros();
 
@@ -155,7 +155,7 @@ void GMMLayer::M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSe
 	// compute S_j = sum(c_ij * (x_i - mu_j) * (x_i - mu_j)', i=1:n) / n_j
 	const auto& Xsubs = theta.Xsubs();
 
-	for ( int j = 0; j < this->_k; j++ ) {
+	for ( int j = 0; j < _k; j++ ) {
 		Matrix& S_j = theta.S(j);
 		S_j.init_zeros();
 
@@ -237,15 +237,15 @@ int GMMLayer::compute(const std::vector<Matrix>& X)
 		int d = X[0].rows();
 
 		// initialize parameters
-		ParameterSet theta = this->initialize(X, NUM_INIT, INIT_SMALL_EM);
+		ParameterSet theta = initialize(X, NUM_INIT, INIT_SMALL_EM);
 
 		// run EM algorithm
-		Matrix c(n, this->_k);
+		Matrix c(n, _k);
 		float L0 = 0;
 
 		for ( int m = 0; m < NUM_ITER; m++ ) {
-			this->E_step(X, theta, c);
-			this->M_step(X, c, theta);
+			E_step(X, theta, c);
+			M_step(X, c, theta);
 
 			// check for convergence
 			float L1 = theta.log_likelihood();
@@ -261,11 +261,11 @@ int GMMLayer::compute(const std::vector<Matrix>& X)
 		// save outputs
 		std::vector<int> y = compute_labels(c);
 
-		this->_entropy = compute_entropy(c, y);
-		this->_log_likelihood = theta.log_likelihood();
-		this->_num_parameters = this->_k * (1 + d + d * d);
-		this->_num_samples = n;
-		this->_output = y;
+		_entropy = compute_entropy(c, y);
+		_log_likelihood = theta.log_likelihood();
+		_num_parameters = _k * (1 + d + d * d);
+		_num_samples = n;
+		_output = y;
 	}
 	catch ( std::runtime_error& e ) {
 		status = 1;
@@ -282,7 +282,7 @@ int GMMLayer::compute(const std::vector<Matrix>& X)
 void GMMLayer::print() const
 {
 	log(LL_VERBOSE, "Gaussian mixture model");
-	log(LL_VERBOSE, "  %-20s  %10d", "k", this->_k);
+	log(LL_VERBOSE, "  %-20s  %10d", "k", _k);
 }
 
 }

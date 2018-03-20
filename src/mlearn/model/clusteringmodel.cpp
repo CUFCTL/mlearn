@@ -19,18 +19,18 @@ namespace ML {
 ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clustering, CriterionLayer *criterion)
 {
 	// initialize layers
-	this->_clustering = clustering;
-	this->_criterion = criterion;
-	this->_best_layer = nullptr;
+	_clustering = clustering;
+	_criterion = criterion;
+	_best_layer = nullptr;
 
 	// initialize stats
-	this->_stats.error_rate = 0.0f;
-	this->_stats.predict_time = 0.0f;
+	_stats.error_rate = 0.0f;
+	_stats.predict_time = 0.0f;
 
 	// log hyperparameters
 	log(LL_VERBOSE, "Hyperparameters");
 
-	for ( ClusteringLayer *c : this->_clustering ) {
+	for ( ClusteringLayer *c : _clustering ) {
 		c->print();
 	}
 
@@ -49,21 +49,21 @@ void ClusteringModel::predict(const std::vector<Matrix>& X)
 	// run clustering layers
 	std::vector<int> results;
 
-	for ( ClusteringLayer *c : this->_clustering ) {
+	for ( ClusteringLayer *c : _clustering ) {
 		results.push_back(c->compute(X));
 	}
 
 	// record prediction time
-	this->_stats.predict_time = Timer::pop();
+	_stats.predict_time = Timer::pop();
 
 	// select model with lowest criterion value
 	ClusteringLayer *min_c = nullptr;
 	float min_value = 0;
 
-	for ( size_t i = 0; i < this->_clustering.size(); i++ ) {
+	for ( size_t i = 0; i < _clustering.size(); i++ ) {
 		if ( results[i] == 0 ) {
-			ClusteringLayer *c = this->_clustering[i];
-			float value = this->_criterion->compute(c);
+			ClusteringLayer *c = _clustering[i];
+			float value = _criterion->compute(c);
 
 			if ( min_c == nullptr || value < min_value ) {
 				min_c = c;
@@ -82,7 +82,7 @@ void ClusteringModel::predict(const std::vector<Matrix>& X)
 		log(LL_WARN, "warning: all models failed");
 	}
 
-	this->_best_layer = min_c;
+	_best_layer = min_c;
 }
 
 /**
@@ -98,7 +98,7 @@ void ClusteringModel::validate(const Dataset& input, const std::vector<int>& Y_p
 
 	int c = input.labels().size();
 	int n = input.entries().size();
-	int k = this->_best_layer->num_clusters();
+	int k = _best_layer->num_clusters();
 
 	for ( int i = 0; i < k; i++ ) {
 		int max_correct = 0;
@@ -123,7 +123,7 @@ void ClusteringModel::validate(const Dataset& input, const std::vector<int>& Y_p
 	purity /= n;
 
 	// compute error rate
-	this->_stats.error_rate = 1 - purity;
+	_stats.error_rate = 1 - purity;
 }
 
 /**
@@ -146,7 +146,7 @@ void ClusteringModel::print_results(const Dataset& input, const std::vector<int>
 			y_pred);
 	}
 
-	log(LL_VERBOSE, "Error rate: %.3f", this->_stats.error_rate);
+	log(LL_VERBOSE, "Error rate: %.3f", _stats.error_rate);
 	log(LL_VERBOSE, "");
 }
 
@@ -156,8 +156,8 @@ void ClusteringModel::print_results(const Dataset& input, const std::vector<int>
 void ClusteringModel::print_stats() const
 {
 	std::cout
-		<< std::setw(12) << std::setprecision(3) << this->_stats.error_rate
-		<< std::setw(12) << std::setprecision(3) << this->_stats.predict_time
+		<< std::setw(12) << std::setprecision(3) << _stats.error_rate
+		<< std::setw(12) << std::setprecision(3) << _stats.predict_time
 		<< "\n";
 }
 

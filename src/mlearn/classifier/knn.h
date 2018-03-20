@@ -13,8 +13,8 @@ namespace ML {
 
 class KNNLayer : public ClassifierLayer {
 private:
-	int k;
-	dist_func_t dist;
+	int _k;
+	dist_func_t _dist;
 
 public:
 	KNNLayer(int k, dist_func_t dist);

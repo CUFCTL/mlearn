@@ -25,9 +25,9 @@ public:
 	Dataset(DataIterator *iter);
 	Dataset() {};
 
-	inline const std::string& path() const { return this->_path; }
-	inline const std::vector<DataLabel>& labels() const { return this->_labels; }
-	inline const std::vector<DataEntry>& entries() const { return this->_entries; }
+	inline const std::string& path() const { return _path; }
+	inline const std::vector<DataLabel>& labels() const { return _labels; }
+	inline const std::vector<DataEntry>& entries() const { return _entries; }
 
 	Matrix load_data() const;
 

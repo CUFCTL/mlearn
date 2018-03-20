@@ -32,12 +32,12 @@ namespace ML {
 GenomeIterator::GenomeIterator(const std::string& path)
 {
 	// get list of files
-	this->_path = path;
+	_path = path;
 
 	Directory dir(path);
 
 	// construct entries
-	this->_entries.reserve(dir.entries().size());
+	_entries.reserve(dir.entries().size());
 
 	for ( int i = 0; i < dir.entries().size(); i++ ) {
 		// construct entry name
@@ -47,17 +47,17 @@ GenomeIterator::GenomeIterator(const std::string& path)
 		DataLabel label = name.substr(0, name.find_first_of('_'));
 
 		// append entry
-		this->_entries.push_back(DataEntry {
+		_entries.push_back(DataEntry {
 			label,
 			name
 		});
 	}
 
-	this->_num_genes = 0;
-	this->_genes.reset();
+	_num_genes = 0;
+	_genes.reset();
 
 	// load first sample to get size
-	this->load(0);
+	load(0);
 }
 
 /**
@@ -68,12 +68,12 @@ GenomeIterator::GenomeIterator(const std::string& path)
  */
 void GenomeIterator::sample(Matrix& X, int i)
 {
-	assert(X.rows() == this->sample_size());
+	assert(X.rows() == sample_size());
 
-	this->load(i);
+	load(i);
 
 	for ( int j = 0; j < X.rows(); j++ ) {
-		X.elem(j, i) = (float) this->_genes[j];
+		X.elem(j, i) = (float) _genes[j];
 	}
 }
 
@@ -85,7 +85,7 @@ void GenomeIterator::sample(Matrix& X, int i)
 void GenomeIterator::load(int i)
 {
 	// open file
-	std::string path = this->_path + "/" + this->_entries[i].name;
+	std::string path = _path + "/" + _entries[i].name;
 	std::ifstream file(path, std::ifstream::in);
 
 	// determine the size of the genome sample
@@ -97,18 +97,18 @@ void GenomeIterator::load(int i)
 	// verify that the genome sizes are equal (if reloading)
 	int num = (int)fsize / sizeof(float);
 
-	if ( this->_genes == nullptr ) {
-		this->_genes.reset(new float[num]);
+	if ( _genes == nullptr ) {
+		_genes.reset(new float[num]);
 	}
-	else if ( num != this->sample_size() ) {
+	else if ( num != sample_size() ) {
 		log(LL_ERROR, "error: genome \'%s\' has unequal size\n", path.c_str());
 		exit(1);
 	}
 
-	this->_num_genes = num;
+	_num_genes = num;
 
 	// read genome data
-	file.read(reinterpret_cast<char *>(this->_genes.get()), this->_num_genes * sizeof(float));
+	file.read(reinterpret_cast<char *>(_genes.get()), _num_genes * sizeof(float));
 
 	file.close();
 }

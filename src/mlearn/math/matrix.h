@@ -63,10 +63,10 @@ public:
 	void gpu_write();
 
 	// getter functions
-	inline int rows() const { return this->_rows; }
-	inline int cols() const { return this->_cols; }
+	inline int rows() const { return _rows; }
+	inline int cols() const { return _cols; }
 	inline float& elem(int i, int j) const { return ELEM(*this, i, j); }
-	inline Matrix& T() const { return *(this->_T); }
+	inline Matrix& T() const { return *(_T); }
 
 	float determinant() const;
 	Matrix diagonalize() const;
@@ -101,10 +101,10 @@ public:
 	inline Matrix operator()(int i, int j) const { return Matrix(*this, i, j); }
 	inline Matrix operator()(int i) const { return (*this)(i, i + 1); }
 	inline Matrix& operator=(Matrix B) { swap(*this, B); return *this; }
-	inline Matrix& operator+=(const Matrix& B) { this->add(B); return *this; }
-	inline Matrix& operator-=(const Matrix& B) { this->subtract(B); return *this; }
-	inline Matrix& operator*=(float c) { this->scal(c); return *this; }
-	inline Matrix& operator/=(float c) { this->scal(1 / c); return *this; }
+	inline Matrix& operator+=(const Matrix& B) { add(B); return *this; }
+	inline Matrix& operator-=(const Matrix& B) { subtract(B); return *this; }
+	inline Matrix& operator*=(float c) { scal(c); return *this; }
+	inline Matrix& operator/=(float c) { scal(1 / c); return *this; }
 
 	// friend functions
 	friend void swap(Matrix& A, Matrix& B);

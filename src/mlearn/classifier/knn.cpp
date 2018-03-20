@@ -80,8 +80,8 @@ DataLabel kNN_mode(const std::vector<neighbor_t>& items)
  */
 KNNLayer::KNNLayer(int k, dist_func_t dist)
 {
-	this->k = k;
-	this->dist = dist;
+	_k = k;
+	_dist = dist;
 }
 
 /**
@@ -106,7 +106,7 @@ std::vector<DataLabel> KNNLayer::predict(const Matrix& X, const std::vector<Data
 		for ( int j = 0; j < X.cols(); j++ ) {
 			neighbor_t n;
 			n.label = Y[j].label;
-			n.dist = this->dist(X_test, i, X, j);
+			n.dist = _dist(X_test, i, X, j);
 
 			neighbors.push_back(n);
 		}
@@ -114,7 +114,7 @@ std::vector<DataLabel> KNNLayer::predict(const Matrix& X, const std::vector<Data
 		// determine the k nearest neighbors
 		std::sort(neighbors.begin(), neighbors.end(), kNN_compare);
 
-		neighbors.erase(neighbors.begin() + this->k, neighbors.end());
+		neighbors.erase(neighbors.begin() + _k, neighbors.end());
 
 		// determine the mode of the k nearest labels
 		DataLabel y_pred = kNN_mode(neighbors);
@@ -132,18 +132,18 @@ void KNNLayer::print()
 {
 	const char *dist_name = "";
 
-	if ( this->dist == m_dist_COS ) {
+	if ( _dist == m_dist_COS ) {
 		dist_name = "COS";
 	}
-	else if ( this->dist == m_dist_L1 ) {
+	else if ( _dist == m_dist_L1 ) {
 		dist_name = "L1";
 	}
-	else if ( this->dist == m_dist_L2 ) {
+	else if ( _dist == m_dist_L2 ) {
 		dist_name = "L2";
 	}
 
 	log(LL_VERBOSE, "kNN");
-	log(LL_VERBOSE, "  %-20s  %10d", "k", this->k);
+	log(LL_VERBOSE, "  %-20s  %10d", "k", _k);
 	log(LL_VERBOSE, "  %-20s  %10s", "dist", dist_name);
 }
 

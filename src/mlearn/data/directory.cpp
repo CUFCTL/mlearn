@@ -27,20 +27,20 @@ int is_file(const struct dirent *entry)
 Directory::Directory(const std::string& path)
 {
 	// construct entries
-	this->_path = path;
+	_path = path;
 
 	struct dirent **files;
-	int num_entries = scandir(this->_path.c_str(), &files, is_file, alphasort);
+	int num_entries = scandir(_path.c_str(), &files, is_file, alphasort);
 
 	if ( num_entries < 0 ) {
 		perror("scandir");
 		exit(1);
 	}
 
-	this->_entries.reserve(num_entries);
+	_entries.reserve(num_entries);
 
 	for ( int i = 0; i < num_entries; i++ ) {
-		this->_entries.push_back(files[i]->d_name);
+		_entries.push_back(files[i]->d_name);
 	}
 
 	// cleanup

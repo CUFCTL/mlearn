@@ -71,22 +71,22 @@ void write_string(const std::string& str, std::ofstream& file)
  */
 Dataset::Dataset(DataIterator *iter)
 {
-	this->_iter = iter;
+	_iter = iter;
 
 	// construct entries
-	this->_entries = iter->entries();
+	_entries = iter->entries();
 
 	// construct labels
-	for ( const DataEntry& entry : this->_entries ) {
+	for ( const DataEntry& entry : _entries ) {
 		// search labels for label name
 		size_t j = 0;
-		while ( j < this->_labels.size() && this->_labels[j] != entry.label ) {
+		while ( j < _labels.size() && _labels[j] != entry.label ) {
 			j++;
 		}
 
 		// append label if not found
-		if ( j == this->_labels.size() ) {
-			this->_labels.push_back(entry.label);
+		if ( j == _labels.size() ) {
+			_labels.push_back(entry.label);
 		}
 	}
 }
@@ -98,13 +98,13 @@ Dataset::Dataset(DataIterator *iter)
 Matrix Dataset::load_data() const
 {
 	// construct data matrix
-	int m = this->_iter->sample_size();
-	int n = this->_iter->num_samples();
+	int m = _iter->sample_size();
+	int n = _iter->num_samples();
 	Matrix X = Matrix(m, n);
 
 	// map each sample to a column in X
 	for ( int i = 0; i < n; i++ ) {
-		this->_iter->sample(X, i);
+		_iter->sample(X, i);
 	}
 
 	return X;
@@ -118,21 +118,21 @@ Matrix Dataset::load_data() const
 void Dataset::save(std::ofstream& file)
 {
 	// save path
-	write_string(this->_path.c_str(), file);
+	write_string(_path.c_str(), file);
 
 	// save labels
-	int num_labels = this->_labels.size();
+	int num_labels = _labels.size();
 	write_int(num_labels, file);
 
-	for ( const DataLabel& label : this->_labels ) {
+	for ( const DataLabel& label : _labels ) {
 		write_string(label.c_str(), file);
 	}
 
 	// save entries
-	int num_entries = this->_entries.size();
+	int num_entries = _entries.size();
 	write_int(num_entries, file);
 
-	for ( const DataEntry& entry : this->_entries ) {
+	for ( const DataEntry& entry : _entries ) {
 		write_string(entry.label.c_str(), file);
 		write_string(entry.name.c_str(), file);
 	}
@@ -146,30 +146,30 @@ void Dataset::save(std::ofstream& file)
 void Dataset::load(std::ifstream& file)
 {
 	// read path
-	this->_path = read_string(file);
+	_path = read_string(file);
 
 	// read labels
 	int num_labels = read_int(file);
 
-	this->_labels.reserve(num_labels);
+	_labels.reserve(num_labels);
 
 	for ( int i = 0; i < num_labels; i++ ) {
 		DataLabel label(read_string(file));
 
-		this->_labels.push_back(label);
+		_labels.push_back(label);
 	}
 
 	// read entries
 	int num_entries = read_int(file);
 
-	this->_entries.reserve(num_entries);
+	_entries.reserve(num_entries);
 
 	for ( int i = 0; i < num_entries; i++ ) {
 		DataEntry entry;
 		entry.label = read_string(file);
 		entry.name = read_string(file);
 
-		this->_entries.push_back(entry);
+		_entries.push_back(entry);
 	}
 }
 
@@ -179,21 +179,21 @@ void Dataset::load(std::ifstream& file)
 void Dataset::print() const
 {
 	// print path
-	log(LL_VERBOSE, "path: %s", this->_path.c_str());
+	log(LL_VERBOSE, "path: %s", _path.c_str());
 	log(LL_VERBOSE, "");
 
 	// print labels
-	log(LL_VERBOSE, "%d classes", this->_labels.size());
+	log(LL_VERBOSE, "%d classes", _labels.size());
 
-	for ( const DataLabel& label : this->_labels ) {
+	for ( const DataLabel& label : _labels ) {
 		log(LL_VERBOSE, "%s", label.c_str());
 	}
 	log(LL_VERBOSE, "");
 
 	// print entries
-	log(LL_VERBOSE, "%d entries", this->_entries.size());
+	log(LL_VERBOSE, "%d entries", _entries.size());
 
-	for ( const DataEntry& entry : this->_entries ) {
+	for ( const DataEntry& entry : _entries ) {
 		log(LL_VERBOSE, "%-8s  %s", entry.label.c_str(), entry.name.c_str());
 	}
 	log(LL_VERBOSE, "");

@@ -16,7 +16,7 @@ namespace ML {
  */
 PCALayer::PCALayer(int n1)
 {
-	this->n1 = n1;
+	_n1 = n1;
 }
 
 /**
@@ -34,9 +34,9 @@ PCALayer::PCALayer(int n1)
 void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 {
 	// if n1 = -1, use default value
-	int n1 = (this->n1 == -1)
+	int n1 = (_n1 == -1)
 		? std::min(X.rows(), X.cols())
-		: this->n1;
+		: _n1;
 
 	Timer::push("PCA");
 
@@ -50,13 +50,13 @@ void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 		Timer::push("compute eigendecomposition of L");
 
 		Matrix V;
-		L.eigen(n1, V, this->D);
+		L.eigen(n1, V, _D);
 
 		Timer::pop();
 
 		Timer::push("compute principal components");
 
-		this->W = X * V;
+		_W = X * V;
 
 		Timer::pop();
 	}
@@ -69,7 +69,7 @@ void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
 
 		Timer::push("compute eigendecomposition of C");
 
-		C.eigen(n1, this->W, this->D);
+		C.eigen(n1, _W, _D);
 
 		Timer::pop();
 	}
@@ -84,7 +84,7 @@ void PCALayer::compute(const Matrix& X, const std::vector<DataEntry>& y, int c)
  */
 Matrix PCALayer::project(const Matrix& X)
 {
-	return this->W.T() * X;
+	return _W.T() * X;
 }
 
 /**
@@ -94,7 +94,7 @@ Matrix PCALayer::project(const Matrix& X)
  */
 void PCALayer::save(std::ofstream& file)
 {
-	this->W.save(file);
+	_W.save(file);
 }
 
 /**
@@ -104,7 +104,7 @@ void PCALayer::save(std::ofstream& file)
  */
 void PCALayer::load(std::ifstream& file)
 {
-	this->W.load(file);
+	_W.load(file);
 }
 
 /**
@@ -113,7 +113,7 @@ void PCALayer::load(std::ifstream& file)
 void PCALayer::print()
 {
 	log(LL_VERBOSE, "PCA");
-	log(LL_VERBOSE, "  %-20s  %10d", "n1", this->n1);
+	log(LL_VERBOSE, "  %-20s  %10d", "n1", _n1);
 }
 
 }

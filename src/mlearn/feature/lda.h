@@ -12,12 +12,11 @@ namespace ML {
 
 class LDALayer : public FeatureLayer {
 private:
-	int n1;
-	int n2;
+	int _n1;
+	int _n2;
+	Matrix _W;
 
 public:
-	Matrix W;
-
 	LDALayer(int n1, int n2);
 	LDALayer() : LDALayer(-1, -1) {};
 
