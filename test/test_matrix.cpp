@@ -373,54 +373,6 @@ void test_eigen()
 
 
 /**
- * Test generalized eigenvalues, eigenvectors for two matrices.
- */
-void test_eigen2()
-{
-	float A_data[] = {
-		 0.5377,  0.8622, -0.4336,
-		 0.8622,  0.3188,  0.3426,
-		-0.4336,  0.3426,  3.5784
-	};
-	float B_data[] = {
-		 2, -1,  0,
-		-1,  2, -1,
-		 0, -1,  2
-	};
-	float V_data[] = {
-		 0.3714,  0.6224,  0.4740,
-		-0.4204,  0.4574,  0.7836,
-		 0.0606, -0.2616,  0.8233
-	};
-	float D_data[] = {
-		-0.1626,  0.0000,  0.0000,
-		 0.0000,  1.0700,  0.0000,
-		 0.0000,  0.0000,  3.4864
-	};
-	Matrix A(3, 3, A_data);
-	Matrix B(3, 3, B_data);
-	Matrix V;
-	Matrix D;
-
-	Matrix B_inv = B.inverse();
-	Matrix J = B_inv * A;
-
-	J.eigen(J.rows(), V, D);
-
-	if ( LOGGER(LL_VERBOSE) ) {
-		std::cout << A;
-		std::cout << B;
-		std::cout << V;
-		std::cout << D;
-	}
-
-	assert_matrix_value(V, V_data, "eigenvectors of A, B");
-	assert_matrix_value(D, D_data, "eigenvalues of A, B");
-}
-
-
-
-/**
  * Test matrix inverse.
  */
 void test_inverse()
@@ -1030,7 +982,6 @@ int main(int argc, char **argv)
 		test_diagonalize,
 		test_dot,
 		test_eigen,
-		test_eigen2,
 		test_inverse,
 		test_mean_column,
 		test_mean_row,
