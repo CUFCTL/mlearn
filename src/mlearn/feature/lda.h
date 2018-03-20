@@ -8,14 +8,13 @@
 
 #include "mlearn/feature/feature.h"
 
+
+
 namespace ML {
 
-class LDALayer : public FeatureLayer {
-private:
-	int _n1;
-	int _n2;
-	Matrix _W;
 
+
+class LDALayer : public FeatureLayer {
 public:
 	LDALayer(int n1, int n2);
 	LDALayer() : LDALayer(-1, -1) {};
@@ -27,7 +26,14 @@ public:
 	void load(std::ifstream& file);
 
 	void print();
+
+private:
+	int _n1;
+	int _n2;
+	Matrix _W;
 };
+
+
 
 }
 

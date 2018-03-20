@@ -9,21 +9,13 @@
 #include "mlearn/clustering/clustering.h"
 #include "mlearn/clustering/parameterset.h"
 
+
+
 namespace ML {
 
+
+
 class GMMLayer : public ClusteringLayer {
-private:
-	int _k;
-	float _entropy;
-	float _log_likelihood;
-	int _num_parameters;
-	int _num_samples;
-	std::vector<int> _output;
-
-	ParameterSet initialize(const std::vector<Matrix>& X, int num_init, bool small_em);
-	void E_step(const std::vector<Matrix>& X, const ParameterSet& theta, Matrix& c);
-	void M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSet& theta);
-
 public:
 	GMMLayer(int k);
 
@@ -37,7 +29,21 @@ public:
 	const std::vector<int>& output() const { return _output; }
 
 	void print() const;
+
+private:
+	ParameterSet initialize(const std::vector<Matrix>& X, int num_init, bool small_em);
+	void E_step(const std::vector<Matrix>& X, const ParameterSet& theta, Matrix& c);
+	void M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSet& theta);
+
+	int _k;
+	float _entropy;
+	float _log_likelihood;
+	int _num_parameters;
+	int _num_samples;
+	std::vector<int> _output;
 };
+
+
 
 }
 

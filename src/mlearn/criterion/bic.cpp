@@ -6,7 +6,11 @@
 #include "mlearn/criterion/bic.h"
 #include "mlearn/util/logger.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Compute the Bayesian information criterion of a model:
@@ -24,6 +28,8 @@ float BICLayer::compute(ClusteringLayer *layer)
 	return logf(n) * k - 2 * L;
 }
 
+
+
 /**
  * Print a BIC layer.
  */
@@ -31,5 +37,7 @@ void BICLayer::print() const
 {
 	log(LL_VERBOSE, "BIC");
 }
+
+
 
 }

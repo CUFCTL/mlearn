@@ -8,14 +8,13 @@
 
 #include "mlearn/feature/feature.h"
 
+
+
 namespace ML {
 
-class PCALayer : public FeatureLayer {
-private:
-	int _n1;
-	Matrix _W;
-	Matrix _D;
 
+
+class PCALayer : public FeatureLayer {
 public:
 	PCALayer(int n1);
 	PCALayer() : PCALayer(-1) {}
@@ -30,7 +29,14 @@ public:
 	void load(std::ifstream& file);
 
 	void print();
+
+private:
+	int _n1;
+	Matrix _W;
+	Matrix _D;
 };
+
+
 
 }
 

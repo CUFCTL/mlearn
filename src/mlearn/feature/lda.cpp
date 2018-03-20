@@ -9,7 +9,11 @@
 #include "mlearn/util/logger.h"
 #include "mlearn/util/timer.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Construct an LDA layer.
@@ -22,6 +26,8 @@ LDALayer::LDALayer(int n1, int n2)
 	_n1 = n1;
 	_n2 = n2;
 }
+
+
 
 /**
  * Compute the LDA features of a matrix X.
@@ -86,6 +92,8 @@ void LDALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 	Timer::pop();
 }
 
+
+
 /**
  * Project a matrix X into the feature space of an LDA layer.
  *
@@ -95,6 +103,8 @@ Matrix LDALayer::project(const Matrix& X)
 {
 	return _W.T() * X;
 }
+
+
 
 /**
  * Save an LDA layer to a file.
@@ -106,6 +116,8 @@ void LDALayer::save(std::ofstream& file)
 	_W.save(file);
 }
 
+
+
 /**
  * Load an LDA layer from a file.
  *
@@ -116,6 +128,8 @@ void LDALayer::load(std::ifstream& file)
 	_W.load(file);
 }
 
+
+
 /**
  * Print information about an LDA layer.
  */
@@ -125,5 +139,7 @@ void LDALayer::print()
 	log(LL_VERBOSE, "  %-20s  %10d", "n1", _n1);
 	log(LL_VERBOSE, "  %-20s  %10d", "n2", _n2);
 }
+
+
 
 }

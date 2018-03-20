@@ -8,7 +8,11 @@
 #include "mlearn/util/logger.h"
 #include "mlearn/util/timer.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Construct a classification model.
@@ -36,6 +40,8 @@ ClassificationModel::ClassificationModel(FeatureLayer *feature, ClassifierLayer 
 	log(LL_VERBOSE, "");
 }
 
+
+
 /**
  * Save a model to a file.
  *
@@ -53,6 +59,8 @@ void ClassificationModel::save(const std::string& path)
 	file.close();
 }
 
+
+
 /**
  * Load a model from a file.
  *
@@ -69,6 +77,8 @@ void ClassificationModel::load(const std::string& path)
 
 	file.close();
 }
+
+
 
 /**
  * Perform training on a training set.
@@ -106,6 +116,8 @@ void ClassificationModel::train(const Dataset& train_set)
 	log(LL_VERBOSE, "");
 }
 
+
+
 /**
  * Perform recognition on a test set.
  *
@@ -136,6 +148,8 @@ std::vector<int> ClassificationModel::predict(const Dataset& test_set)
 	return y_pred;
 }
 
+
+
 /**
  * Validate a set of predicted labels against the ground truth.
  *
@@ -154,6 +168,8 @@ void ClassificationModel::validate(const Dataset& test_set, const std::vector<in
 
 	_stats.error_rate = (float) num_errors / test_set.entries().size();
 }
+
+
 
 /**
  * Print prediction results of a model.
@@ -180,6 +196,8 @@ void ClassificationModel::print_results(const Dataset& test_set, const std::vect
 	log(LL_VERBOSE, "");
 }
 
+
+
 /**
  * Print a model's performance and accuracy statistics.
  */
@@ -191,5 +209,7 @@ void ClassificationModel::print_stats() const
 		<< std::setw(12) << std::setprecision(3) << _stats.predict_time
 		<< "\n";
 }
+
+
 
 }

@@ -10,9 +10,25 @@
 #include "mlearn/criterion/criterion.h"
 #include "mlearn/data/dataset.h"
 
+
+
 namespace ML {
 
+
+
 class ClusteringModel {
+public:
+	ClusteringModel(const std::vector<ClusteringLayer *>& clustering, CriterionLayer *criterion);
+	~ClusteringModel() {};
+
+	ClusteringLayer * best_layer() const { return _best_layer; };
+
+	void fit(const std::vector<Matrix>& X);
+	void validate(const Dataset& input, const std::vector<int>& y_pred);
+
+	void print_results(const Dataset& input, const std::vector<int>& y_pred) const;
+	void print_stats() const;
+
 private:
 	// clustering layers
 	std::vector<ClusteringLayer *> _clustering;
@@ -28,19 +44,9 @@ private:
 		float error_rate;
 		float predict_time;
 	} _stats;
-
-public:
-	ClusteringModel(const std::vector<ClusteringLayer *>& clustering, CriterionLayer *criterion);
-	~ClusteringModel() {};
-
-	ClusteringLayer * best_layer() const { return _best_layer; };
-
-	void fit(const std::vector<Matrix>& X);
-	void validate(const Dataset& input, const std::vector<int>& Y_pred);
-
-	void print_results(const Dataset& input, const std::vector<int>& Y_pred) const;
-	void print_stats() const;
 };
+
+
 
 }
 

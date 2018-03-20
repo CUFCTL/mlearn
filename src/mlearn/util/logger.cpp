@@ -10,7 +10,11 @@
 
 namespace ML {
 
+
+
 logger_level_t LOGLEVEL = LL_INFO;
+
+
 
 /**
  * Log a message with a given loglevel.
@@ -43,5 +47,7 @@ void log(logger_level_t level, const char *format, ...)
 		printf("\n");
 	}
 }
+
+
 
 }

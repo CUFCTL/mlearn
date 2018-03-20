@@ -8,7 +8,11 @@
 
 #include "mlearn/feature/feature.h"
 
+
+
 namespace ML {
+
+
 
 class IdentityLayer : public FeatureLayer {
 public:
@@ -20,6 +24,8 @@ public:
 
 	void print();
 };
+
+
 
 }
 

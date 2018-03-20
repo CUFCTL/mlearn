@@ -8,7 +8,11 @@
 #include "mlearn/math/matrix_utils.h"
 #include "mlearn/math/random.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Compute the COS distance between two column vectors.
@@ -52,6 +56,8 @@ float m_dist_COS(const Matrix& A, int i, const Matrix& B, int j)
 	return 1 - similarity;
 }
 
+
+
 /**
  * Compute the L1 distance between two column vectors.
  *
@@ -76,6 +82,8 @@ float m_dist_L1(const Matrix& A, int i, const Matrix& B, int j)
 
 	return dist;
 }
+
+
 
 /**
  * Compute the L2 distance between two column vectors.
@@ -105,6 +113,8 @@ float m_dist_L2(const Matrix& A, int i, const Matrix& B, int j)
 	return dist;
 }
 
+
+
 /**
  * Compute the mean of a list of column vectors.
  *
@@ -122,6 +132,8 @@ Matrix m_mean(const std::vector<Matrix>& X)
 	return mu;
 }
 
+
+
 /**
  * Copy a matrix X into a list of column vectors.
  *
@@ -138,6 +150,8 @@ std::vector<Matrix> m_copy_columns(const Matrix& X)
 
 	return X_col;
 }
+
+
 
 /**
  * Select k random columns from a matrix X.
@@ -159,6 +173,8 @@ std::vector<Matrix> m_random_sample(const std::vector<Matrix>& X, int k)
 	return samples;
 }
 
+
+
 /**
  * Subtract a vector mu from each vector in X.
  *
@@ -176,6 +192,8 @@ std::vector<Matrix> m_subtract_mean(const std::vector<Matrix>& X, const Matrix& 
 
 	return X_sub;
 }
+
+
 
 /**
  * Copy a matrix X into a list X_c of class
@@ -209,6 +227,8 @@ std::vector<Matrix> m_copy_classes(const Matrix& X, const std::vector<int>& y, i
 	return X_c;
 }
 
+
+
 /**
  * Compute the mean of each class for a matrix X,
  * given by a list X_c of class submatrices.
@@ -226,6 +246,8 @@ std::vector<Matrix> m_class_means(const std::vector<Matrix>& X_c)
 
 	return U;
 }
+
+
 
 /**
  * Compute the class covariance matrices for a matrix X,
@@ -250,6 +272,8 @@ std::vector<Matrix> m_class_scatters(const std::vector<Matrix>& X_c, const std::
 
 	return S;
 }
+
+
 
 /**
  * Compute the between-scatter matrix S_b for a matrix X,
@@ -279,6 +303,8 @@ Matrix m_scatter_between(const std::vector<Matrix>& X_c, const std::vector<Matri
 	return S_b;
 }
 
+
+
 /**
  * Compute the within-scatter matrix S_w for a matrix X,
  * given by a list X_c of class submatrices.
@@ -302,5 +328,7 @@ Matrix m_scatter_within(const std::vector<Matrix>& X_c, const std::vector<Matrix
 
 	return S_w;
 }
+
+
 
 }

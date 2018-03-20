@@ -7,7 +7,11 @@
 #include <fstream>
 #include "mlearn/data/csviterator.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Construct a CSV iterator from a file.
@@ -52,6 +56,8 @@ CSVIterator::CSVIterator(const std::string& filename)
 	}
 }
 
+
+
 /**
  * Load a sample into a column of a data matrix.
  *
@@ -66,5 +72,7 @@ void CSVIterator::sample(Matrix& X, int i)
 		X.elem(j, i) = (float) _data[i * _size + j];
 	}
 }
+
+
 
 }

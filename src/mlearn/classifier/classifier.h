@@ -9,7 +9,11 @@
 #include <vector>
 #include "mlearn/math/matrix.h"
 
+
+
 namespace ML {
+
+
 
 class ClassifierLayer {
 public:
@@ -19,6 +23,8 @@ public:
 	virtual std::vector<int> predict(const Matrix& X_test) = 0;
 	virtual void print() = 0;
 };
+
+
 
 }
 

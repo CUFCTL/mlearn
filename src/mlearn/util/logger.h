@@ -8,6 +8,8 @@
 
 namespace ML {
 
+
+
 typedef enum logger_level_t {
 	LL_ERROR   = -1,
 	LL_WARN    =  0,
@@ -16,11 +18,19 @@ typedef enum logger_level_t {
 	LL_DEBUG   =  3
 } loggger_level_t;
 
+
+
 extern logger_level_t LOGLEVEL;
+
+
 
 #define LOGGER(level) ((level) <= LOGLEVEL)
 
+
+
 void log(logger_level_t level, const char *format, ...);
+
+
 
 }
 

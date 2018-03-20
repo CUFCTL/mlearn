@@ -13,14 +13,22 @@
 #include <iostream>
 #include <mlearn.h>
 
+
+
 using namespace ML;
+
+
 
 #define ANSI_RED    "\x1b[31m"
 #define ANSI_BOLD   "\x1b[1m"
 #define ANSI_GREEN  "\x1b[32m"
 #define ANSI_RESET  "\x1b[0m"
 
+
+
 typedef void (*test_func_t)(void);
+
+
 
 /**
  * Determine whether two floating point values are equal.
@@ -34,6 +42,8 @@ bool is_equal(float a, float b)
 
 	return (fabsf(a - b) < EPSILON);
 }
+
+
 
 /**
  * Determine whether two matrices are equal.
@@ -58,6 +68,8 @@ bool m_equal(const Matrix& A, const Matrix& B)
 	return true;
 }
 
+
+
 /**
  * Print a test result.
  *
@@ -72,6 +84,8 @@ void print_result(const char *name, bool result)
 	std::cout << color << std::left << std::setw(25) << name << "  " << message << ANSI_RESET << "\n";
 }
 
+
+
 /**
  * Assert that two floating-point values are equal.
  *
@@ -84,6 +98,8 @@ void assert_equal(float a, float b, const char *name)
 	print_result(name, is_equal(a, b));
 }
 
+
+
 /**
  * Assert that two matrices are equal.
  *
@@ -95,6 +111,8 @@ void assert_equal_matrix(const Matrix& A, const Matrix& B, const char *name)
 {
 	print_result(name, m_equal(A, B));
 }
+
+
 
 /**
  * Assert that a matrix M is equal to a test value.
@@ -109,6 +127,8 @@ void assert_matrix_value(const Matrix& M, float *data, const char *name)
 
 	assert_equal_matrix(M, M_test, name);
 }
+
+
 
 /**
  * Test identity matrix.
@@ -130,6 +150,8 @@ void test_identity()
 	assert_matrix_value(I, I_data, "eye(N)");
 }
 
+
+
 /**
  * Test ones matrix.
  */
@@ -150,6 +172,8 @@ void test_ones()
 	assert_matrix_value(X, X_data, "ones(M, N)");
 }
 
+
+
 /**
  * Test zero matrix.
  */
@@ -169,6 +193,8 @@ void test_zeros()
 
 	assert_matrix_value(X, X_data, "zeros(M, N)");
 }
+
+
 
 /**
  * Test matrix copy.
@@ -191,6 +217,8 @@ void test_copy()
 
 	assert_equal_matrix(A, C, "A(:, :)");
 }
+
+
 
 /**
  * Test matrix column copy.
@@ -223,6 +251,8 @@ void test_copy_columns()
 	assert_matrix_value(C, C_data, "A(:, i:j)");
 }
 
+
+
 /**
  * The the matrix determinant.
  */
@@ -244,6 +274,8 @@ void test_determinant()
 
 	assert_equal(det, 4, "det(A)");
 }
+
+
 
 /**
  * Test the diagonal matrix.
@@ -271,6 +303,8 @@ void test_diagonalize()
 	assert_matrix_value(D, D_data, "diag(v)");
 }
 
+
+
 /**
  * Test dot product.
  */
@@ -294,6 +328,8 @@ void test_dot()
 
 	assert_equal(d, 3, "a' * b");
 }
+
+
 
 /**
  * Test eigenvalues, eigenvectors.
@@ -333,6 +369,8 @@ void test_eigen()
 	assert_matrix_value(V, V_data, "eigenvectors of M");
 	assert_matrix_value(D, D_data, "eigenvalues of M");
 }
+
+
 
 /**
  * Test generalized eigenvalues, eigenvectors for two matrices.
@@ -380,6 +418,8 @@ void test_eigen2()
 	assert_matrix_value(D, D_data, "eigenvalues of A, B");
 }
 
+
+
 /**
  * Test matrix inverse.
  */
@@ -406,6 +446,8 @@ void test_inverse()
 	assert_matrix_value(Y, Y_data, "inv(X)");
 }
 
+
+
 /**
  * Test matrix mean column.
  */
@@ -429,6 +471,8 @@ void test_mean_column()
 
 	assert_matrix_value(m, m_data, "mean(A, 2)");
 }
+
+
 
 /**
  * Test matrix mean row.
@@ -455,6 +499,8 @@ void test_mean_row()
 	assert_matrix_value(m, m_data, "mean(A, 1)");
 }
 
+
+
 /**
  * Test vector norm.
  */
@@ -473,6 +519,8 @@ void test_nrm2()
 
 	assert_equal(n, 3.7417, "nrm2(v)");
 }
+
+
 
 /**
  * Test matrix product.
@@ -541,6 +589,8 @@ void test_product()
 	assert_matrix_value(C3, C3_data, "A2 * B2");
 }
 
+
+
 /**
  * Test vector sum.
  */
@@ -560,6 +610,8 @@ void test_sum()
 
 	assert_equal(s, 2, "sum(v)");
 }
+
+
 
 /**
  * Test singular value decomposition.
@@ -603,6 +655,8 @@ void test_svd()
 	assert_matrix_value(V, V_data, "r. singular vectors of A");
 }
 
+
+
 /**
  * Test matrix transpose.
  */
@@ -630,6 +684,8 @@ void test_transpose()
 
 	assert_matrix_value(B, B_data, "A'");
 }
+
+
 
 /**
  * Test matrix addition.
@@ -664,6 +720,8 @@ void test_add()
 
 	assert_matrix_value(A, A_data2, "A + B");
 }
+
+
 
 /**
  * Test matrix column assingment.
@@ -707,6 +765,8 @@ void test_assign_column()
 	assert_matrix_value(A, A_data2, "A(:, i) = B(:, j)");
 }
 
+
+
 /**
  * Test matrix row assingment.
  */
@@ -746,6 +806,8 @@ void test_assign_row()
 	assert_matrix_value(A, A_data2, "A(i, :) = B(j, :)");
 }
 
+
+
 /**
  * Test matrix element-wise function application.
  */
@@ -773,6 +835,8 @@ void test_elem_apply()
 
 	assert_matrix_value(A, A_data2, "sqrt(A)");
 }
+
+
 
 /**
  * Test matrix multiplication by scalar.
@@ -802,6 +866,8 @@ void test_scal()
 
 	assert_matrix_value(A, A_data2, "c * A");
 }
+
+
 
 /**
  * Test matrix subtraction.
@@ -836,6 +902,8 @@ void test_subtract()
 
 	assert_matrix_value(A, A_data2, "A - B");
 }
+
+
 
 /**
  * Test matrix column subtraction.
@@ -874,6 +942,8 @@ void test_subtract_columns()
 	assert_matrix_value(M, M_data2, "M - a * 1_N'");
 }
 
+
+
 /**
  * Test matrix row subtraction.
  */
@@ -909,6 +979,8 @@ void test_subtract_rows()
 	assert_matrix_value(M, M_data2, "M - 1_N * a");
 }
 
+
+
 void print_usage()
 {
 	std::cerr <<
@@ -918,6 +990,8 @@ void print_usage()
 		"  --gpu             use GPU acceleration\n"
 		"  --loglevel LEVEL  set the log level (1=info, 2=verbose, 3=debug)\n";
 }
+
+
 
 int main(int argc, char **argv)
 {

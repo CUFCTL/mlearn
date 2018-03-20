@@ -7,7 +7,11 @@
 #include <dirent.h>
 #include "directory.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Get whether an entry is a file, excluding "." and "..".
@@ -18,6 +22,8 @@ int is_file(const struct dirent *entry)
 {
 	return (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0);
 }
+
+
 
 /**
  * Construct a directory.
@@ -49,5 +55,7 @@ Directory::Directory(const std::string& path)
 	}
 	free(files);
 }
+
+
 
 }

@@ -9,7 +9,11 @@
 #include <memory>
 #include <mlearn.h>
 
+
+
 using namespace ML;
+
+
 
 typedef struct {
 	std::string path_train;
@@ -18,6 +22,8 @@ typedef struct {
 	std::string feature;
 	std::string classifier;
 } args_t;
+
+
 
 void print_usage()
 {
@@ -33,6 +39,8 @@ void print_usage()
 		"  --feat FEATURE     feature extraction method ([identity], pca, lda, ica)\n"
 		"  --clas CLASSIFIER  classification method ([knn], bayes)\n";
 }
+
+
 
 args_t parse_args(int argc, char **argv)
 {
@@ -87,6 +95,8 @@ args_t parse_args(int argc, char **argv)
 
 	return args;
 }
+
+
 
 int main(int argc, char **argv)
 {

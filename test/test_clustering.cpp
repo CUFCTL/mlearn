@@ -8,7 +8,11 @@
 #include <iostream>
 #include <mlearn.h>
 
+
+
 using namespace ML;
+
+
 
 typedef struct {
 	std::string path_input;
@@ -18,6 +22,8 @@ typedef struct {
 	int max_k;
 	std::string criterion;
 } args_t;
+
+
 
 void print_usage()
 {
@@ -34,6 +40,8 @@ void print_usage()
 		"  --max-k K          maximum number of clusters [5]\n"
 		"  --crit CRITERION   model selection criterion ([bic], icl)\n";
 }
+
+
 
 args_t parse_args(int argc, char **argv)
 {
@@ -97,6 +105,8 @@ args_t parse_args(int argc, char **argv)
 
 	return args;
 }
+
+
 
 int main(int argc, char **argv)
 {
@@ -167,7 +177,7 @@ int main(int argc, char **argv)
 	std::vector<Matrix> X_col = m_copy_columns(X);
 	model.fit(X_col);
 
-	std::vector<int> Y_pred = model.best_layer()->output();
+	std::vector<int> y_pred = model.best_layer()->output();
 
 	// print clustering results
 	log(LL_VERBOSE, "Best clustering model:");
@@ -176,8 +186,8 @@ int main(int argc, char **argv)
 	model.best_layer()->print();
 	log(LL_VERBOSE, "");
 
-	model.validate(input_data, Y_pred);
-	model.print_results(input_data, Y_pred);
+	model.validate(input_data, y_pred);
+	model.print_results(input_data, y_pred);
 
 	// print timing results
 	Timer::print();

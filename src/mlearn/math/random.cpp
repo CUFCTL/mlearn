@@ -6,12 +6,18 @@
 #include <chrono>
 #include "mlearn/math/random.h"
 
+
+
 namespace ML {
+
+
 
 std::default_random_engine Random::_rng;
 std::uniform_int_distribution<int> Random::_Ui;
 std::uniform_real_distribution<float> Random::_Ur;
 std::normal_distribution<float> Random::_N;
+
+
 
 /**
  * Seed the global random number engine with the current time.
@@ -25,6 +31,8 @@ void Random::seed(unsigned int value)
     _rng.seed(value);
 }
 
+
+
 /**
  * Generate an integer from a uniform (a, b) distribution.
  *
@@ -35,6 +43,8 @@ int Random::uniform_int(int a, int b)
 {
     return _Ui(_rng) % (b - a) + a;
 }
+
+
 
 /**
  * Generate a real number from a uniform (a, b) distribution.
@@ -47,6 +57,8 @@ float Random::uniform_real(float a, float b)
     return _Ur(_rng) * (b - a) + a;
 }
 
+
+
 /**
  * Generate a real number from a normal (mu, sigma^2) distribution.
  *
@@ -57,5 +69,7 @@ float Random::normal(float mu, float sigma)
 {
     return mu + _N(_rng) * sigma;
 }
+
+
 
 }

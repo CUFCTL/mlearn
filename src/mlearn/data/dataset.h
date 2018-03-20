@@ -12,16 +12,13 @@
 #include "mlearn/data/dataiterator.h"
 #include "mlearn/math/matrix.h"
 
+
+
 namespace ML {
 
-class Dataset {
-private:
-	DataIterator *_iter;
-	std::string _path;
-	std::vector<DataLabel> _labels;
-	std::vector<DataEntry> _entries;
-	std::vector<int> _numeric_entries;
 
+
+class Dataset {
 public:
 	Dataset(DataIterator *iter);
 	Dataset() {};
@@ -37,7 +34,16 @@ public:
 	void load(std::ifstream& file);
 
 	void print() const;
+
+private:
+	DataIterator *_iter;
+	std::string _path;
+	std::vector<DataLabel> _labels;
+	std::vector<DataEntry> _entries;
+	std::vector<int> _numeric_entries;
 };
+
+
 
 }
 

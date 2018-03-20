@@ -10,7 +10,11 @@
 #include "mlearn/util/logger.h"
 #include "mlearn/util/timer.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Construct a k-means layer.
@@ -21,6 +25,8 @@ KMeansLayer::KMeansLayer(int k)
 {
 	_k = k;
 }
+
+
 
 /**
  * Compute the label of each sample given the
@@ -52,6 +58,8 @@ void KMeansLayer::E_step(const std::vector<Matrix>& X, const ParameterSet& theta
 		y[i] = min_j;
 	}
 }
+
+
 
 /**
  * Compute the mean of each cluster given the
@@ -88,6 +96,8 @@ void KMeansLayer::M_step(const std::vector<Matrix>& X, const std::vector<int>& y
 		mu_j /= n_j;
 	}
 }
+
+
 
 /**
  * Partition a matrix X of observations into
@@ -178,6 +188,8 @@ int KMeansLayer::fit(const std::vector<Matrix>& X)
 	return status;
 }
 
+
+
 /**
  * Print a k-means layer.
  */
@@ -186,5 +198,7 @@ void KMeansLayer::print() const
 	log(LL_VERBOSE, "K-means");
 	log(LL_VERBOSE, "  %-20s  %10d", "k", _k);
 }
+
+
 
 }

@@ -14,7 +14,11 @@
 #include "mlearn/data/imageiterator.h"
 #include "mlearn/util/logger.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Construct an image iterator from a directory.
@@ -65,6 +69,8 @@ ImageIterator::ImageIterator(const std::string& path)
 	load(0);
 }
 
+
+
 /**
  * Load a sample into a column of a data matrix.
  *
@@ -81,6 +87,8 @@ void ImageIterator::sample(Matrix& X, int i)
 		X.elem(j, i) = (float) _pixels[j];
 	}
 }
+
+
 
 /**
  * Helper function to skip comments in a PGM/PPM image.
@@ -105,6 +113,8 @@ void skip_to_next_value(std::ifstream& file)
 
 	file.unget();
 }
+
+
 
 /**
  * Load an image from a PGM/PPM file.
@@ -172,5 +182,7 @@ void ImageIterator::load(int i)
 
 	file.close();
 }
+
+
 
 }

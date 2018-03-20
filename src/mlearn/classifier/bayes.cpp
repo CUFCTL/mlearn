@@ -9,7 +9,11 @@
 #include "mlearn/math/matrix_utils.h"
 #include "mlearn/util/logger.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Compute intermediate data for classification.
@@ -36,6 +40,8 @@ void BayesLayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 	}
 }
 
+
+
 /**
  * Compute the probability of a class for a
  * feature vector using the Bayes discriminant
@@ -47,12 +53,14 @@ void BayesLayer::compute(const Matrix& X, const std::vector<int>& y, int c)
  * @param mu
  * @param S_inv
  */
-float bayes_prob(Matrix x, const Matrix& mu, const Matrix& S_inv)
+float BayesLayer::prob(Matrix x, const Matrix& mu, const Matrix& S_inv)
 {
 	x -= mu;
 
 	return -0.5f * (x.T() * S_inv).dot(x);
 }
+
+
 
 /**
  * Classify an observation using naive Bayes.
@@ -70,7 +78,7 @@ std::vector<int> BayesLayer::predict(const Matrix& X_test)
 
 		// compute the Bayes probability for each class
 		for ( int j = 0; j < probs.size(); j++ ) {
-			probs[j] = bayes_prob(X_test(i), _mu[j], _S_inv[j]);
+			probs[j] = prob(X_test(i), _mu[j], _S_inv[j]);
 		}
 
 		// select the class with the highest probability
@@ -80,6 +88,8 @@ std::vector<int> BayesLayer::predict(const Matrix& X_test)
 	return y_pred;
 }
 
+
+
 /**
  * Print information about a Bayes classifier.
  */
@@ -87,5 +97,7 @@ void BayesLayer::print()
 {
 	log(LL_VERBOSE, "Bayes");
 }
+
+
 
 }

@@ -8,7 +8,11 @@
 #include "mlearn/util/logger.h"
 #include "mlearn/util/timer.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Construct a clustering model.
@@ -36,6 +40,8 @@ ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clusterin
 
 	log(LL_VERBOSE, "");
 }
+
+
 
 /**
  * Perform clustering on the input data.
@@ -85,13 +91,15 @@ void ClusteringModel::fit(const std::vector<Matrix>& X)
 	_best_layer = min_c;
 }
 
+
+
 /**
  * Validate a set of predicted labels against the ground truth.
  *
  * @param input
- * @param Y_pred
+ * @param y_pred
  */
-void ClusteringModel::validate(const Dataset& input, const std::vector<int>& Y_pred)
+void ClusteringModel::validate(const Dataset& input, const std::vector<int>& y_pred)
 {
 	// compute purity
 	float purity = 0;
@@ -107,7 +115,7 @@ void ClusteringModel::validate(const Dataset& input, const std::vector<int>& Y_p
 			int num_correct = 0;
 
 			for ( int p = 0; p < n; p++ ) {
-				if ( Y_pred[p] == i && input.entries()[p].label == input.labels()[j] ) {
+				if ( y_pred[p] == i && input.entries()[p].label == input.labels()[j] ) {
 					num_correct++;
 				}
 			}
@@ -126,29 +134,32 @@ void ClusteringModel::validate(const Dataset& input, const std::vector<int>& Y_p
 	_stats.error_rate = 1 - purity;
 }
 
+
+
 /**
  * Print prediction results of a model.
  *
  * @oaram input
- * @param Y_pred
+ * @param y_pred
  */
-void ClusteringModel::print_results(const Dataset& input, const std::vector<int>& Y_pred) const
+void ClusteringModel::print_results(const Dataset& input, const std::vector<int>& y_pred) const
 {
 	log(LL_VERBOSE, "Results");
 
 	for ( size_t i = 0; i < input.entries().size(); i++ ) {
-		int y_pred = Y_pred[i];
 		const DataEntry& entry = input.entries()[i];
 
 		log(LL_VERBOSE, "%-4s (%s) -> %d",
 			entry.name.c_str(),
 			entry.label.c_str(),
-			y_pred);
+			y_pred[i]);
 	}
 
 	log(LL_VERBOSE, "Error rate: %.3f", _stats.error_rate);
 	log(LL_VERBOSE, "");
 }
+
+
 
 /**
  * Print a model's performance and accuracy statistics.
@@ -160,5 +171,7 @@ void ClusteringModel::print_stats() const
 		<< std::setw(12) << std::setprecision(3) << _stats.predict_time
 		<< "\n";
 }
+
+
 
 }

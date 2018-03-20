@@ -12,7 +12,11 @@
 #include "mlearn/data/genomeiterator.h"
 #include "mlearn/util/logger.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Construct a genome iterator from a directory.
@@ -60,6 +64,8 @@ GenomeIterator::GenomeIterator(const std::string& path)
 	load(0);
 }
 
+
+
 /**
  * Load a sample into a column of a data matrix.
  *
@@ -76,6 +82,8 @@ void GenomeIterator::sample(Matrix& X, int i)
 		X.elem(j, i) = (float) _genes[j];
 	}
 }
+
+
 
 /**
  * Load a genome sample from a binary file.
@@ -112,5 +120,7 @@ void GenomeIterator::load(int i)
 
 	file.close();
 }
+
+
 
 }

@@ -8,7 +8,11 @@
 
 #include "mlearn/feature/feature.h"
 
+
+
 namespace ML {
+
+
 
 enum class ICANonl {
 	none,
@@ -17,17 +21,9 @@ enum class ICANonl {
 	gauss
 };
 
+
+
 class ICALayer : public FeatureLayer {
-private:
-	int _n1;
-	int _n2;
-	ICANonl _nonl;
-	int _max_iter;
-	float _eps;
-	Matrix _W;
-
-	Matrix fpica(const Matrix& X, const Matrix& W_z);
-
 public:
 	ICALayer(int n1, int n2, ICANonl nonl, int max_iter, float eps);
 	ICALayer() : ICALayer(-1, -1, ICANonl::pow3, 1000, 0.0001f) {};
@@ -39,7 +35,19 @@ public:
 	void load(std::ifstream& file);
 
 	void print();
+
+private:
+	Matrix fpica(const Matrix& X, const Matrix& W_z);
+
+	int _n1;
+	int _n2;
+	ICANonl _nonl;
+	int _max_iter;
+	float _eps;
+	Matrix _W;
 };
+
+
 
 }
 

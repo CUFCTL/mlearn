@@ -6,7 +6,11 @@
 #include "mlearn/criterion/icl.h"
 #include "mlearn/util/logger.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Compute the Integrated Completed Likelihood of a model:
@@ -25,6 +29,8 @@ float ICLLayer::compute(ClusteringLayer *layer)
 	return logf(n) * k - 2 * L - 2 * E;
 }
 
+
+
 /**
  * Print an ICL layer.
  */
@@ -32,5 +38,7 @@ void ICLLayer::print() const
 {
 	log(LL_VERBOSE, "ICL");
 }
+
+
 
 }

@@ -7,7 +7,11 @@
 #include "mlearn/util/logger.h"
 #include "mlearn/util/timer.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Construct a PCA layer.
@@ -18,6 +22,8 @@ PCALayer::PCALayer(int n1)
 {
 	_n1 = n1;
 }
+
+
 
 /**
  * Compute the principal components of a matrix X, which
@@ -77,6 +83,8 @@ void PCALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 	Timer::pop();
 }
 
+
+
 /**
  * Project a matrix X into the feature space of a PCA layer.
  *
@@ -86,6 +94,8 @@ Matrix PCALayer::project(const Matrix& X)
 {
 	return _W.T() * X;
 }
+
+
 
 /**
  * Save a PCA layer to a file.
@@ -97,6 +107,8 @@ void PCALayer::save(std::ofstream& file)
 	_W.save(file);
 }
 
+
+
 /**
  * Load an PCA layer from a file.
  *
@@ -107,6 +119,8 @@ void PCALayer::load(std::ifstream& file)
 	_W.load(file);
 }
 
+
+
 /**
  * Print information about a PCA layer.
  */
@@ -115,5 +129,7 @@ void PCALayer::print()
 	log(LL_VERBOSE, "PCA");
 	log(LL_VERBOSE, "  %-20s  %10d", "n1", _n1);
 }
+
+
 
 }

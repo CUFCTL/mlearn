@@ -8,7 +8,11 @@
 
 #include "mlearn/criterion/criterion.h"
 
+
+
 namespace ML {
+
+
 
 class ICLLayer : public CriterionLayer {
 public:
@@ -16,6 +20,8 @@ public:
 
 	void print() const;
 };
+
+
 
 }
 

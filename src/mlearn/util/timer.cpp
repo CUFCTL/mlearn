@@ -7,10 +7,16 @@
 #include "mlearn/util/logger.h"
 #include "mlearn/util/timer.h"
 
+
+
 namespace ML {
+
+
 
 std::vector<timer_item_t> Timer::_items;
 int Timer::_level = 0;
+
+
 
 /**
  * Start a new timer item.
@@ -30,6 +36,8 @@ void Timer::push(const std::string& name)
 
 	log(LL_VERBOSE, "%*s%s", 2 * item.level, "", item.name.c_str());
 }
+
+
 
 /**
  * Stop the most recent timer item which is still running.
@@ -55,6 +63,8 @@ float Timer::pop()
 
 	return iter->duration;
 }
+
+
 
 /**
  * Print all timer items.
@@ -87,5 +97,7 @@ void Timer::print()
 	}
 	log(LL_VERBOSE, "");
 }
+
+
 
 }

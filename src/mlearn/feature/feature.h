@@ -9,7 +9,11 @@
 #include <vector>
 #include "mlearn/math/matrix.h"
 
+
+
 namespace ML {
+
+
 
 class FeatureLayer {
 public:
@@ -23,6 +27,8 @@ public:
 
 	virtual void print() = 0;
 };
+
+
 
 }
 

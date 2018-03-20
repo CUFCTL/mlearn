@@ -9,7 +9,11 @@
 #include <vector>
 #include "mlearn/clustering/clustering.h"
 
+
+
 namespace ML {
+
+
 
 class CriterionLayer {
 public:
@@ -19,6 +23,8 @@ public:
 
 	virtual void print() const = 0;
 };
+
+
 
 }
 

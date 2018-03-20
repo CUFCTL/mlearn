@@ -9,18 +9,13 @@
 #include <memory>
 #include "mlearn/data/dataiterator.h"
 
+
+
 namespace ML {
 
+
+
 class GenomeIterator : public DataIterator {
-private:
-	std::string _path;
-	std::vector<DataEntry> _entries;
-
-	int _num_genes;
-	std::unique_ptr<float[]> _genes;
-
-	void load(int i);
-
 public:
 	GenomeIterator(const std::string& path);
 	~GenomeIterator() {};
@@ -30,7 +25,18 @@ public:
 	const std::vector<DataEntry>& entries() const { return _entries; }
 
 	void sample(Matrix& X, int i);
+
+private:
+	void load(int i);
+
+	std::string _path;
+	std::vector<DataEntry> _entries;
+
+	int _num_genes;
+	std::unique_ptr<float[]> _genes;
 };
+
+
 
 }
 

@@ -8,7 +8,11 @@
 #include "mlearn/data/dataset.h"
 #include "mlearn/util/logger.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Read an integer from a binary file.
@@ -22,6 +26,8 @@ int read_int(std::ifstream& file)
 
 	return n;
 }
+
+
 
 /**
  * Read a string from a binary file.
@@ -40,6 +46,8 @@ std::string read_string(std::ifstream& file)
 	return str;
 }
 
+
+
 /**
  * Write an integer to a binary file.
  *
@@ -49,6 +57,8 @@ void write_int(int n, std::ofstream& file)
 {
 	file.write(reinterpret_cast<char *>(&n), sizeof(int));
 }
+
+
 
 /**
  * Write a string to a file.
@@ -63,6 +73,8 @@ void write_string(const std::string& str, std::ofstream& file)
 	write_int(num, file);
 	file.write(str.c_str(), num);
 }
+
+
 
 /**
  * Construct a dataset from a data iterator.
@@ -94,6 +106,8 @@ Dataset::Dataset(DataIterator *iter)
 	}
 }
 
+
+
 /**
  * Load the data matrix X for a dataset, where each column
  * in X is a sample. Each sample must have the same size.
@@ -112,6 +126,8 @@ Matrix Dataset::load_data() const
 
 	return X;
 }
+
+
 
 /**
  * Save a dataset to a file.
@@ -140,6 +156,8 @@ void Dataset::save(std::ofstream& file)
 		write_string(entry.name.c_str(), file);
 	}
 }
+
+
 
 /**
  * Load a dataset from a file.
@@ -176,6 +194,8 @@ void Dataset::load(std::ifstream& file)
 	}
 }
 
+
+
 /**
  * Print information about a dataset.
  */
@@ -201,5 +221,7 @@ void Dataset::print() const
 	}
 	log(LL_VERBOSE, "");
 }
+
+
 
 }

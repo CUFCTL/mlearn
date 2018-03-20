@@ -2,9 +2,6 @@
  * @file math/matrix.h
  *
  * Interface definitions for the matrix type.
- *
- * NOTE: Unlike C, which stores static arrays in row-major
- * order, this library stores matrices in column-major order.
  */
 #ifndef MATRIX_H
 #define MATRIX_H
@@ -12,17 +9,29 @@
 #include <fstream>
 #include <iostream>
 
+
+
 namespace ML {
 
+
+
 typedef float (*elem_func_t)(float);
+
+
 
 extern bool GPU;
 extern int GPU_DEVICE;
 
+
+
 void gpu_init();
 void gpu_finalize();
 
+
+
 #define ELEM(M, i, j) (M)._data_cpu[(j) * (M)._rows + (i)]
+
+
 
 class Matrix {
 private:
@@ -110,6 +119,8 @@ public:
 	friend void swap(Matrix& A, Matrix& B);
 };
 
+
+
 inline Matrix operator+(Matrix A, const Matrix& B) { return (A += B); }
 inline Matrix operator-(Matrix A, const Matrix& B) { return (A -= B); }
 inline Matrix operator*(const Matrix& A, const Matrix& B) { return A.product(B); }
@@ -117,6 +128,8 @@ inline Matrix operator*(Matrix A, float c) { return (A *= c); }
 inline Matrix operator*(float c, Matrix A) { return (A *= c); }
 inline Matrix operator/(Matrix A, float c) { return (A /= c); }
 inline std::ostream& operator<<(std::ostream& os, const Matrix& M) { M.print(os); return os; }
+
+
 
 }
 

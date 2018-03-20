@@ -6,7 +6,11 @@
 #include "mlearn/feature/identity.h"
 #include "mlearn/util/logger.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Project an input matrix into the feature space
@@ -19,6 +23,8 @@ Matrix IdentityLayer::project(const Matrix& X)
 	return X;
 }
 
+
+
 /**
  * Print information about an identity layer.
  */
@@ -26,5 +32,7 @@ void IdentityLayer::print()
 {
 	log(LL_VERBOSE, "Identity");
 }
+
+
 
 }

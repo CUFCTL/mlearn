@@ -7,17 +7,25 @@
 #include "mlearn/classifier/knn.h"
 #include "mlearn/util/logger.h"
 
+
+
 namespace ML {
+
+
 
 typedef struct {
 	int label;
 	float dist;
 } neighbor_t;
 
+
+
 typedef struct {
 	int id;
 	int count;
 } item_count_t;
+
+
 
 /**
  * Comparison function for sorting neighbors.
@@ -29,6 +37,8 @@ bool kNN_compare(const neighbor_t& a, const neighbor_t& b)
 {
 	return (a.dist < b.dist);
 }
+
+
 
 /**
  * Determine the mode of a list of neighbors.
@@ -72,6 +82,8 @@ int kNN_mode(const std::vector<neighbor_t>& items)
 	return max.id;
 }
 
+
+
 /**
  * Construct a kNN classifier.
  *
@@ -83,6 +95,8 @@ KNNLayer::KNNLayer(int k, dist_func_t dist)
 	_k = k;
 	_dist = dist;
 }
+
+
 
 /**
  * Compute intermediate data for classification.
@@ -96,6 +110,8 @@ void KNNLayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 	_X = X;
 	_y = y;
 }
+
+
 
 /**
  * Classify an observation using k-nearest neighbors.
@@ -131,6 +147,8 @@ std::vector<int> KNNLayer::predict(const Matrix& X_test)
 	return y_pred;
 }
 
+
+
 /**
  * Print information about a kNN classifier.
  */
@@ -152,5 +170,7 @@ void KNNLayer::print()
 	log(LL_VERBOSE, "  %-20s  %10d", "k", _k);
 	log(LL_VERBOSE, "  %-20s  %10s", "dist", dist_name);
 }
+
+
 
 }

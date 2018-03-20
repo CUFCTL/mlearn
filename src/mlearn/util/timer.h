@@ -10,7 +10,11 @@
 #include <string>
 #include <vector>
 
+
+
 namespace ML {
+
+
 
 typedef struct {
 	std::string name;
@@ -20,16 +24,20 @@ typedef struct {
 	float duration;
 } timer_item_t;
 
-class Timer {
-private:
-	static std::vector<timer_item_t> _items;
-	static int _level;
 
+
+class Timer {
 public:
 	static void push(const std::string& name);
 	static float pop();
 	static void print();
+
+private:
+	static std::vector<timer_item_t> _items;
+	static int _level;
 };
+
+
 
 }
 

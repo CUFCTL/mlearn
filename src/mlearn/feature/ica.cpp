@@ -9,9 +9,15 @@
 #include "mlearn/util/logger.h"
 #include "mlearn/util/timer.h"
 
+
+
 namespace ML {
 
+
+
 typedef Matrix (*ica_nonl_func_t)(const Matrix& , const Matrix& );
+
+
 
 /**
  * Construct an ICA layer.
@@ -30,6 +36,8 @@ ICALayer::ICALayer(int n1, int n2, ICANonl nonl, int max_iter, float eps)
 	_max_iter = max_iter;
 	_eps = eps;
 }
+
+
 
 /**
  * Compute the independent components of a matrix X, which
@@ -95,6 +103,8 @@ void ICALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 	Timer::pop();
 }
 
+
+
 /**
  * Project a matrix X into the feature space of an ICA layer.
  *
@@ -104,6 +114,8 @@ Matrix ICALayer::project(const Matrix& X)
 {
 	return _W.T() * X;
 }
+
+
 
 /**
  * Save an ICA layer to a file.
@@ -115,6 +127,8 @@ void ICALayer::save(std::ofstream& file)
 	_W.save(file);
 }
 
+
+
 /**
  * Load an ICA layer from a file.
  *
@@ -124,6 +138,8 @@ void ICALayer::load(std::ifstream& file)
 {
 	_W.load(file);
 }
+
+
 
 /**
  * Print information about an ICA layer.
@@ -150,6 +166,8 @@ void ICALayer::print()
 	log(LL_VERBOSE, "  %-20s  %10f", "eps", _eps);
 }
 
+
+
 /**
  * Compute the second power (square) of a number.
  *
@@ -160,6 +178,8 @@ float pow2f(float x)
     return powf(x, 2);
 }
 
+
+
 /**
  * Compute the third power (cube) of a number.
  *
@@ -169,6 +189,8 @@ float pow3f(float x)
 {
     return powf(x, 3);
 }
+
+
 
 /**
  * Compute the parameter update for fpica
@@ -196,6 +218,8 @@ Matrix fpica_pow3 (const Matrix& w0, const Matrix& X)
 	return w;
 }
 
+
+
 /**
  * Compute the hyperbolic secant of a number.
  *
@@ -205,6 +229,8 @@ float sechf(float x)
 {
     return 1.0f / coshf(x);
 }
+
+
 
 /**
  * Compute the parameter update for fpica
@@ -236,6 +262,8 @@ Matrix fpica_tanh (const Matrix& w0, const Matrix& X)
 	return w;
 }
 
+
+
 /**
  * Gaussian nonlinearity function.
  *
@@ -246,6 +274,8 @@ float gauss (float x)
 	return x * expf(-(x * x) / 2.0f);
 }
 
+
+
 /**
  * Derivative of the Gaussian nonlinearity function.
  *
@@ -255,6 +285,8 @@ float dgauss (float x)
 {
 	return (1 - x * x) * expf(-(x * x) / 2.0f);
 }
+
+
 
 /**
  * Compute the parameter update for fpica
@@ -284,6 +316,8 @@ Matrix fpica_gauss (const Matrix& w0, const Matrix& X)
 
 	return w;
 }
+
+
 
 /**
  * Compute the mixing matrix W_mix for an input matrix X using
@@ -367,5 +401,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 
 	return W_mix;
 }
+
+
 
 }

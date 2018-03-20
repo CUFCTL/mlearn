@@ -7,7 +7,11 @@
 #include "mlearn/clustering/parameterset.h"
 #include "mlearn/math/matrix_utils.h"
 
+
+
 namespace ML {
+
+
 
 /**
  * Construct a parameter set.
@@ -19,6 +23,8 @@ ParameterSet::ParameterSet(int k)
 	_k = k;
 }
 
+
+
 /**
  * Move-construct a parameter set.
  *
@@ -29,6 +35,8 @@ ParameterSet::ParameterSet(ParameterSet&& theta)
 {
 	swap(*this, theta);
 }
+
+
 
 /**
  * Print a parameter set.
@@ -49,6 +57,8 @@ void ParameterSet::print() const
 
 	std::cout << "\n";
 }
+
+
 
 /**
  * Initialize a parameter set by selecting k means randomly.
@@ -90,6 +100,8 @@ void ParameterSet::initialize(const std::vector<Matrix>& X)
 	pdf_all();
 }
 
+
+
 /**
  * Compute the mean-subtracted data of X for each mu.
  *
@@ -105,6 +117,8 @@ void ParameterSet::subtract_means(const std::vector<Matrix>& X)
 		}
 	}
 }
+
+
 
 /**
  * Compute h_ij for all i, j:
@@ -127,6 +141,8 @@ void ParameterSet::pdf_all()
 		}
 	}
 }
+
+
 
 /**
  * Compute the log-likelihood of a parameter set:
@@ -151,6 +167,8 @@ float ParameterSet::log_likelihood() const
 	return L;
 }
 
+
+
 /**
  * Swap function for ParameterSet.
  *
@@ -167,5 +185,7 @@ void swap(ParameterSet& lhs, ParameterSet& rhs)
 	std::swap(lhs._Xsubs, rhs._Xsubs);
 	std::swap(lhs._h, rhs._h);
 }
+
+
 
 }

@@ -9,19 +9,13 @@
 #include <vector>
 #include "mlearn/math/matrix.h"
 
+
+
 namespace ML {
 
+
+
 class ParameterSet {
-private:
-	int _k;
-	std::vector<float> _n;
-	std::vector<float> _p;
-	std::vector<Matrix> _mu;
-	std::vector<Matrix> _S;
-
-	std::vector<std::vector<Matrix>> _Xsubs;
-	Matrix _h;
-
 public:
 	// constructor/destructor functions
 	ParameterSet(int k);
@@ -58,7 +52,19 @@ public:
 
 	// friend functions
 	friend void swap(ParameterSet& lhs, ParameterSet& rhs);
+
+private:
+	int _k;
+	std::vector<float> _n;
+	std::vector<float> _p;
+	std::vector<Matrix> _mu;
+	std::vector<Matrix> _S;
+
+	std::vector<std::vector<Matrix>> _Xsubs;
+	Matrix _h;
 };
+
+
 
 }
 

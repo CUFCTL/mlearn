@@ -17,12 +17,20 @@
 #include "mlearn/math/random.h"
 #include "mlearn/util/logger.h"
 
+
+
 namespace ML {
+
+
 
 bool GPU = false;
 int GPU_DEVICE = 0;
 
+
+
 const float EPSILON = 1e-16;
+
+
 
 /**
  * Throw an exception if a condition is false.
@@ -37,6 +45,8 @@ inline void throw_on_fail(bool condition, const std::string& errmsg="")
 	}
 }
 
+
+
 /**
  * Determine whether a Matrix is a vector.
  *
@@ -46,6 +56,8 @@ inline bool is_vector(const Matrix& v)
 {
 	return (v.rows() == 1 || v.cols() == 1);
 }
+
+
 
 /**
  * Determine whether a Matrix is square.
@@ -57,6 +69,8 @@ inline bool is_square(const Matrix& M)
 	return (M.rows() == M.cols());
 }
 
+
+
 /**
  * Determine the length of a vector.
  *
@@ -66,6 +80,8 @@ inline int length(const Matrix& v)
 {
 	return (v.rows() == 1) ? v.cols() : v.rows();
 }
+
+
 
 /**
  * Create a connection to the GPU.
@@ -80,6 +96,8 @@ void gpu_init()
 	throw_on_fail(stat == MAGMA_SUCCESS, "Failed to initialize GPU");
 }
 
+
+
 /**
  * Close the connection to the GPU.
  */
@@ -92,6 +110,8 @@ void gpu_finalize()
 	magma_int_t stat = magma_finalize();
 	throw_on_fail(stat == MAGMA_SUCCESS, "Failed to finalize GPU");
 }
+
+
 
 /**
  * Allocate memory on the GPU.
@@ -112,6 +132,8 @@ void * gpu_malloc(size_t size)
 	return ptr;
 }
 
+
+
 /**
  * Free memory on the GPU.
  *
@@ -127,6 +149,8 @@ void gpu_free(void *ptr)
 	throw_on_fail(stat == MAGMA_SUCCESS, "Failed to release GPU memory");
 }
 
+
+
 /**
  * Allocate a matrix on the GPU.
  *
@@ -137,6 +161,8 @@ float * gpu_malloc_matrix(int rows, int cols)
 {
 	return (float *)gpu_malloc(rows * cols * sizeof(float));
 }
+
+
 
 /**
  * Get a MAGMA queue.
@@ -153,6 +179,8 @@ magma_queue_t magma_queue()
 
 	return queue;
 }
+
+
 
 /**
  * Construct a matrix.
@@ -181,6 +209,8 @@ Matrix::Matrix(int rows, int cols)
 	_T->_T = nullptr;
 }
 
+
+
 /**
  * Construct a matrix with arbitrary data.
  *
@@ -199,6 +229,8 @@ Matrix::Matrix(int rows, int cols, float *data)
 
 	gpu_write();
 }
+
+
 
 /**
  * Copy a range of columns in a matrix.
@@ -221,6 +253,8 @@ Matrix::Matrix(const Matrix& M, int i, int j)
 	gpu_write();
 }
 
+
+
 /**
  * Copy-construct a matrix.
  *
@@ -230,6 +264,8 @@ Matrix::Matrix(const Matrix& M)
 	: Matrix(M, 0, M._cols)
 {
 }
+
+
 
 /**
  * Move-construct a matrix.
@@ -241,6 +277,8 @@ Matrix::Matrix(Matrix&& M)
 {
 	swap(*this, M);
 }
+
+
 
 /**
  * Construct an empty matrix.
@@ -254,6 +292,8 @@ Matrix::Matrix()
 	_transposed = false;
 	_T = nullptr;
 }
+
+
 
 /**
  * Destruct a matrix.
@@ -269,6 +309,8 @@ Matrix::~Matrix()
 
 	delete _T;
 }
+
+
 
 /**
  * Initialize a matrix to identity.
@@ -290,6 +332,8 @@ void Matrix::init_identity()
 	M.gpu_write();
 }
 
+
+
 /**
  * Initialize a matrix to all ones.
  */
@@ -309,6 +353,8 @@ void Matrix::init_ones()
 
 	M.gpu_write();
 }
+
+
 
 /**
  * Initialize a matrix to normally-distributed random numbers.
@@ -330,6 +376,8 @@ void Matrix::init_random()
 	M.gpu_write();
 }
 
+
+
 /**
  * Initialize a matrix to all zeros.
  */
@@ -350,6 +398,8 @@ void Matrix::init_zeros()
 	M.gpu_write();
 }
 
+
+
 /**
  * Construct an identity matrix.
  *
@@ -362,6 +412,8 @@ Matrix Matrix::identity(int rows)
 
 	return M;
 }
+
+
 
 /**
  * Construct a matrix of all ones.
@@ -377,6 +429,8 @@ Matrix Matrix::ones(int rows, int cols)
 	return M;
 }
 
+
+
 /**
  * Construct a matrix of normally-distributed random numbers.
  *
@@ -391,6 +445,8 @@ Matrix Matrix::random(int rows, int cols)
 	return M;
 }
 
+
+
 /**
  * Construct a zero matrix.
  *
@@ -404,6 +460,8 @@ Matrix Matrix::zeros(int rows, int cols)
 
 	return M;
 }
+
+
 
 /**
  * Print a matrix.
@@ -422,6 +480,8 @@ void Matrix::print(std::ostream& os) const
 	}
 }
 
+
+
 /**
  * Save a matrix to a file.
  *
@@ -433,6 +493,8 @@ void Matrix::save(std::ofstream& file) const
 	file.write(reinterpret_cast<const char *>(&_cols), sizeof(int));
 	file.write(reinterpret_cast<const char *>(_data_cpu), _rows * _cols * sizeof(float));
 }
+
+
 
 /**
  * Load a matrix from a file.
@@ -454,6 +516,8 @@ void Matrix::load(std::ifstream& file)
 	file.read(reinterpret_cast<char *>(_data_cpu), _rows * _cols * sizeof(float));
 }
 
+
+
 /**
  * Copy matrix data from device memory to host memory.
  */
@@ -471,6 +535,8 @@ void Matrix::gpu_read()
 		queue);
 }
 
+
+
 /**
  * Copy matrix data from host memory to device memory.
  */
@@ -487,6 +553,8 @@ void Matrix::gpu_write()
 		_data_gpu, _rows,
 		queue);
 }
+
+
 
 /**
  * Compute the determinant of a matrix using LU decomposition:
@@ -544,6 +612,8 @@ float Matrix::determinant() const
 	return det;
 }
 
+
+
 /**
  * Compute the diagonal matrix of a vector.
  */
@@ -567,6 +637,8 @@ Matrix Matrix::diagonalize() const
 
 	return D;
 }
+
+
 
 /**
  * Compute the eigenvalues and eigenvectors of a symmetric matrix.
@@ -653,6 +725,8 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 	D = D(i, D._cols).diagonalize();
 }
 
+
+
 /**
  * Compute the inverse of a square matrix using LU decomposition.
  */
@@ -714,6 +788,8 @@ Matrix Matrix::inverse() const
 	return M_inv;
 }
 
+
+
 /**
  * Compute the mean column of a matrix.
  */
@@ -737,6 +813,8 @@ Matrix Matrix::mean_column() const
 
 	return mu;
 }
+
+
 
 /**
  * Compute the mean row of a matrix.
@@ -762,6 +840,8 @@ Matrix Matrix::mean_row() const
 	return mu;
 }
 
+
+
 /**
  * Compute the product of two matrices.
  *
@@ -779,6 +859,8 @@ Matrix Matrix::product(const Matrix& B) const
 
 	return C;
 }
+
+
 
 /**
  * Compute the sum of the elements of a vector.
@@ -801,6 +883,8 @@ float Matrix::sum() const
 
 	return sum;
 }
+
+
 
 /**
  * Compute the economy-size singular value decomposition
@@ -869,6 +953,8 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 	V = VT.transpose();
 }
 
+
+
 /**
  * Compute the transpose of a matrix.
  */
@@ -892,6 +978,8 @@ Matrix Matrix::transpose() const
 	return MT;
 }
 
+
+
 /**
  * Add a matrix to another matrix.
  *
@@ -903,6 +991,8 @@ void Matrix::add(const Matrix& B)
 
 	A.axpy(1.0f, B);
 }
+
+
 
 /**
  * Assign a column of a matrix.
@@ -927,6 +1017,8 @@ void Matrix::assign_column(int i, const Matrix& B, int j)
 
 	A.gpu_write();
 }
+
+
 
 /**
  * Assign a row of a matrix.
@@ -954,6 +1046,8 @@ void Matrix::assign_row(int i, const Matrix& B, int j)
 	A.gpu_write();
 }
 
+
+
 /**
  * Apply a function to each element of a matrix.
  *
@@ -975,6 +1069,8 @@ void Matrix::elem_apply(elem_func_t f)
 	M.gpu_write();
 }
 
+
+
 /**
  * Subtract a matrix from another matrix.
  *
@@ -986,6 +1082,8 @@ void Matrix::subtract(const Matrix& B)
 
 	A.axpy(-1.0f, B);
 }
+
+
 
 /**
  * Subtract a column vector from each column in a matrix.
@@ -1016,6 +1114,8 @@ void Matrix::subtract_columns(const Matrix& a)
 	M.gpu_write();
 }
 
+
+
 /**
  * Subtract a row vector from each row in a matrix.
  *
@@ -1044,6 +1144,8 @@ void Matrix::subtract_rows(const Matrix& a)
 	}
 	M.gpu_write();
 }
+
+
 
 /**
  * Wrapper function for BLAS axpy:
@@ -1079,6 +1181,8 @@ void Matrix::axpy(float alpha, const Matrix& A)
 	}
 }
 
+
+
 /**
  * Wrapper function for BLAS dot:
  *
@@ -1112,6 +1216,8 @@ float Matrix::dot(const Matrix& y) const
 
 	return dot;
 }
+
+
 
 /**
  * Wrapper function for BLAS gemm:
@@ -1164,6 +1270,8 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 	}
 }
 
+
+
 /**
  * Wrapper function for BLAS nrm2:
  *
@@ -1194,6 +1302,8 @@ float Matrix::nrm2() const
 	return nrm2;
 }
 
+
+
 /**
  * Wrapper function for BLAS scal:
  *
@@ -1222,6 +1332,8 @@ void Matrix::scal(float alpha)
 		cblas_sscal(n, alpha, M._data_cpu, incX);
 	}
 }
+
+
 
 /**
  * Wrapper function for BLAS syr:
@@ -1260,6 +1372,8 @@ void Matrix::syr(float alpha, const Matrix& x)
 			A._data_cpu, A._rows);
 	}
 }
+
+
 
 /**
  * Wrapper function for BLAS syrk:
@@ -1308,6 +1422,8 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 	}
 }
 
+
+
 /**
  * Swap function for Matrix.
  *
@@ -1323,5 +1439,7 @@ void swap(Matrix& A, Matrix& B)
 	std::swap(A._transposed, B._transposed);
 	std::swap(A._T, B._T);
 }
+
+
 
 }

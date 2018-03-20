@@ -9,15 +9,13 @@
 #include <memory>
 #include "mlearn/data/dataiterator.h"
 
+
+
 namespace ML {
 
+
+
 class CSVIterator : public DataIterator {
-private:
-	std::vector<DataEntry> _entries;
-
-	int _size;
-	std::unique_ptr<float[]> _data;
-
 public:
 	CSVIterator(const std::string& filename);
 	~CSVIterator() {};
@@ -27,7 +25,15 @@ public:
 	const std::vector<DataEntry>& entries() const { return _entries; }
 
 	void sample(Matrix& X, int i);
+
+private:
+	std::vector<DataEntry> _entries;
+
+	int _size;
+	std::unique_ptr<float[]> _data;
 };
+
+
 
 }
 

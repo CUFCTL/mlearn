@@ -10,14 +10,22 @@
 #include <vector>
 #include "mlearn/math/matrix.h"
 
+
+
 namespace ML {
 
+
+
 typedef std::string DataLabel;
+
+
 
 typedef struct {
 	DataLabel label;
 	std::string name;
 } DataEntry;
+
+
 
 class DataIterator {
 public:
@@ -29,6 +37,8 @@ public:
 
 	virtual void sample(Matrix& X, int i) = 0;
 };
+
+
 
 }
 

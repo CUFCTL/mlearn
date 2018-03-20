@@ -11,13 +11,16 @@
 
 namespace ML {
 
+
+
 const int INIT_SMALL_EM = false;
 const int INIT_NUM_ITER = 5;
 const float INIT_EPSILON = 1e-2;
-
 const int NUM_INIT = 10;
 const int NUM_ITER = 200;
 const float EPSILON = 1e-3;
+
+
 
 /**
  * Construct a GMM layer.
@@ -28,6 +31,8 @@ GMMLayer::GMMLayer(int k)
 {
 	_k = k;
 }
+
+
 
 /**
  * Initialize a parameter set by selecting means randomly
@@ -83,6 +88,8 @@ ParameterSet GMMLayer::initialize(const std::vector<Matrix>& X, int num_init, bo
 	return theta;
 }
 
+
+
 /**
  * Compute the conditional probability that z_ik = 1
  * for all i,j given theta:
@@ -111,6 +118,8 @@ void GMMLayer::E_step(const std::vector<Matrix>& X, const ParameterSet& theta, M
 		}
 	}
 }
+
+
 
 /**
  * Compute the maximum-likelihood estimate of theta
@@ -168,6 +177,8 @@ void GMMLayer::M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSe
 	theta.pdf_all();
 }
 
+
+
 /**
  * Compute labels for a dataset from the conditional
  * probability matrix.
@@ -199,6 +210,8 @@ std::vector<int> compute_labels(const Matrix& c)
 	return y;
 }
 
+
+
 /**
  * Compute the entropy of a model:
  *
@@ -218,6 +231,8 @@ float compute_entropy(const Matrix& c, const std::vector<int>& y)
 
 	return E;
 }
+
+
 
 /**
  * Partition a matrix X of observations into clusters
@@ -276,6 +291,8 @@ int GMMLayer::fit(const std::vector<Matrix>& X)
 	return status;
 }
 
+
+
 /**
  * Print a GMM layer.
  */
@@ -284,5 +301,7 @@ void GMMLayer::print() const
 	log(LL_VERBOSE, "Gaussian mixture model");
 	log(LL_VERBOSE, "  %-20s  %10d", "k", _k);
 }
+
+
 
 }
