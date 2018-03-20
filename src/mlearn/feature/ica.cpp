@@ -144,7 +144,7 @@ void ICALayer::load(std::ifstream& file)
 /**
  * Print information about an ICA layer.
  */
-void ICALayer::print()
+void ICALayer::print() const
 {
 	const char *nonl_name = "";
 

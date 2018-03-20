@@ -124,7 +124,7 @@ void PCALayer::load(std::ifstream& file)
 /**
  * Print information about a PCA layer.
  */
-void PCALayer::print()
+void PCALayer::print() const
 {
 	log(LL_VERBOSE, "PCA");
 	log(LL_VERBOSE, "  %-20s  %10d", "n1", _n1);

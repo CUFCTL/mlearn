@@ -464,30 +464,11 @@ Matrix Matrix::zeros(int rows, int cols)
 
 
 /**
- * Print a matrix.
- *
- * @param os
- */
-void Matrix::print(std::ostream& os) const
-{
-	os << "[" << _rows << ", " << _cols << "]\n";
-
-	for ( int i = 0; i < _rows; i++ ) {
-		for ( int j = 0; j < _cols; j++ ) {
-			os << std::right << std::setw(10) << std::setprecision(4) << elem(i, j);
-		}
-		os << "\n";
-	}
-}
-
-
-
-/**
  * Save a matrix to a file.
  *
  * @param file
  */
-void Matrix::save(std::ofstream& file) const
+void Matrix::save(std::ofstream& file)
 {
 	file.write(reinterpret_cast<const char *>(&_rows), sizeof(int));
 	file.write(reinterpret_cast<const char *>(&_cols), sizeof(int));
@@ -514,6 +495,23 @@ void Matrix::load(std::ifstream& file)
 
 	*this = Matrix(rows, cols);
 	file.read(reinterpret_cast<char *>(_data_cpu), _rows * _cols * sizeof(float));
+}
+
+
+
+/**
+ * Print a matrix.
+ */
+void Matrix::print() const
+{
+	std::cout << "[" << _rows << ", " << _cols << "]\n";
+
+	for ( int i = 0; i < _rows; i++ ) {
+		for ( int j = 0; j < _cols; j++ ) {
+			std::cout << std::right << std::setw(10) << std::setprecision(4) << elem(i, j);
+		}
+		std::cout << "\n";
+	}
 }
 
 

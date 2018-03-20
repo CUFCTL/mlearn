@@ -33,8 +33,7 @@ public:
 
 	void save(std::ofstream& file);
 	void load(std::ifstream& file);
-
-	void print();
+	void print() const;
 
 private:
 	Matrix fpica(const Matrix& X, const Matrix& W_z);

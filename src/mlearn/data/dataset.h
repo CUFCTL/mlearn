@@ -11,6 +11,7 @@
 #include <vector>
 #include "mlearn/data/dataiterator.h"
 #include "mlearn/math/matrix.h"
+#include "mlearn/util/iodevice.h"
 
 
 
@@ -18,7 +19,7 @@ namespace ML {
 
 
 
-class Dataset {
+class Dataset : public IODevice {
 public:
 	Dataset(DataIterator *iter);
 	Dataset() {};
@@ -32,7 +33,6 @@ public:
 
 	void save(std::ofstream& file);
 	void load(std::ifstream& file);
-
 	void print() const;
 
 private:

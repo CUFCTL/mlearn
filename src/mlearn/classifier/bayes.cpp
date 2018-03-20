@@ -93,7 +93,7 @@ std::vector<int> BayesLayer::predict(const Matrix& X_test)
 /**
  * Print information about a Bayes classifier.
  */
-void BayesLayer::print()
+void BayesLayer::print() const
 {
 	log(LL_VERBOSE, "Bayes");
 }

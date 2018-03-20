@@ -17,7 +17,6 @@ namespace ML {
 class ICLLayer : public CriterionLayer {
 public:
 	float compute(ClusteringLayer *layer);
-
 	void print() const;
 };
 

@@ -20,7 +20,7 @@ public:
 
 	void compute(const Matrix& X, const std::vector<int>& y, int c);
 	std::vector<int> predict(const Matrix& X_test);
-	void print();
+	void print() const;
 
 private:
 	float prob(Matrix x, const Matrix& mu, const Matrix& S_inv);

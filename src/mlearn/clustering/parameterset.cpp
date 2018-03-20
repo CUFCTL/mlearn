@@ -49,10 +49,10 @@ void ParameterSet::print() const
 		std::cout << "p_" << i + 1 << " = " << _p[i] << "\n";
 
 		std::cout << "mu_" << i + 1 << " =\n";
-		_mu[i].print(std::cout);
+		_mu[i].print();
 
 		std::cout << "S_" << i + 1 << " =\n";
-		_S[i].print(std::cout);
+		_S[i].print();
 	}
 
 	std::cout << "\n";

@@ -22,7 +22,7 @@ public:
 
 	void compute(const Matrix& X, const std::vector<int>& y, int c);
 	std::vector<int> predict(const Matrix& X_test);
-	void print();
+	void print() const;
 
 private:
 	int _k;

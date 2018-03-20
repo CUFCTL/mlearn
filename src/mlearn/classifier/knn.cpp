@@ -152,7 +152,7 @@ std::vector<int> KNNLayer::predict(const Matrix& X_test)
 /**
  * Print information about a kNN classifier.
  */
-void KNNLayer::print()
+void KNNLayer::print() const
 {
 	const char *dist_name = "";
 

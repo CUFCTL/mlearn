@@ -28,7 +28,7 @@ Matrix IdentityLayer::project(const Matrix& X)
 /**
  * Print information about an identity layer.
  */
-void IdentityLayer::print()
+void IdentityLayer::print() const
 {
 	log(LL_VERBOSE, "Identity");
 }

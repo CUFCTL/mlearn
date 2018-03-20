@@ -133,7 +133,7 @@ void LDALayer::load(std::ifstream& file)
 /**
  * Print information about an LDA layer.
  */
-void LDALayer::print()
+void LDALayer::print() const
 {
 	log(LL_VERBOSE, "LDA");
 	log(LL_VERBOSE, "  %-20s  %10d", "n1", _n1);

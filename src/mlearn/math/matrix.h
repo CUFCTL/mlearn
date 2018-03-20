@@ -6,8 +6,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <fstream>
-#include <iostream>
+#include "mlearn/util/iodevice.h"
 
 
 
@@ -33,7 +32,7 @@ void gpu_finalize();
 
 
 
-class Matrix {
+class Matrix : public IODevice {
 private:
 	int _rows;
 	int _cols;
@@ -63,10 +62,9 @@ public:
 	static Matrix zeros(int rows, int cols);
 
 	// I/O functions
-	void print(std::ostream& os) const;
-
-	void save(std::ofstream& file) const;
+	void save(std::ofstream& file);
 	void load(std::ifstream& file);
+	void print() const;
 
 	void gpu_read();
 	void gpu_write();
@@ -127,7 +125,6 @@ inline Matrix operator*(const Matrix& A, const Matrix& B) { return A.product(B);
 inline Matrix operator*(Matrix A, float c) { return (A *= c); }
 inline Matrix operator*(float c, Matrix A) { return (A *= c); }
 inline Matrix operator/(Matrix A, float c) { return (A /= c); }
-inline std::ostream& operator<<(std::ostream& os, const Matrix& M) { M.print(os); return os; }
 
 
 

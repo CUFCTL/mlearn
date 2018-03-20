@@ -21,8 +21,7 @@ public:
 
 	void save(std::ofstream& file) {};
 	void load(std::ifstream& file) {};
-
-	void print();
+	void print() const;
 };
 
 
