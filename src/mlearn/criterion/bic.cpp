@@ -25,7 +25,7 @@ float BICLayer::compute(ClusteringLayer *layer)
 	int n = layer->num_samples();
 	float L = layer->log_likelihood();
 
-	return logf(n) * k - 2 * L;
+	return log(n) * k - 2 * L;
 }
 
 

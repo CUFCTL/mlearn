@@ -69,7 +69,7 @@ void ICALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 	pca.compute(mixedsig, y, c);
 
 	Matrix D = pca.D();
-	D.elem_apply(sqrtf);
+	D.elem_apply(sqrt);
 	D = D.inverse();
 
 	Matrix W_z = D * pca.W().T();
@@ -269,7 +269,7 @@ Matrix fpica_tanh(const Matrix& w0, const Matrix& X)
  */
 float gauss(float x)
 {
-	return x * expf(-(x * x) / 2.0f);
+	return x * exp(-(x * x) / 2.0f);
 }
 
 
@@ -281,7 +281,7 @@ float gauss(float x)
  */
 float gauss_deriv(float x)
 {
-	return (1 - x * x) * expf(-(x * x) / 2.0f);
+	return (1 - x * x) * exp(-(x * x) / 2.0f);
 }
 
 

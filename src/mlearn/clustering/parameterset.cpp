@@ -130,14 +130,14 @@ void ParameterSet::pdf_all()
 	int n = _Xsubs[0].size();
 	int d = _Xsubs[0][0].rows();
 
-	float temp1 = powf(2 * M_PI, d / 2.0f);
+	float temp1 = pow(2 * M_PI, d / 2.0f);
 
 	for ( int j = 0; j < _k; j++ ) {
-		float temp2 = powf(_S[j].determinant(), -0.5f);
+		float temp2 = pow(_S[j].determinant(), -0.5f);
 		Matrix S_inv = _S[j].inverse();
 
 		for ( int i = 0; i < n; i++ ) {
-			_h.elem(i, j) = temp1 * temp2 * expf(-0.5f * (_Xsubs[j][i].T() * S_inv).dot(_Xsubs[j][i]));
+			_h.elem(i, j) = temp1 * temp2 * exp(-0.5f * (_Xsubs[j][i].T() * S_inv).dot(_Xsubs[j][i]));
 		}
 	}
 }
@@ -161,7 +161,7 @@ float ParameterSet::log_likelihood() const
 			sum += _p[j] * _h.elem(i, j);
 		}
 
-		L += logf(sum);
+		L += log(sum);
 	}
 
 	return L;

@@ -26,7 +26,7 @@ float ICLLayer::compute(ClusteringLayer *layer)
 	float L = layer->log_likelihood();
 	float E = layer->entropy();
 
-	return logf(n) * k - 2 * L - 2 * E;
+	return log(n) * k - 2 * L - 2 * E;
 }
 
 

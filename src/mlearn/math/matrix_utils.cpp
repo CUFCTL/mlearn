@@ -50,7 +50,7 @@ float m_dist_COS(const Matrix& A, int i, const Matrix& B, int j)
 	}
 
 	// compute similarity
-	float similarity = x_dot_y / sqrtf(abs_x * abs_y);
+	float similarity = x_dot_y / sqrt(abs_x * abs_y);
 
 	// compute scaled distance
 	return 1 - similarity;
@@ -77,7 +77,7 @@ float m_dist_L1(const Matrix& A, int i, const Matrix& B, int j)
 	float dist = 0;
 
 	for ( int k = 0; k < A.rows(); k++ ) {
-		dist += fabsf(A.elem(k, i) - B.elem(k, j));
+		dist += fabs(A.elem(k, i) - B.elem(k, j));
 	}
 
 	return dist;
@@ -108,7 +108,7 @@ float m_dist_L2(const Matrix& A, int i, const Matrix& B, int j)
 		dist += diff * diff;
 	}
 
-	dist = sqrtf(dist);
+	dist = sqrt(dist);
 
 	return dist;
 }

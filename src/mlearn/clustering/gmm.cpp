@@ -68,7 +68,7 @@ ParameterSet GMMLayer::initialize(const std::vector<Matrix>& X, int num_init, bo
 
 				float L1 = theta_test.log_likelihood();
 
-				if ( L0 != 0 && fabsf(L1 - L0) < INIT_EPSILON ) {
+				if ( L0 != 0 && fabs(L1 - L0) < INIT_EPSILON ) {
 					break;
 				}
 
@@ -226,7 +226,7 @@ float compute_entropy(const Matrix& c, const std::vector<int>& y)
 	float E = 0;
 
 	for ( int i = 0; i < n; i++ ) {
-		E += logf(c.elem(i, y[i]));
+		E += log(c.elem(i, y[i]));
 	}
 
 	return E;
@@ -265,8 +265,8 @@ int GMMLayer::fit(const std::vector<Matrix>& X)
 			// check for convergence
 			float L1 = theta.log_likelihood();
 
-			if ( L0 != 0 && fabsf(L1 - L0) < EPSILON ) {
-				Logger::log(LogLevel::Debug, "converged after %d iteratinos", m + 1);
+			if ( L0 != 0 && fabs(L1 - L0) < EPSILON ) {
+				Logger::log(LogLevel::Debug, "converged after %d iterations", m + 1);
 				break;
 			}
 

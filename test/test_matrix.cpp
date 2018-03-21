@@ -40,7 +40,7 @@ bool is_equal(float a, float b)
 {
 	static float EPSILON = 1e-4;
 
-	return (fabsf(a - b) < EPSILON);
+	return (fabs(a - b) < EPSILON);
 }
 
 
