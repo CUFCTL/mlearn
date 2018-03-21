@@ -5,6 +5,7 @@
  */
 #include <iomanip>
 #include "mlearn/model/classificationmodel.h"
+#include "mlearn/util/iodevice.h"
 #include "mlearn/util/logger.h"
 #include "mlearn/util/timer.h"
 
@@ -49,13 +50,12 @@ ClassificationModel::ClassificationModel(FeatureLayer *feature, ClassifierLayer 
  */
 void ClassificationModel::save(const std::string& path)
 {
-	std::ofstream file(path, std::ofstream::out);
+	IODevice file(path, std::ofstream::out);
 
-	_train_set.save(file);
-	_mean.save(file);
-	_feature->save(file);
-	_P.save(file);
-
+	file << _train_set;
+	file << _mean;
+	file << _feature;
+	file << _classifier;
 	file.close();
 }
 
@@ -68,13 +68,12 @@ void ClassificationModel::save(const std::string& path)
  */
 void ClassificationModel::load(const std::string& path)
 {
-	std::ifstream file(path, std::ifstream::in);
+	IODevice file(path, std::ifstream::in);
 
-	_train_set.load(file);
-	_mean.load(file);
-	_feature->load(file);
-	_P.load(file);
-
+	file >> _train_set;
+	file >> _mean;
+	file >> _feature;
+	file >> _classifier;
 	file.close();
 }
 
@@ -105,10 +104,9 @@ void ClassificationModel::train(const Dataset& train_set)
 
 	// project X into feature space
 	_feature->compute(X, _train_set.labels(), _train_set.classes().size());
-	_P = _feature->project(X);
 
 	// train classifier
-	_classifier->compute(_P, _train_set.labels(), _train_set.classes().size());
+	_classifier->compute(_feature->project(X), _train_set.labels(), _train_set.classes().size());
 
 	// record training time
 	_stats.train_time = Timer::pop();

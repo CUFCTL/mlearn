@@ -16,10 +16,11 @@ namespace ML {
 
 
 
-class ClusteringLayer : public IODevice {
+class ClusteringLayer {
 public:
 	virtual ~ClusteringLayer() {};
 	virtual int fit(const std::vector<Matrix>& X) = 0;
+	virtual void print() const = 0;
 
 	virtual float entropy() const = 0;
 	virtual float log_likelihood() const = 0;

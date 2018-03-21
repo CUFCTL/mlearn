@@ -12,39 +12,43 @@ namespace ML {
 
 
 
-void IODevice::save(std::ofstream& file, int val)
+IODevice& IODevice::operator<<(int val)
 {
-	file.write(reinterpret_cast<char *>(&val), sizeof(int));
+	write(reinterpret_cast<char *>(&val), sizeof(int));
+	return (*this);
 }
 
 
 
-void IODevice::save(std::ofstream& file, const std::string& val)
+IODevice& IODevice::operator<<(const std::string& val)
 {
 	int len = val.size() + 1;
 
-	file << len;
-	file.write(val.c_str(), len);
+	(*this) << len;
+	write(val.c_str(), len);
+	return (*this);
 }
 
 
 
-void IODevice::load(std::ifstream& file, int& val)
+IODevice& IODevice::operator>>(int& val)
 {
-	file.read(reinterpret_cast<char *>(&val), sizeof(int));
+	read(reinterpret_cast<char *>(&val), sizeof(int));
+	return (*this);
 }
 
 
 
-void IODevice::load(std::ifstream& file, std::string& val)
+IODevice& IODevice::operator>>(std::string& val)
 {
 	int len;
-	file >> len;
+	(*this) >> len;
 
 	std::unique_ptr<char[]> buffer(new char[len]);
-	file.read(buffer.get(), len);
+	read(buffer.get(), len);
 
 	val = std::string(buffer.get());
+	return (*this);
 }
 
 

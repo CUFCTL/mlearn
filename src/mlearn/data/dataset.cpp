@@ -12,6 +12,24 @@ namespace ML {
 
 
 
+IODevice& operator<<(IODevice& file, const DataEntry& entry)
+{
+	file << entry.label;
+	file << entry.name;
+	return file;
+}
+
+
+
+IODevice& operator>>(IODevice& file, DataEntry& entry)
+{
+	file >> entry.label;
+	file >> entry.name;
+	return file;
+}
+
+
+
 /**
  * Construct a dataset from a data iterator.
  *
@@ -66,94 +84,6 @@ Matrix Dataset::load_data() const
 
 
 /**
- * Save a dataset to a file.
- *
- * @param file
- */
-void Dataset::save(std::ofstream& file)
-{
-	// save path
-	IODevice::save(file, _path);
-
-	// save classes
-	IODevice::save(file, _classes.size());
-
-	for ( auto& name : _classes ) {
-		IODevice::save(file, name);
-	}
-
-	// save entries
-	IODevice::save(file, _entries.size());
-
-	for ( auto& entry : _entries ) {
-		IODevice::save(file, entry.label);
-		IODevice::save(file, entry.name);
-	}
-
-	// save labels
-	IODevice::save(file, _labels.size());
-
-	for ( auto& label : _labels ) {
-		IODevice::save(file, label);
-	}
-}
-
-
-
-/**
- * Load a dataset from a file.
- *
- * @param file
- */
-void Dataset::load(std::ifstream& file)
-{
-	// read path
-	IODevice::load(file, _path);
-
-	// read classes
-	int num_classes;
-	IODevice::load(file, num_classes);
-
-	_classes.reserve(num_classes);
-
-	for ( int i = 0; i < num_classes; i++ ) {
-		std::string name;
-		IODevice::load(file, name);
-
-		_classes.push_back(name);
-	}
-
-	// read entries
-	int num_entries;
-	IODevice::load(file, num_entries);
-
-	_entries.reserve(num_entries);
-
-	for ( int i = 0; i < num_entries; i++ ) {
-		DataEntry entry;
-		IODevice::load(file, entry.label);
-		IODevice::load(file, entry.name);
-
-		_entries.push_back(entry);
-	}
-
-	// read labels
-	int num_labels;
-	IODevice::load(file, num_labels);
-
-	_labels.reserve(num_labels);
-
-	for ( int i = 0; i < num_labels; i++ ) {
-		int label;
-		IODevice::load(file, label);
-
-		_labels.push_back(label);
-	}
-}
-
-
-
-/**
  * Print information about a dataset.
  */
 void Dataset::print() const
@@ -177,6 +107,34 @@ void Dataset::print() const
 		log(LL_VERBOSE, "%-8s  %s", entry.label.c_str(), entry.name.c_str());
 	}
 	log(LL_VERBOSE, "");
+}
+
+
+
+/**
+ * Save a dataset to a file.
+ */
+IODevice& operator<<(IODevice& file, Dataset& dataset)
+{
+	file << dataset._path;
+	file << dataset._classes;
+	file << dataset._entries;
+	file << dataset._labels;
+	return file;
+}
+
+
+
+/**
+ * Load a dataset from a file.
+ */
+IODevice& operator>>(IODevice& file, Dataset& dataset)
+{
+	file >> dataset._path;
+	file >> dataset._classes;
+	file >> dataset._entries;
+	file >> dataset._labels;
+	return file;
 }
 
 

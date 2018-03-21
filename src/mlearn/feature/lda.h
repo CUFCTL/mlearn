@@ -17,13 +17,13 @@ namespace ML {
 class LDALayer : public FeatureLayer {
 public:
 	LDALayer(int n1, int n2);
-	LDALayer() : LDALayer(-1, -1) {};
+	LDALayer() : LDALayer(-1, -1) {}
 
 	void compute(const Matrix& X, const std::vector<int>& y, int c);
 	Matrix project(const Matrix& X);
 
-	void save(std::ofstream& file);
-	void load(std::ifstream& file);
+	void save(IODevice& file) const;
+	void load(IODevice& file);
 	void print() const;
 
 private:

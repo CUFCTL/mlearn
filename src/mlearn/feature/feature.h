@@ -7,8 +7,8 @@
 #define FEATURE_H
 
 #include <vector>
+#include "mlearn/layer/layer.h"
 #include "mlearn/math/matrix.h"
-#include "mlearn/util/iodevice.h"
 
 
 
@@ -16,7 +16,7 @@ namespace ML {
 
 
 
-class FeatureLayer : public IODevice {
+class FeatureLayer : public Layer {
 public:
 	virtual ~FeatureLayer() {};
 

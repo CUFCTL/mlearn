@@ -19,7 +19,7 @@ namespace ML {
 
 
 
-class Dataset : public IODevice {
+class Dataset {
 public:
 	Dataset(DataIterator *iter);
 	Dataset() {};
@@ -30,10 +30,10 @@ public:
 	const std::vector<int>& labels() const { return _labels; }
 
 	Matrix load_data() const;
-
-	void save(std::ofstream& file);
-	void load(std::ifstream& file);
 	void print() const;
+
+	friend IODevice& operator<<(IODevice& file, Dataset& dataset);
+	friend IODevice& operator>>(IODevice& file, Dataset& dataset);
 
 private:
 	DataIterator *_iter;

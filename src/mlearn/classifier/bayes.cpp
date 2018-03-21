@@ -91,6 +91,32 @@ std::vector<int> BayesLayer::predict(const Matrix& X_test)
 
 
 /**
+ * Save a Bayes layer to a file.
+ *
+ * @param file
+ */
+void BayesLayer::save(IODevice& file) const
+{
+	file << _mu;
+	file << _S_inv;
+}
+
+
+
+/**
+ * Load a Bayes layer from a file.
+ *
+ * @param file
+ */
+void BayesLayer::load(IODevice& file)
+{
+	file >> _mu;
+	file >> _S_inv;
+}
+
+
+
+/**
  * Print information about a Bayes classifier.
  */
 void BayesLayer::print() const

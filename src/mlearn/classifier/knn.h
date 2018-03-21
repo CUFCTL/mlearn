@@ -18,10 +18,13 @@ namespace ML {
 class KNNLayer : public ClassifierLayer {
 public:
 	KNNLayer(int k, dist_func_t dist);
-	KNNLayer() : KNNLayer(1, m_dist_L1) {};
+	KNNLayer() : KNNLayer(1, m_dist_L1) {}
 
 	void compute(const Matrix& X, const std::vector<int>& y, int c);
 	std::vector<int> predict(const Matrix& X_test);
+
+	void save(IODevice& file) const;
+	void load(IODevice& file);
 	void print() const;
 
 private:

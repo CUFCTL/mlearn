@@ -26,13 +26,13 @@ enum class ICANonl {
 class ICALayer : public FeatureLayer {
 public:
 	ICALayer(int n1, int n2, ICANonl nonl, int max_iter, float eps);
-	ICALayer() : ICALayer(-1, -1, ICANonl::pow3, 1000, 0.0001f) {};
+	ICALayer() : ICALayer(-1, -1, ICANonl::pow3, 1000, 0.0001f) {}
 
 	void compute(const Matrix& X, const std::vector<int>& y, int c);
 	Matrix project(const Matrix& X);
 
-	void save(std::ofstream& file);
-	void load(std::ifstream& file);
+	void save(IODevice& file) const;
+	void load(IODevice& file);
 	void print() const;
 
 private:

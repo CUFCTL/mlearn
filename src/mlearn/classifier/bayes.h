@@ -20,6 +20,9 @@ public:
 
 	void compute(const Matrix& X, const std::vector<int>& y, int c);
 	std::vector<int> predict(const Matrix& X_test);
+
+	void save(IODevice& file) const;
+	void load(IODevice& file);
 	void print() const;
 
 private:

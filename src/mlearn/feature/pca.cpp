@@ -102,21 +102,23 @@ Matrix PCALayer::project(const Matrix& X)
  *
  * @param file
  */
-void PCALayer::save(std::ofstream& file)
+void PCALayer::save(IODevice& file) const
 {
-	_W.save(file);
+	file << _W;
+	file << _D;
 }
 
 
 
 /**
- * Load an PCA layer from a file.
+ * Load a PCA layer from a file.
  *
  * @param file
  */
-void PCALayer::load(std::ifstream& file)
+void PCALayer::load(IODevice& file)
 {
-	_W.load(file);
+	file >> _W;
+	file >> _D;
 }
 
 

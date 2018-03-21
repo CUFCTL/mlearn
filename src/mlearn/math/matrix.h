@@ -32,7 +32,7 @@ void gpu_finalize();
 
 
 
-class Matrix : public IODevice {
+class Matrix {
 private:
 	int _rows;
 	int _cols;
@@ -62,10 +62,10 @@ public:
 	static Matrix zeros(int rows, int cols);
 
 	// I/O functions
-	void save(std::ofstream& file);
-	void load(std::ifstream& file);
-	void print() const;
+	friend IODevice& operator<<(IODevice& file, const Matrix& M);
+	friend IODevice& operator>>(IODevice& file, Matrix& M);
 
+	void print() const;
 	void gpu_read();
 	void gpu_write();
 

@@ -7,8 +7,8 @@
 #define CLASSIFIER_H
 
 #include <vector>
+#include "mlearn/layer/layer.h"
 #include "mlearn/math/matrix.h"
-#include "mlearn/util/iodevice.h"
 
 
 
@@ -16,7 +16,7 @@ namespace ML {
 
 
 
-class ClassifierLayer : public IODevice {
+class ClassifierLayer : public Layer {
 public:
 	virtual ~ClassifierLayer() {};
 	virtual void compute(const Matrix& X, const std::vector<int>& y, int c) = 0;

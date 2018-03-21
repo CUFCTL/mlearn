@@ -12,6 +12,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 
 
@@ -19,19 +20,53 @@ namespace ML {
 
 
 
-class IODevice {
+class IODevice : public std::fstream {
 public:
-	virtual ~IODevice() {};
+	IODevice(const std::string& filename, std::ios_base::openmode mode)
+		: std::fstream(filename, mode) {};
 
-	virtual void save(std::ofstream& file) {};
-	virtual void load(std::ifstream& file) {};
-	virtual void print() const {};
+	IODevice& operator<<(int val);
+	IODevice& operator<<(const std::string& val);
+	IODevice& operator>>(int& val);
+	IODevice& operator>>(std::string& val);
 
-	static void save(std::ofstream& file, int val);
-	static void save(std::ofstream& file, const std::string& val);
-	static void load(std::ifstream& file, int& val);
-	static void load(std::ifstream& file, std::string& val);
+	template<class T> IODevice& operator<<(const std::vector<T>& v);
+	template<class T> IODevice& operator>>(std::vector<T>& v);
 };
+
+
+
+template<class T>
+IODevice& IODevice::operator<<(const std::vector<T>& v)
+{
+	(*this) << v.size();
+
+	for ( auto& e : v ) {
+		(*this) << e;
+	}
+
+	return (*this);
+}
+
+
+
+template<class T>
+IODevice& IODevice::operator>>(std::vector<T>& v)
+{
+	int size;
+	(*this) >> size;
+
+	v.reserve(size);
+
+	for ( int i = 0; i < size; i++ ) {
+		T e;
+		(*this) >> e;
+
+		v.push_back(e);
+	}
+
+	return (*this);
+}
 
 
 

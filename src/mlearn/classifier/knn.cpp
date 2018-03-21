@@ -150,6 +150,32 @@ std::vector<int> KNNLayer::predict(const Matrix& X_test)
 
 
 /**
+ * Save a KNN layer to a file.
+ *
+ * @param file
+ */
+void KNNLayer::save(IODevice& file) const
+{
+	file << _X;
+	file << _y;
+}
+
+
+
+/**
+ * Load a KNN layer from a file.
+ *
+ * @param file
+ */
+void KNNLayer::load(IODevice& file)
+{
+	file >> _X;
+	file >> _y;
+}
+
+
+
+/**
  * Print information about a kNN classifier.
  */
 void KNNLayer::print() const

@@ -465,36 +465,34 @@ Matrix Matrix::zeros(int rows, int cols)
 
 /**
  * Save a matrix to a file.
- *
- * @param file
  */
-void Matrix::save(std::ofstream& file)
+IODevice& operator<<(IODevice& file, const Matrix& M)
 {
-	file.write(reinterpret_cast<const char *>(&_rows), sizeof(int));
-	file.write(reinterpret_cast<const char *>(&_cols), sizeof(int));
-	file.write(reinterpret_cast<const char *>(_data_cpu), _rows * _cols * sizeof(float));
+	file << M._rows;
+	file << M._cols;
+	file.write(reinterpret_cast<const char *>(M._data_cpu), M._rows * M._cols * sizeof(float));
+	return file;
 }
 
 
 
 /**
  * Load a matrix from a file.
- *
- * @param file
  */
-void Matrix::load(std::ifstream& file)
+IODevice& operator>>(IODevice& file, Matrix& M)
 {
-	if ( _rows * _cols != 0 ) {
+	if ( M._rows * M._cols != 0 ) {
 		log(LL_ERROR, "error: cannot load into non-empty matrix");
 		exit(1);
 	}
 
 	int rows, cols;
-	file.read(reinterpret_cast<char *>(&rows), sizeof(int));
-	file.read(reinterpret_cast<char *>(&cols), sizeof(int));
+	file >> rows;
+	file >> cols;
 
-	*this = Matrix(rows, cols);
-	file.read(reinterpret_cast<char *>(_data_cpu), _rows * _cols * sizeof(float));
+	M = Matrix(rows, cols);
+	file.read(reinterpret_cast<char *>(M._data_cpu), M._rows * M._cols * sizeof(float));
+	return file;
 }
 
 

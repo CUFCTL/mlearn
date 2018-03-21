@@ -41,7 +41,6 @@ private:
 
 	// feature layer
 	FeatureLayer *_feature;
-	Matrix _P;
 
 	// classifier layer
 	ClassifierLayer *_classifier;
