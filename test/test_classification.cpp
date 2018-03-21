@@ -171,6 +171,8 @@ int main(int argc, char **argv)
 	// create classification model
 	ClassificationModel model(feature.get(), classifier.get());
 
+	model.print();
+
 	// extract features from training set
 	model.train(train_set);
 

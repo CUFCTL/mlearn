@@ -30,13 +30,22 @@ ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clusterin
 	// initialize stats
 	_stats.error_rate = 0.0f;
 	_stats.predict_time = 0.0f;
+}
 
-	// log hyperparameters
+
+
+/**
+ * Print information about a model.
+ */
+void ClusteringModel::print() const
+{
 	Logger::log(LogLevel::Verbose, "Hyperparameters");
 
 	for ( ClusteringLayer *c : _clustering ) {
 		c->print();
 	}
+
+	_criterion->print();
 
 	Logger::log(LogLevel::Verbose, "");
 }

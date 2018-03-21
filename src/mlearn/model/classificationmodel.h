@@ -20,12 +20,13 @@ namespace ML {
 class ClassificationModel {
 public:
 	ClassificationModel(FeatureLayer *feature, ClassifierLayer *classifier);
-	~ClassificationModel() {};
+	~ClassificationModel() {}
 
 	const Dataset& train_set() const { return _train_set; }
 
 	void save(const std::string& path);
 	void load(const std::string& path);
+	void print() const;
 
 	void train(const Dataset& train_set);
 	std::vector<int> predict(const Dataset& test_set);

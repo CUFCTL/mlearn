@@ -172,6 +172,8 @@ int main(int argc, char **argv)
 	// create clustering model
 	ClusteringModel model(clustering, criterion);
 
+	model.print();
+
 	// perform clustering on input data
 	Matrix X = input_data.load_data();
 	std::vector<Matrix> X_col = m_copy_columns(X);

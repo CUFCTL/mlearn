@@ -19,9 +19,11 @@ namespace ML {
 class ClusteringModel {
 public:
 	ClusteringModel(const std::vector<ClusteringLayer *>& clustering, CriterionLayer *criterion);
-	~ClusteringModel() {};
+	~ClusteringModel() {}
 
-	ClusteringLayer * best_layer() const { return _best_layer; };
+	void print() const;
+
+	ClusteringLayer * best_layer() const { return _best_layer; }
 
 	void fit(const std::vector<Matrix>& X);
 	void validate(const Dataset& input, const std::vector<int>& y_pred);

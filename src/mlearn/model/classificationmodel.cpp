@@ -31,14 +31,6 @@ ClassificationModel::ClassificationModel(FeatureLayer *feature, ClassifierLayer 
 	_stats.error_rate = 0.0f;
 	_stats.train_time = 0.0f;
 	_stats.predict_time = 0.0f;
-
-	// log hyperparameters
-	Logger::log(LogLevel::Verbose, "Hyperparameters");
-
-	_feature->print();
-	_classifier->print();
-
-	Logger::log(LogLevel::Verbose, "");
 }
 
 
@@ -75,6 +67,21 @@ void ClassificationModel::load(const std::string& path)
 	file >> _feature;
 	file >> _classifier;
 	file.close();
+}
+
+
+
+/**
+ * Print information about a model.
+ */
+void ClassificationModel::print() const
+{
+	Logger::log(LogLevel::Verbose, "Hyperparameters");
+
+	_feature->print();
+	_classifier->print();
+
+	Logger::log(LogLevel::Verbose, "");
 }
 
 
