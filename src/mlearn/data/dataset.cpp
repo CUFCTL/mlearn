@@ -3,76 +3,12 @@
  *
  * Implementation of the dataset type.
  */
-#include <fstream>
-#include <memory>
 #include "mlearn/data/dataset.h"
 #include "mlearn/util/logger.h"
 
 
 
 namespace ML {
-
-
-
-/**
- * Read an integer from a binary file.
- *
- * @param file
- */
-int read_int(std::ifstream& file)
-{
-	int n;
-	file.read(reinterpret_cast<char *>(&n), sizeof(int));
-
-	return n;
-}
-
-
-
-/**
- * Read a string from a binary file.
- *
- * @param file
- */
-std::string read_string(std::ifstream& file)
-{
-	int num = read_int(file);
-
-	std::unique_ptr<char[]> buffer(new char[num]);
-	file.read(buffer.get(), num);
-
-	std::string str(buffer.get());
-
-	return str;
-}
-
-
-
-/**
- * Write an integer to a binary file.
- *
- * @param file
- */
-void write_int(int n, std::ofstream& file)
-{
-	file.write(reinterpret_cast<char *>(&n), sizeof(int));
-}
-
-
-
-/**
- * Write a string to a file.
- *
- * @param str
- * @param file
- */
-void write_string(const std::string& str, std::ofstream& file)
-{
-	int num = str.size() + 1;
-
-	write_int(num, file);
-	file.write(str.c_str(), num);
-}
 
 
 
@@ -137,23 +73,28 @@ Matrix Dataset::load_data() const
 void Dataset::save(std::ofstream& file)
 {
 	// save path
-	write_string(_path.c_str(), file);
+	IODevice::save(file, _path);
 
-	// save labels
-	int num_classes = _classes.size();
-	write_int(num_classes, file);
+	// save classes
+	IODevice::save(file, _classes.size());
 
-	for ( const std::string& label : _classes ) {
-		write_string(label.c_str(), file);
+	for ( auto& name : _classes ) {
+		IODevice::save(file, name);
 	}
 
 	// save entries
-	int num_entries = _entries.size();
-	write_int(num_entries, file);
+	IODevice::save(file, _entries.size());
 
-	for ( const DataEntry& entry : _entries ) {
-		write_string(entry.label.c_str(), file);
-		write_string(entry.name.c_str(), file);
+	for ( auto& entry : _entries ) {
+		IODevice::save(file, entry.label);
+		IODevice::save(file, entry.name);
+	}
+
+	// save labels
+	IODevice::save(file, _labels.size());
+
+	for ( auto& label : _labels ) {
+		IODevice::save(file, label);
 	}
 }
 
@@ -167,30 +108,46 @@ void Dataset::save(std::ofstream& file)
 void Dataset::load(std::ifstream& file)
 {
 	// read path
-	_path = read_string(file);
+	IODevice::load(file, _path);
 
-	// read labels
-	int num_classes = read_int(file);
+	// read classes
+	int num_classes;
+	IODevice::load(file, num_classes);
 
 	_classes.reserve(num_classes);
 
 	for ( int i = 0; i < num_classes; i++ ) {
-		std::string label(read_string(file));
+		std::string name;
+		IODevice::load(file, name);
 
-		_classes.push_back(label);
+		_classes.push_back(name);
 	}
 
 	// read entries
-	int num_entries = read_int(file);
+	int num_entries;
+	IODevice::load(file, num_entries);
 
 	_entries.reserve(num_entries);
 
 	for ( int i = 0; i < num_entries; i++ ) {
 		DataEntry entry;
-		entry.label = read_string(file);
-		entry.name = read_string(file);
+		IODevice::load(file, entry.label);
+		IODevice::load(file, entry.name);
 
 		_entries.push_back(entry);
+	}
+
+	// read labels
+	int num_labels;
+	IODevice::load(file, num_labels);
+
+	_labels.reserve(num_labels);
+
+	for ( int i = 0; i < num_labels; i++ ) {
+		int label;
+		IODevice::load(file, label);
+
+		_labels.push_back(label);
 	}
 }
 
@@ -208,8 +165,8 @@ void Dataset::print() const
 	// print classes
 	log(LL_VERBOSE, "%d classes", _classes.size());
 
-	for ( const std::string& label : _classes ) {
-		log(LL_VERBOSE, "%s", label.c_str());
+	for ( const std::string& name : _classes ) {
+		log(LL_VERBOSE, "%s", name.c_str());
 	}
 	log(LL_VERBOSE, "");
 

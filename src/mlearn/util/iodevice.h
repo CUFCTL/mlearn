@@ -26,6 +26,11 @@ public:
 	virtual void save(std::ofstream& file) {};
 	virtual void load(std::ifstream& file) {};
 	virtual void print() const {};
+
+	static void save(std::ofstream& file, int val);
+	static void save(std::ofstream& file, const std::string& val);
+	static void load(std::ifstream& file, int& val);
+	static void load(std::ifstream& file, std::string& val);
 };
 
 
