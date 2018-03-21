@@ -15,7 +15,7 @@ namespace ML {
 
 
 
-typedef Matrix (*ica_nonl_func_t)(const Matrix&, const Matrix&);
+typedef Matrix (*fpica_func_t)(const Matrix&, const Matrix&);
 
 
 
@@ -179,25 +179,13 @@ void ICALayer::print() const
 
 
 /**
- * Compute the second power (square) of a number.
- *
- * @param x
- */
-float pow2f(float x)
-{
-    return powf(x, 2);
-}
-
-
-
-/**
  * Compute the third power (cube) of a number.
  *
  * @param x
  */
-float pow3f(float x)
+float pow3(float x)
 {
-    return powf(x, 3);
+    return pow(x, 3);
 }
 
 
@@ -206,12 +194,13 @@ float pow3f(float x)
  * Compute the parameter update for fpica
  * with the pow3 nonlinearity:
  *
- * g(u) = u^3
- * g'(u) = 3 * u^2
+ *   g(u) = u^3
+ *   g'(u) = 3 * u^2
  *
  * which gives:
  *
- * w+ = X * ((X' * w) .^ 3) / X.cols() - 3 * w
+ *   w+ = (X * g(X' * w) - sum(g'(X' * w)) * w) / X.cols()
+ *      = X * ((X' * w) .^ 3) / X.cols() - 3 * w
  *
  * @param w0
  * @param X
@@ -219,7 +208,7 @@ float pow3f(float x)
 Matrix fpica_pow3 (const Matrix& w0, const Matrix& X)
 {
 	Matrix w_temp1 = X.T() * w0;
-	w_temp1.elem_apply(pow3f);
+	w_temp1.elem_apply(pow3);
 
 	Matrix w = X * w_temp1;
 	w /= X.cols();
@@ -231,13 +220,13 @@ Matrix fpica_pow3 (const Matrix& w0, const Matrix& X)
 
 
 /**
- * Compute the hyperbolic secant of a number.
+ * Derivative of tanh nonlinearity function.
  *
  * @param x
  */
-float sechf(float x)
+float tanh_deriv(float x)
 {
-    return 1.0f / coshf(x);
+    return pow(1 / cosh(x), 2);
 }
 
 
@@ -246,24 +235,23 @@ float sechf(float x)
  * Compute the parameter update for fpica
  * with the tanh nonlinearity:
  *
- * g(u) = tanh(u)
- * g'(u) = sech(u)^2 = 1 - tanh(u)^2
+ *   g(u) = tanh(u)
+ *   g'(u) = sech(u)^2 = 1 - tanh(u)^2
  *
  * which gives:
  *
- * w+ = (X * g(X' * w) - sum(g'(X' * w)) * w) / X.cols()
+ *   w+ = (X * g(X' * w) - sum(g'(X' * w)) * w) / X.cols()
  *
  * @param w0
  * @param X
  */
-Matrix fpica_tanh (const Matrix& w0, const Matrix& X)
+Matrix fpica_tanh(const Matrix& w0, const Matrix& X)
 {
 	Matrix w_temp1 = X.T() * w0;
 	Matrix w_temp2 = w_temp1;
 
-	w_temp1.elem_apply(tanhf);
-	w_temp2.elem_apply(sechf);
-	w_temp2.elem_apply(pow2f);
+	w_temp1.elem_apply(tanh);
+	w_temp2.elem_apply(tanh_deriv);
 
 	Matrix w = X * w_temp1;
 	w -= w_temp2.sum() * w0;
@@ -279,7 +267,7 @@ Matrix fpica_tanh (const Matrix& w0, const Matrix& X)
  *
  * @param x
  */
-float gauss (float x)
+float gauss(float x)
 {
 	return x * expf(-(x * x) / 2.0f);
 }
@@ -291,7 +279,7 @@ float gauss (float x)
  *
  * @param x
  */
-float dgauss (float x)
+float gauss_deriv(float x)
 {
 	return (1 - x * x) * expf(-(x * x) / 2.0f);
 }
@@ -302,23 +290,23 @@ float dgauss (float x)
  * Compute the parameter update for fpica
  * with the Gaussian nonlinearity:
  *
- * g(u) = u * exp(-u^2 / 2)
- * g'(u) = (1 - u^2) * exp(-u^2 / 2)
+ *   g(u) = u * exp(-u^2 / 2)
+ *   g'(u) = (1 - u^2) * exp(-u^2 / 2)
  *
  * which gives:
  *
- * w+ = (X * g(X' * w) - sum(g'(X' * w)) * w) / X.cols()
+ *   w+ = (X * g(X' * w) - sum(g'(X' * w)) * w) / X.cols()
  *
  * @param w0
  * @param X
  */
-Matrix fpica_gauss (const Matrix& w0, const Matrix& X)
+Matrix fpica_gauss(const Matrix& w0, const Matrix& X)
 {
 	Matrix w_temp1 = X.T() * w0;
 	Matrix w_temp2 = w_temp1;
 
 	w_temp1.elem_apply(gauss);
-	w_temp2.elem_apply(dgauss);
+	w_temp2.elem_apply(gauss_deriv);
 
 	Matrix w = X * w_temp1;
 	w -= w_temp2.sum() * w0;
@@ -345,7 +333,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 		: std::min(X.rows(), _n2);
 
 	// determine nonlinearity function
-	ica_nonl_func_t fpica_update = nullptr;
+	fpica_func_t fpica_update = nullptr;
 
 	if ( _nonl == ICANonl::pow3 ) {
 		fpica_update = fpica_pow3;
