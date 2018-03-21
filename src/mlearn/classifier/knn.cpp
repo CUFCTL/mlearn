@@ -5,11 +5,16 @@
  */
 #include <algorithm>
 #include "mlearn/classifier/knn.h"
+#include "mlearn/math/matrix_utils.h"
 #include "mlearn/util/logger.h"
 
 
 
 namespace ML {
+
+
+
+typedef float (*dist_func_t)(const Matrix&, int, const Matrix&, int);
 
 
 
@@ -90,7 +95,7 @@ int kNN_mode(const std::vector<neighbor_t>& items)
  * @param k
  * @param dist
  */
-KNNLayer::KNNLayer(int k, dist_func_t dist)
+KNNLayer::KNNLayer(int k, KNNDist dist)
 {
 	_k = k;
 	_dist = dist;
@@ -120,6 +125,19 @@ void KNNLayer::compute(const Matrix& X, const std::vector<int>& y, int c)
  */
 std::vector<int> KNNLayer::predict(const Matrix& X_test)
 {
+	// determine distance function
+	dist_func_t dist = nullptr;
+
+	if ( _dist == KNNDist::COS ) {
+		dist = m_dist_COS;
+	}
+	else if ( _dist == KNNDist::L1 ) {
+		dist = m_dist_L1;
+	}
+	else if ( _dist == KNNDist::L2 ) {
+		dist = m_dist_L2;
+	}
+
 	std::vector<int> y_pred(X_test.cols());
 
 	for ( int i = 0; i < X_test.cols(); i++ ) {
@@ -130,7 +148,7 @@ std::vector<int> KNNLayer::predict(const Matrix& X_test)
 		for ( int j = 0; j < _X.cols(); j++ ) {
 			neighbor_t n;
 			n.label = _y[j];
-			n.dist = _dist(X_test, i, _X, j);
+			n.dist = dist(X_test, i, _X, j);
 
 			neighbors.push_back(n);
 		}
@@ -156,6 +174,8 @@ std::vector<int> KNNLayer::predict(const Matrix& X_test)
  */
 void KNNLayer::save(IODevice& file) const
 {
+	file << _k;
+	file << (int) _dist;
 	file << _X;
 	file << _y;
 }
@@ -169,6 +189,8 @@ void KNNLayer::save(IODevice& file) const
  */
 void KNNLayer::load(IODevice& file)
 {
+	file >> _k;
+	int dist; file >> dist; _dist = (KNNDist) dist;
 	file >> _X;
 	file >> _y;
 }
@@ -182,13 +204,13 @@ void KNNLayer::print() const
 {
 	const char *dist_name = "";
 
-	if ( _dist == m_dist_COS ) {
+	if ( _dist == KNNDist::COS ) {
 		dist_name = "COS";
 	}
-	else if ( _dist == m_dist_L1 ) {
+	else if ( _dist == KNNDist::L1 ) {
 		dist_name = "L1";
 	}
-	else if ( _dist == m_dist_L2 ) {
+	else if ( _dist == KNNDist::L2 ) {
 		dist_name = "L2";
 	}
 

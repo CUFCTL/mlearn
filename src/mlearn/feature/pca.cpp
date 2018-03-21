@@ -104,6 +104,7 @@ Matrix PCALayer::project(const Matrix& X)
  */
 void PCALayer::save(IODevice& file) const
 {
+	file << _n1;
 	file << _W;
 	file << _D;
 }
@@ -117,6 +118,7 @@ void PCALayer::save(IODevice& file) const
  */
 void PCALayer::load(IODevice& file)
 {
+	file >> _n1;
 	file >> _W;
 	file >> _D;
 }

@@ -15,7 +15,7 @@ namespace ML {
 
 
 
-typedef Matrix (*ica_nonl_func_t)(const Matrix& , const Matrix& );
+typedef Matrix (*ica_nonl_func_t)(const Matrix&, const Matrix&);
 
 
 
@@ -124,6 +124,11 @@ Matrix ICALayer::project(const Matrix& X)
  */
 void ICALayer::save(IODevice& file) const
 {
+	file << _n1;
+	file << _n2;
+	file << (int) _nonl;
+	file << _max_iter;
+	file << _eps;
 	file << _W;
 }
 
@@ -136,6 +141,11 @@ void ICALayer::save(IODevice& file) const
  */
 void ICALayer::load(IODevice& file)
 {
+	file >> _n1;
+	file >> _n2;
+	int nonl; file >> nonl; _nonl = (ICANonl) nonl;
+	file >> _max_iter;
+	file >> _eps;
 	file >> _W;
 }
 

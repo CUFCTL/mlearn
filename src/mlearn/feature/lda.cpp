@@ -113,6 +113,8 @@ Matrix LDALayer::project(const Matrix& X)
  */
 void LDALayer::save(IODevice& file) const
 {
+	file << _n1;
+	file << _n2;
 	file << _W;
 }
 
@@ -125,6 +127,8 @@ void LDALayer::save(IODevice& file) const
  */
 void LDALayer::load(IODevice& file)
 {
+	file >> _n1;
+	file >> _n2;
 	file >> _W;
 }
 

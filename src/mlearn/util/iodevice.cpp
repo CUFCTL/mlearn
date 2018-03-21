@@ -20,6 +20,14 @@ IODevice& IODevice::operator<<(int val)
 
 
 
+IODevice& IODevice::operator<<(float val)
+{
+	write(reinterpret_cast<char *>(&val), sizeof(float));
+	return (*this);
+}
+
+
+
 IODevice& IODevice::operator<<(const std::string& val)
 {
 	int len = val.size() + 1;
@@ -34,6 +42,14 @@ IODevice& IODevice::operator<<(const std::string& val)
 IODevice& IODevice::operator>>(int& val)
 {
 	read(reinterpret_cast<char *>(&val), sizeof(int));
+	return (*this);
+}
+
+
+
+IODevice& IODevice::operator>>(float& val)
+{
+	read(reinterpret_cast<char *>(&val), sizeof(float));
 	return (*this);
 }
 

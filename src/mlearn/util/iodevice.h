@@ -26,8 +26,10 @@ public:
 		: std::fstream(filename, mode) {};
 
 	IODevice& operator<<(int val);
+	IODevice& operator<<(float val);
 	IODevice& operator<<(const std::string& val);
 	IODevice& operator>>(int& val);
+	IODevice& operator>>(float& val);
 	IODevice& operator>>(std::string& val);
 
 	template<class T> IODevice& operator<<(const std::vector<T>& v);
@@ -39,9 +41,10 @@ public:
 template<class T>
 IODevice& IODevice::operator<<(const std::vector<T>& v)
 {
-	(*this) << v.size();
+	int size = v.size();
+	(*this) << size;
 
-	for ( auto& e : v ) {
+	for ( const T& e : v ) {
 		(*this) << e;
 	}
 

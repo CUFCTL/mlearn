@@ -15,10 +15,6 @@ namespace ML {
 
 
 
-typedef float (*dist_func_t)(const Matrix&, int, const Matrix&, int);
-
-
-
 float m_dist_COS(const Matrix& A, int i, const Matrix& B, int j);
 float m_dist_L1(const Matrix& A, int i, const Matrix& B, int j);
 float m_dist_L2(const Matrix& A, int i, const Matrix& B, int j);
