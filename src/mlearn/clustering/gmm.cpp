@@ -266,7 +266,7 @@ int GMMLayer::fit(const std::vector<Matrix>& X)
 			float L1 = theta.log_likelihood();
 
 			if ( L0 != 0 && fabsf(L1 - L0) < EPSILON ) {
-				log(LL_DEBUG, "converged after %d iteratinos", m + 1);
+				Logger::log(LogLevel::Debug, "converged after %d iteratinos", m + 1);
 				break;
 			}
 
@@ -298,8 +298,8 @@ int GMMLayer::fit(const std::vector<Matrix>& X)
  */
 void GMMLayer::print() const
 {
-	log(LL_VERBOSE, "Gaussian mixture model");
-	log(LL_VERBOSE, "  %-20s  %10d", "k", _k);
+	Logger::log(LogLevel::Verbose, "Gaussian mixture model");
+	Logger::log(LogLevel::Verbose, "  %-20s  %10d", "k", _k);
 }
 
 

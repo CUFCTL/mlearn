@@ -195,8 +195,8 @@ int KMeansLayer::fit(const std::vector<Matrix>& X)
  */
 void KMeansLayer::print() const
 {
-	log(LL_VERBOSE, "K-means");
-	log(LL_VERBOSE, "  %-20s  %10d", "k", _k);
+	Logger::log(LogLevel::Verbose, "K-means");
+	Logger::log(LogLevel::Verbose, "  %-20s  %10d", "k", _k);
 }
 
 

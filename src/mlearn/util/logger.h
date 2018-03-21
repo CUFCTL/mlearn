@@ -6,29 +6,29 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+
+
 namespace ML {
 
 
 
-typedef enum logger_level_t {
-	LL_ERROR   = -1,
-	LL_WARN    =  0,
-	LL_INFO    =  1,
-	LL_VERBOSE =  2,
-	LL_DEBUG   =  3
-} loggger_level_t;
+enum class LogLevel {
+	Error   = 0,
+	Warn    = 1,
+	Info    = 2,
+	Verbose = 3,
+	Debug   = 4
+};
 
 
 
-extern logger_level_t LOGLEVEL;
+class Logger {
+public:
+	static LogLevel LEVEL;
 
-
-
-#define LOGGER(level) ((level) <= LOGLEVEL)
-
-
-
-void log(logger_level_t level, const char *format, ...);
+	static bool test(LogLevel level) { return (level <= LEVEL); }
+	static void log(LogLevel level, const char *format, ...);
+};
 
 
 

@@ -109,7 +109,7 @@ void GenomeIterator::load(int i)
 		_genes.reset(new float[num]);
 	}
 	else if ( num != sample_size() ) {
-		log(LL_ERROR, "error: genome \'%s\' has unequal size\n", path.c_str());
+		Logger::log(LogLevel::Error, "error: genome \'%s\' has unequal size\n", path.c_str());
 		exit(1);
 	}
 

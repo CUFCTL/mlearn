@@ -32,8 +32,8 @@ void print_usage()
 		"\n"
 		"Options:\n"
 		"  --gpu              enable GPU acceleration\n"
-		"  --loglevel LEVEL   log level ([1]=info, 2=verbose, 3=debug)\n"
-		"  --path PATH        path to dataset (default is IRIS dataset)\n"
+		"  --loglevel LEVEL   log level (0=error, 1=warn, [2]=info, 3=verbose, 4=debug)\n"
+		"  --path PATH        path to dataset (default is Iris dataset)\n"
 		"  --type TYPE        data type ([csv], image, genome)\n"
 		"  --clus CLUSTERING  clustering method ([kmeans], gmm)\n"
 		"  --min-k K          minimum number of clusters [1]\n"
@@ -71,7 +71,7 @@ args_t parse_args(int argc, char **argv)
 			GPU = true;
 			break;
 		case 'e':
-			LOGLEVEL = (logger_level_t) atoi(optarg);
+			Logger::LEVEL = (LogLevel) atoi(optarg);
 			break;
 		case 'p':
 			args.path_input = optarg;
@@ -180,11 +180,11 @@ int main(int argc, char **argv)
 	std::vector<int> y_pred = model.best_layer()->output();
 
 	// print clustering results
-	log(LL_VERBOSE, "Best clustering model:");
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "Best clustering model:");
+	Logger::log(LogLevel::Verbose, "");
 
 	model.best_layer()->print();
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "");
 
 	model.validate(input_data, y_pred);
 	model.print_results(input_data, y_pred);

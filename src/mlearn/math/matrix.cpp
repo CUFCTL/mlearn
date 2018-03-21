@@ -190,7 +190,7 @@ magma_queue_t magma_queue()
  */
 Matrix::Matrix(int rows, int cols)
 {
-	log(LL_DEBUG, "debug: new Matrix(%d, %d)",
+	Logger::log(LogLevel::Debug, "debug: new Matrix(%d, %d)",
 		rows, cols);
 
 	_rows = rows;
@@ -242,7 +242,7 @@ Matrix::Matrix(int rows, int cols, float *data)
 Matrix::Matrix(const Matrix& M, int i, int j)
 	: Matrix(M._rows, j - i)
 {
-	log(LL_DEBUG, "debug: C [%d,%d] <- M(:, %d:%d) [%d,%d]",
+	Logger::log(LogLevel::Debug, "debug: C [%d,%d] <- M(:, %d:%d) [%d,%d]",
 		_rows, _cols,
 		i + 1, j, M._rows, j - i);
 
@@ -319,7 +319,7 @@ void Matrix::init_identity()
 {
 	Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: M [%d,%d] <- eye(%d)",
+	Logger::log(LogLevel::Debug, "debug: M [%d,%d] <- eye(%d)",
 		M._rows, M._rows,
 		M._rows);
 
@@ -341,7 +341,7 @@ void Matrix::init_ones()
 {
 	Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: M [%d,%d] <- ones(%d, %d)",
+	Logger::log(LogLevel::Debug, "debug: M [%d,%d] <- ones(%d, %d)",
 		M._rows, M._cols,
 		M._rows, M._cols);
 
@@ -363,7 +363,7 @@ void Matrix::init_random()
 {
 	Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: M [%d,%d] <- randn(%d, %d)",
+	Logger::log(LogLevel::Debug, "debug: M [%d,%d] <- randn(%d, %d)",
 		M._rows, M._cols,
 		M._rows, M._cols);
 
@@ -385,7 +385,7 @@ void Matrix::init_zeros()
 {
 	Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: M [%d,%d] <- zeros(%d, %d)",
+	Logger::log(LogLevel::Debug, "debug: M [%d,%d] <- zeros(%d, %d)",
 		M._rows, M._cols,
 		M._rows, M._cols);
 
@@ -482,7 +482,7 @@ IODevice& operator<<(IODevice& file, const Matrix& M)
 IODevice& operator>>(IODevice& file, Matrix& M)
 {
 	if ( M._rows * M._cols != 0 ) {
-		log(LL_ERROR, "error: cannot load into non-empty matrix");
+		Logger::log(LogLevel::Error, "error: cannot load into non-empty matrix");
 		exit(1);
 	}
 
@@ -561,7 +561,7 @@ float Matrix::determinant() const
 {
 	const Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: d <- det(M [%d,%d])",
+	Logger::log(LogLevel::Debug, "debug: d <- det(M [%d,%d])",
 		M._rows, M._cols);
 
 	int m = M._rows;
@@ -617,7 +617,7 @@ Matrix Matrix::diagonalize() const
 {
 	const Matrix& v = *this;
 
-	log(LL_DEBUG, "debug: D [%d,%d] <- diag(v [%d,%d])",
+	Logger::log(LogLevel::Debug, "debug: D [%d,%d] <- diag(v [%d,%d])",
 		length(v), length(v), v._rows, v._cols);
 
 	assert(is_vector(v));
@@ -652,7 +652,7 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 {
 	const Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: V [%d,%d], D [%d,%d] <- eig(M [%d,%d], %d)",
+	Logger::log(LogLevel::Debug, "debug: V [%d,%d], D [%d,%d] <- eig(M [%d,%d], %d)",
 		M._rows, n1,
 		n1, n1,
 		M._rows, M._cols, n1);
@@ -730,7 +730,7 @@ Matrix Matrix::inverse() const
 {
 	const Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: M^-1 [%d,%d] <- inv(M [%d,%d])",
+	Logger::log(LogLevel::Debug, "debug: M^-1 [%d,%d] <- inv(M [%d,%d])",
 		M._rows, M._cols, M._rows, M._cols);
 
 	assert(is_square(M));
@@ -793,7 +793,7 @@ Matrix Matrix::mean_column() const
 {
 	const Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: mu [%d,%d] <- mean(M [%d,%d], 2)",
+	Logger::log(LogLevel::Debug, "debug: mu [%d,%d] <- mean(M [%d,%d], 2)",
 		M._rows, 1, M._rows, M._cols);
 
 	Matrix mu = Matrix::zeros(M._rows, 1);
@@ -819,7 +819,7 @@ Matrix Matrix::mean_row() const
 {
 	const Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: mu [%d,%d] <- mean(M [%d,%d], 1)",
+	Logger::log(LogLevel::Debug, "debug: mu [%d,%d] <- mean(M [%d,%d], 1)",
 		1, M._cols, M._rows, M._cols);
 
 	Matrix mu = Matrix::zeros(1, M._cols);
@@ -865,7 +865,7 @@ float Matrix::sum() const
 {
 	const Matrix& v = *this;
 
-	log(LL_DEBUG, "debug: s = sum(v [%d,%d])",
+	Logger::log(LogLevel::Debug, "debug: s = sum(v [%d,%d])",
 		v._rows, v._cols);
 
 	assert(is_vector(v));
@@ -896,7 +896,7 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 {
 	const Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: U, S, V <- svd(M [%d,%d])",
+	Logger::log(LogLevel::Debug, "debug: U, S, V <- svd(M [%d,%d])",
 		M._rows, M._cols);
 
 	int m = M._rows;
@@ -958,7 +958,7 @@ Matrix Matrix::transpose() const
 {
 	const Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: M' [%d,%d] <- transpose(M [%d,%d])",
+	Logger::log(LogLevel::Debug, "debug: M' [%d,%d] <- transpose(M [%d,%d])",
 		M._cols, M._rows, M._rows, M._cols);
 
 	Matrix MT(M._cols, M._rows);
@@ -1001,7 +1001,7 @@ void Matrix::assign_column(int i, const Matrix& B, int j)
 {
 	Matrix& A = *this;
 
-	log(LL_DEBUG, "debug: A(:, %d) [%d,%d] <- B(:, %d) [%d,%d]",
+	Logger::log(LogLevel::Debug, "debug: A(:, %d) [%d,%d] <- B(:, %d) [%d,%d]",
 		i + 1, A._rows, 1,
 		j + 1, B._rows, 1);
 
@@ -1027,7 +1027,7 @@ void Matrix::assign_row(int i, const Matrix& B, int j)
 {
 	Matrix& A = *this;
 
-	log(LL_DEBUG, "debug: A(%d, :) [%d,%d] <- B(%d, :) [%d,%d]",
+	Logger::log(LogLevel::Debug, "debug: A(%d, :) [%d,%d] <- B(%d, :) [%d,%d]",
 		i + 1, 1, A._cols,
 		j + 1, 1, B._cols);
 
@@ -1053,7 +1053,7 @@ void Matrix::elem_apply(elem_func_t f)
 {
 	Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: M [%d,%d] <- f(M [%d,%d])",
+	Logger::log(LogLevel::Debug, "debug: M [%d,%d] <- f(M [%d,%d])",
 		M._rows, M._cols, M._rows, M._cols);
 
 	for ( int i = 0; i < M._rows; i++ ) {
@@ -1094,7 +1094,7 @@ void Matrix::subtract_columns(const Matrix& a)
 {
 	Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: M [%d,%d] <- M [%d,%d] - a [%d,%d] * 1_N' [%d,%d]",
+	Logger::log(LogLevel::Debug, "debug: M [%d,%d] <- M [%d,%d] - a [%d,%d] * 1_N' [%d,%d]",
 		M._rows, M._cols,
 		M._rows, M._cols,
 		a._rows, a._cols,
@@ -1125,7 +1125,7 @@ void Matrix::subtract_rows(const Matrix& a)
 {
 	Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: M [%d,%d] <- M [%d,%d] - a [%d,%d] * 1_N [%d,%d]",
+	Logger::log(LogLevel::Debug, "debug: M [%d,%d] <- M [%d,%d] - a [%d,%d] * 1_N [%d,%d]",
 		M._rows, M._cols,
 		M._rows, M._cols,
 		M._rows, 1,
@@ -1155,7 +1155,7 @@ void Matrix::axpy(float alpha, const Matrix& A)
 {
 	Matrix& B = *this;
 
-	log(LL_DEBUG, "debug: B [%d,%d] <- %g * A [%d,%d] + B",
+	Logger::log(LogLevel::Debug, "debug: B [%d,%d] <- %g * A [%d,%d] + B",
 		B._rows, B._cols,
 		alpha, A._rows, A._cols);
 
@@ -1190,7 +1190,7 @@ float Matrix::dot(const Matrix& y) const
 {
 	const Matrix& x = *this;
 
-	log(LL_DEBUG, "debug: dot <- x' [%d,%d] * y [%d,%d]",
+	Logger::log(LogLevel::Debug, "debug: dot <- x' [%d,%d] * y [%d,%d]",
 		x._rows, x._cols, y._rows, y._cols);
 
 	assert(is_vector(x) && is_vector(y));
@@ -1234,7 +1234,7 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 	int k2 = B._transposed ? B._cols : B._rows;
 	int n = B._transposed ? B._rows : B._cols;
 
-	log(LL_DEBUG, "debug: C [%d,%d] <- A%s [%d,%d] * B%s [%d,%d] + %g * C",
+	Logger::log(LogLevel::Debug, "debug: C [%d,%d] <- A%s [%d,%d] * B%s [%d,%d] + %g * C",
 		C._rows, C._cols,
 		A._transposed ? "'" : "", m, k1,
 		B._transposed ? "'" : "", k2, n,
@@ -1277,7 +1277,7 @@ float Matrix::nrm2() const
 {
 	const Matrix& x = *this;
 
-	log(LL_DEBUG, "debug: nrm2 <- ||x [%d,%d]||",
+	Logger::log(LogLevel::Debug, "debug: nrm2 <- ||x [%d,%d]||",
 		x._rows, x._cols);
 
 	assert(is_vector(x));
@@ -1311,7 +1311,7 @@ void Matrix::scal(float alpha)
 {
 	Matrix& M = *this;
 
-	log(LL_DEBUG, "debug: M [%d,%d] <- %g * M",
+	Logger::log(LogLevel::Debug, "debug: M [%d,%d] <- %g * M",
 		M._rows, M._cols, alpha);
 
 	int n = M._rows * M._cols;
@@ -1343,7 +1343,7 @@ void Matrix::syr(float alpha, const Matrix& x)
 {
 	Matrix& A = *this;
 
-	log(LL_DEBUG, "debug: A [%d,%d] <- %g * x [%d,%d] * x' [%d,%d] + A",
+	Logger::log(LogLevel::Debug, "debug: A [%d,%d] <- %g * x [%d,%d] * x' [%d,%d] + A",
 		A._rows, A._cols,
 		alpha, x._rows, x._cols, x._cols, x._rows);
 
@@ -1389,7 +1389,7 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 	int n = trans ? A._cols : A._rows;
 	int k = trans ? A._rows : A._cols;
 
-	log(LL_DEBUG, "debug: C [%d,%d] <- %g * A%s [%d,%d] * A%s [%d,%d] + %g * C",
+	Logger::log(LogLevel::Debug, "debug: C [%d,%d] <- %g * A%s [%d,%d] * A%s [%d,%d] + %g * C",
 		C._rows, C._cols,
 		alpha,
 		trans ? "'" : "", n, k,

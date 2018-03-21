@@ -32,13 +32,13 @@ ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clusterin
 	_stats.predict_time = 0.0f;
 
 	// log hyperparameters
-	log(LL_VERBOSE, "Hyperparameters");
+	Logger::log(LogLevel::Verbose, "Hyperparameters");
 
 	for ( ClusteringLayer *c : _clustering ) {
 		c->print();
 	}
 
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "");
 }
 
 
@@ -76,16 +76,16 @@ void ClusteringModel::fit(const std::vector<Matrix>& X)
 				min_value = value;
 			}
 
-			log(LL_VERBOSE, "model %d: %8.3f", i, value);
+			Logger::log(LogLevel::Verbose, "model %d: %8.3f", i, value);
 		}
 		else {
-			log(LL_VERBOSE, "model %d: FAILED", i);
+			Logger::log(LogLevel::Verbose, "model %d: FAILED", i);
 		}
 	}
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "");
 
 	if ( min_c == nullptr ) {
-		log(LL_WARN, "warning: all models failed");
+		Logger::log(LogLevel::Warn, "warning: all models failed");
 	}
 
 	_best_layer = min_c;
@@ -144,19 +144,19 @@ void ClusteringModel::validate(const Dataset& input, const std::vector<int>& y_p
  */
 void ClusteringModel::print_results(const Dataset& input, const std::vector<int>& y_pred) const
 {
-	log(LL_VERBOSE, "Results");
+	Logger::log(LogLevel::Verbose, "Results");
 
 	for ( size_t i = 0; i < input.entries().size(); i++ ) {
 		const DataEntry& entry = input.entries()[i];
 
-		log(LL_VERBOSE, "%-4s (%s) -> %d",
+		Logger::log(LogLevel::Verbose, "%-4s (%s) -> %d",
 			entry.name.c_str(),
 			entry.label.c_str(),
 			y_pred[i]);
 	}
 
-	log(LL_VERBOSE, "Error rate: %.3f", _stats.error_rate);
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "Error rate: %.3f", _stats.error_rate);
+	Logger::log(LogLevel::Verbose, "");
 }
 
 

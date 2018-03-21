@@ -130,8 +130,8 @@ void PCALayer::load(IODevice& file)
  */
 void PCALayer::print() const
 {
-	log(LL_VERBOSE, "PCA");
-	log(LL_VERBOSE, "  %-20s  %10d", "n1", _n1);
+	Logger::log(LogLevel::Verbose, "PCA");
+	Logger::log(LogLevel::Verbose, "  %-20s  %10d", "n1", _n1);
 }
 
 

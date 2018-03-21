@@ -141,7 +141,7 @@ void ImageIterator::load(int i)
 		channels = 3;
 	}
 	else {
-		log(LL_ERROR, "error: cannot read image \'%s\'\n", path.c_str());
+		Logger::log(LogLevel::Error, "error: cannot read image \'%s\'\n", path.c_str());
 		exit(1);
 	}
 
@@ -168,7 +168,7 @@ void ImageIterator::load(int i)
 		_pixels.reset(new unsigned char[num]);
 	}
 	else if ( num != sample_size() ) {
-		log(LL_ERROR, "error: image \'%s\' has unequal size\n", path.c_str());
+		Logger::log(LogLevel::Error, "error: image \'%s\' has unequal size\n", path.c_str());
 		exit(1);
 	}
 

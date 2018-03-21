@@ -34,7 +34,7 @@ void Timer::push(const std::string& name)
 	_items.push_back(item);
 	_level++;
 
-	log(LL_VERBOSE, "%*s%s", 2 * item.level, "", item.name.c_str());
+	Logger::log(LogLevel::Verbose, "%*s%s", 2 * item.level, "", item.name.c_str());
 }
 
 
@@ -85,17 +85,17 @@ void Timer::print()
 	}
 
 	// print timer items
-	log(LL_VERBOSE, "Timing");
-	log(LL_VERBOSE, "%-*s  %s", max_len, "Name", "Duration (s)");
-	log(LL_VERBOSE, "%-*s  %s", max_len, "----", "------------");
+	Logger::log(LogLevel::Verbose, "Timing");
+	Logger::log(LogLevel::Verbose, "%-*s  %s", max_len, "Name", "Duration (s)");
+	Logger::log(LogLevel::Verbose, "%-*s  %s", max_len, "----", "------------");
 
 	for ( iter = _items.begin(); iter != _items.end(); iter++ ) {
-		log(LL_VERBOSE, "%*s%-*s  % 12.3f",
+		Logger::log(LogLevel::Verbose, "%*s%-*s  % 12.3f",
 			2 * iter->level, "",
 			max_len - 2 * iter->level, iter->name.c_str(),
 			iter->duration);
 	}
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "");
 }
 
 

@@ -89,24 +89,24 @@ Matrix Dataset::load_data() const
 void Dataset::print() const
 {
 	// print path
-	log(LL_VERBOSE, "path: %s", _path.c_str());
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "path: %s", _path.c_str());
+	Logger::log(LogLevel::Verbose, "");
 
 	// print classes
-	log(LL_VERBOSE, "%d classes", _classes.size());
+	Logger::log(LogLevel::Verbose, "%d classes", _classes.size());
 
 	for ( const std::string& name : _classes ) {
-		log(LL_VERBOSE, "%s", name.c_str());
+		Logger::log(LogLevel::Verbose, "%s", name.c_str());
 	}
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "");
 
 	// print entries
-	log(LL_VERBOSE, "%d entries", _entries.size());
+	Logger::log(LogLevel::Verbose, "%d entries", _entries.size());
 
 	for ( const DataEntry& entry : _entries ) {
-		log(LL_VERBOSE, "%-8s  %s", entry.label.c_str(), entry.name.c_str());
+		Logger::log(LogLevel::Verbose, "%-8s  %s", entry.label.c_str(), entry.name.c_str());
 	}
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "");
 }
 
 

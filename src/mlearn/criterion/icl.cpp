@@ -36,7 +36,7 @@ float ICLLayer::compute(ClusteringLayer *layer)
  */
 void ICLLayer::print() const
 {
-	log(LL_VERBOSE, "ICL");
+	Logger::log(LogLevel::Verbose, "ICL");
 }
 
 

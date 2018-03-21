@@ -214,9 +214,9 @@ void KNNLayer::print() const
 		dist_name = "L2";
 	}
 
-	log(LL_VERBOSE, "kNN");
-	log(LL_VERBOSE, "  %-20s  %10d", "k", _k);
-	log(LL_VERBOSE, "  %-20s  %10s", "dist", dist_name);
+	Logger::log(LogLevel::Verbose, "kNN");
+	Logger::log(LogLevel::Verbose, "  %-20s  %10d", "k", _k);
+	Logger::log(LogLevel::Verbose, "  %-20s  %10s", "dist", dist_name);
 }
 
 

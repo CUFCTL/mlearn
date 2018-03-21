@@ -143,7 +143,7 @@ void test_identity()
 	};
 	Matrix I = Matrix::identity(4);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		I.print();
 	}
 
@@ -165,7 +165,7 @@ void test_ones()
 	};
 	Matrix X = Matrix::ones(4, 4);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		X.print();
 	}
 
@@ -187,7 +187,7 @@ void test_zeros()
 	};
 	Matrix X = Matrix::zeros(4, 4);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		X.print();
 	}
 
@@ -210,7 +210,7 @@ void test_copy()
 	Matrix A(4, 4, A_data);
 	Matrix C(A);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 		C.print();
 	}
@@ -243,7 +243,7 @@ void test_copy_columns()
 	int j = 3;
 	Matrix C = A(i, j);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 		C.print();
 	}
@@ -267,7 +267,7 @@ void test_determinant()
 
 	float det = A.determinant();
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 		std::cout << "det(A) = " << det << "\n";
 	}
@@ -295,7 +295,7 @@ void test_diagonalize()
 	Matrix v(1, 5, v_data);
 	Matrix D = v.diagonalize();
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		v.print();
 		D.print();
 	}
@@ -320,7 +320,7 @@ void test_dot()
 	Matrix b(1, 4, b_data);
 	float d = a.dot(b);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		a.print();
 		b.print();
 		std::cout << "a' * b = " << d << "\n";
@@ -360,7 +360,7 @@ void test_eigen()
 
 	M.eigen(M.rows(), V, D);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		M.print();
 		V.print();
 		D.print();
@@ -390,7 +390,7 @@ void test_inverse()
 	Matrix X(3, 3, X_data);
 	Matrix Y = X.inverse();
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		X.print();
 		Y.print();
 	}
@@ -416,7 +416,7 @@ void test_mean_column()
 	Matrix A(2, 3, A_data);
 	Matrix m = A.mean_column();
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 		m.print();
 	}
@@ -443,7 +443,7 @@ void test_mean_row()
 	Matrix A(4, 3, A_data);
 	Matrix m = A.mean_row();
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 		m.print();
 	}
@@ -464,7 +464,7 @@ void test_nrm2()
 	Matrix v(1, 3, v_data);
 	float n = v.nrm2();
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		v.print();
 		std::cout << "nrm2(v) = " << n << "\n";
 	}
@@ -504,7 +504,7 @@ void test_product()
 	Matrix C1 = A1 * B1;
 	Matrix C2 = B1 * A1;
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A1.print();
 		B1.print();
 		C1.print();
@@ -532,7 +532,7 @@ void test_product()
 	Matrix B2(3, 3, B2_data);
 	Matrix C3 = A2 * B2;
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A2.print();
 		B2.print();
 		C3.print();
@@ -554,7 +554,7 @@ void test_sum()
 	Matrix v(1, 3, v_data);
 	float s = v.sum();
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		v.print();
 
 		std::cout << "sum(v) = " << s << "\n";
@@ -595,7 +595,7 @@ void test_svd()
 
 	A.svd(U, S, V);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 		U.print();
 		S.print();
@@ -629,7 +629,7 @@ void test_transpose()
 	Matrix A(4, 4, A_data);
 	Matrix B = A.transpose();
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 		B.print();
 	}
@@ -659,14 +659,14 @@ void test_add()
 	Matrix A(2, 2, A_data1);
 	Matrix B(2, 2, B_data);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 		B.print();
 	}
 
 	A += B;
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 	}
 
@@ -703,14 +703,14 @@ void test_assign_column()
 	int i = 2;
 	int j = 0;
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 		B.print();
 	}
 
 	A.assign_column(i, B, j);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 	}
 
@@ -744,14 +744,14 @@ void test_assign_row()
 	int i = 2;
 	int j = 0;
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 		B.print();
 	}
 
 	A.assign_row(i, B, j);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 	}
 
@@ -775,13 +775,13 @@ void test_elem_apply()
 	};
 	Matrix A(2, 3, A_data1);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 	}
 
 	A.elem_apply(sqrtf);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 	}
 
@@ -806,13 +806,13 @@ void test_scal()
 	Matrix A(2, 3, A_data1);
 	float c = 3;
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 	}
 
 	A *= c;
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 	}
 
@@ -841,14 +841,14 @@ void test_subtract()
 	Matrix A(2, 2, A_data1);
 	Matrix B(2, 2, B_data);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 		B.print();
 	}
 
 	A -= B;
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		A.print();
 	}
 
@@ -880,14 +880,14 @@ void test_subtract_columns()
 	Matrix M(3, 4, M_data1);
 	Matrix a(3, 1, a_data);;
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		M.print();
 		a.print();
 	}
 
 	M.subtract_columns(a);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		M.print();
 	}
 
@@ -917,14 +917,14 @@ void test_subtract_rows()
 	Matrix M(3, 4, M_data1);
 	Matrix a(1, 4, a_data);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		M.print();
 		a.print();
 	}
 
 	M.subtract_rows(a);
 
-	if ( LOGGER(LL_VERBOSE) ) {
+	if ( Logger::test(LogLevel::Verbose) ) {
 		M.print();
 	}
 
@@ -940,7 +940,7 @@ void print_usage()
 		"\n"
 		"Options:\n"
 		"  --gpu             use GPU acceleration\n"
-		"  --loglevel LEVEL  set the log level (1=info, 2=verbose, 3=debug)\n";
+		"  --loglevel LEVEL  log level (0=error, 1=warn, [2]=info, 3=verbose, 4=debug)\n";
 }
 
 
@@ -961,7 +961,7 @@ int main(int argc, char **argv)
 			GPU = true;
 			break;
 		case 'e':
-			LOGLEVEL = (logger_level_t) atoi(optarg);
+			Logger::LEVEL = (LogLevel) atoi(optarg);
 			break;
 		case '?':
 			print_usage();

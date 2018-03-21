@@ -12,7 +12,7 @@ namespace ML {
 
 
 
-logger_level_t LOGLEVEL = LL_INFO;
+LogLevel Logger::LEVEL { LogLevel::Info };
 
 
 
@@ -25,10 +25,10 @@ logger_level_t LOGLEVEL = LL_INFO;
  * @param level
  * @param format
  */
-void log(logger_level_t level, const char *format, ...)
+void Logger::log(LogLevel level, const char *format, ...)
 {
-	if ( level <= LOGLEVEL ) {
-		FILE *stream = (level <= LL_ERROR)
+	if ( test(level) ) {
+		FILE *stream = (level <= LogLevel::Error)
 			? stderr
 			: stdout;
 		va_list ap;

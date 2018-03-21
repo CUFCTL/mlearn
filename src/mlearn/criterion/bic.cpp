@@ -35,7 +35,7 @@ float BICLayer::compute(ClusteringLayer *layer)
  */
 void BICLayer::print() const
 {
-	log(LL_VERBOSE, "BIC");
+	Logger::log(LogLevel::Verbose, "BIC");
 }
 
 

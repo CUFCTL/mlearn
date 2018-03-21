@@ -30,7 +30,7 @@ Matrix IdentityLayer::project(const Matrix& X)
  */
 void IdentityLayer::print() const
 {
-	log(LL_VERBOSE, "Identity");
+	Logger::log(LogLevel::Verbose, "Identity");
 }
 
 

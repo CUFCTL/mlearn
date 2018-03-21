@@ -168,12 +168,12 @@ void ICALayer::print() const
 		nonl_name = "gauss";
 	}
 
-	log(LL_VERBOSE, "ICA");
-	log(LL_VERBOSE, "  %-20s  %10d", "n1", _n1);
-	log(LL_VERBOSE, "  %-20s  %10d", "n2", _n2);
-	log(LL_VERBOSE, "  %-20s  %10s", "nonl", nonl_name);
-	log(LL_VERBOSE, "  %-20s  %10d", "max_iter", _max_iter);
-	log(LL_VERBOSE, "  %-20s  %10f", "eps", _eps);
+	Logger::log(LogLevel::Verbose, "ICA");
+	Logger::log(LogLevel::Verbose, "  %-20s  %10d", "n1", _n1);
+	Logger::log(LogLevel::Verbose, "  %-20s  %10d", "n2", _n2);
+	Logger::log(LogLevel::Verbose, "  %-20s  %10s", "nonl", nonl_name);
+	Logger::log(LogLevel::Verbose, "  %-20s  %10d", "max_iter", _max_iter);
+	Logger::log(LogLevel::Verbose, "  %-20s  %10f", "eps", _eps);
 }
 
 
@@ -350,7 +350,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 
 	int i;
 	for ( i = 0; i < n2; i++ ) {
-		log(LL_VERBOSE, "      round %d", i + 1);
+		Logger::log(LogLevel::Verbose, "      round %d", i + 1);
 
 		// initialize w as a Gaussian (0, 1) random vector
 		Matrix w = Matrix::random(n2, 1);
@@ -394,7 +394,7 @@ Matrix ICALayer::fpica(const Matrix& X, const Matrix& W_z)
 			w /= w.nrm2();
 		}
 
-		log(LL_VERBOSE, "      iterations: %d", j);
+		Logger::log(LogLevel::Verbose, "      iterations: %d", j);
 	}
 
 	return W_mix;

@@ -121,7 +121,7 @@ void BayesLayer::load(IODevice& file)
  */
 void BayesLayer::print() const
 {
-	log(LL_VERBOSE, "Bayes");
+	Logger::log(LogLevel::Verbose, "Bayes");
 }
 
 

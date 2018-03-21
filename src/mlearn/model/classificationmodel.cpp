@@ -33,12 +33,12 @@ ClassificationModel::ClassificationModel(FeatureLayer *feature, ClassifierLayer 
 	_stats.predict_time = 0.0f;
 
 	// log hyperparameters
-	log(LL_VERBOSE, "Hyperparameters");
+	Logger::log(LogLevel::Verbose, "Hyperparameters");
 
 	_feature->print();
 	_classifier->print();
 
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "");
 }
 
 
@@ -90,7 +90,7 @@ void ClassificationModel::train(const Dataset& train_set)
 
 	_train_set = train_set;
 
-	log(LL_VERBOSE, "Training set: %d samples, %d classes",
+	Logger::log(LogLevel::Verbose, "Training set: %d samples, %d classes",
 		train_set.entries().size(),
 		train_set.classes().size());
 
@@ -111,7 +111,7 @@ void ClassificationModel::train(const Dataset& train_set)
 	// record training time
 	_stats.train_time = Timer::pop();
 
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "");
 }
 
 
@@ -125,7 +125,7 @@ std::vector<int> ClassificationModel::predict(const Dataset& test_set)
 {
 	Timer::push("Prediction");
 
-	log(LL_VERBOSE, "Test set: %d samples, %d classes",
+	Logger::log(LogLevel::Verbose, "Test set: %d samples, %d classes",
 		test_set.entries().size(),
 		test_set.classes().size());
 
@@ -141,7 +141,7 @@ std::vector<int> ClassificationModel::predict(const Dataset& test_set)
 	// record prediction time
 	_stats.predict_time = Timer::pop();
 
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "");
 
 	return y_pred;
 }
@@ -177,7 +177,7 @@ void ClassificationModel::validate(const Dataset& test_set, const std::vector<in
  */
 void ClassificationModel::print_results(const Dataset& test_set, const std::vector<int>& y_pred) const
 {
-	log(LL_VERBOSE, "Results");
+	Logger::log(LogLevel::Verbose, "Results");
 
 	for ( size_t i = 0; i < test_set.entries().size(); i++ ) {
 		const std::string& name = test_set.entries()[i].name;
@@ -187,11 +187,11 @@ void ClassificationModel::print_results(const Dataset& test_set, const std::vect
 			? "(!)"
 			: "";
 
-		log(LL_VERBOSE, "%-12s -> %-4s %s", name.c_str(), label.c_str(), s);
+		Logger::log(LogLevel::Verbose, "%-12s -> %-4s %s", name.c_str(), label.c_str(), s);
 	}
 
-	log(LL_VERBOSE, "Error rate: %.3f", _stats.error_rate);
-	log(LL_VERBOSE, "");
+	Logger::log(LogLevel::Verbose, "Error rate: %.3f", _stats.error_rate);
+	Logger::log(LogLevel::Verbose, "");
 }
 
 
