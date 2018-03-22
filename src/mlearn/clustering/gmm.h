@@ -19,7 +19,7 @@ class GMMLayer : public ClusteringLayer {
 public:
 	GMMLayer(int k);
 
-	int fit(const std::vector<Matrix>& X);
+	void fit(const std::vector<Matrix>& X);
 
 	float entropy() const { return _entropy; }
 	float log_likelihood() const { return _log_likelihood; }
@@ -27,6 +27,7 @@ public:
 	int num_parameters() const { return _num_parameters; }
 	int num_samples() const { return _num_samples; }
 	const std::vector<int>& output() const { return _output; }
+	bool success() const { return _success; }
 
 	void print() const;
 
@@ -41,6 +42,7 @@ private:
 	int _num_parameters;
 	int _num_samples;
 	std::vector<int> _output;
+	bool _success;
 };
 
 

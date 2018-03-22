@@ -30,6 +30,7 @@ const float EPSILON = 1e-3;
 GMMLayer::GMMLayer(int k)
 {
 	_k = k;
+	_success = false;
 }
 
 
@@ -241,10 +242,8 @@ float compute_entropy(const Matrix& c, const std::vector<int>& y)
  *
  * @param X
  */
-int GMMLayer::fit(const std::vector<Matrix>& X)
+void GMMLayer::fit(const std::vector<Matrix>& X)
 {
-	int status = 0;
-
 	Timer::push("Gaussian mixture model");
 
 	try {
@@ -281,14 +280,13 @@ int GMMLayer::fit(const std::vector<Matrix>& X)
 		_num_parameters = _k * (1 + d + d * d);
 		_num_samples = n;
 		_output = y;
+		_success = true;
 	}
 	catch ( std::runtime_error& e ) {
-		status = 1;
+		_success = false;
 	}
 
 	Timer::pop();
-
-	return status;
 }
 
 

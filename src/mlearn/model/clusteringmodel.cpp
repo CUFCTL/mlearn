@@ -62,42 +62,15 @@ void ClusteringModel::fit(const std::vector<Matrix>& X)
 	Timer::push("Clustering");
 
 	// run clustering layers
-	std::vector<int> results;
-
-	for ( ClusteringLayer *c : _clustering ) {
-		results.push_back(c->fit(X));
+	for ( ClusteringLayer *layer : _clustering ) {
+		layer->fit(X);
 	}
 
 	// record prediction time
 	_stats.predict_time = Timer::pop();
 
 	// select model with lowest criterion value
-	ClusteringLayer *min_c = nullptr;
-	float min_value = 0;
-
-	for ( size_t i = 0; i < _clustering.size(); i++ ) {
-		if ( results[i] == 0 ) {
-			ClusteringLayer *c = _clustering[i];
-			float value = _criterion->compute(c);
-
-			if ( min_c == nullptr || value < min_value ) {
-				min_c = c;
-				min_value = value;
-			}
-
-			Logger::log(LogLevel::Verbose, "model %d: %8.3f", i, value);
-		}
-		else {
-			Logger::log(LogLevel::Verbose, "model %d: FAILED", i);
-		}
-	}
-	Logger::log(LogLevel::Verbose, "");
-
-	if ( min_c == nullptr ) {
-		Logger::log(LogLevel::Warn, "warning: all models failed");
-	}
-
-	_best_layer = min_c;
+	_best_layer = _criterion->select(_clustering);
 }
 
 

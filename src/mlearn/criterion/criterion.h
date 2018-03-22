@@ -19,6 +19,7 @@ namespace ML {
 class CriterionLayer {
 public:
 	virtual ~CriterionLayer() {};
+	virtual ClusteringLayer * select(const std::vector<ClusteringLayer *>& layers);
 	virtual float compute(ClusteringLayer *layer) = 0;
 	virtual void print() const = 0;
 };

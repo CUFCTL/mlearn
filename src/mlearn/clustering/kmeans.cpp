@@ -24,6 +24,7 @@ namespace ML {
 KMeansLayer::KMeansLayer(int k)
 {
 	_k = k;
+	_success = false;
 }
 
 
@@ -105,10 +106,8 @@ void KMeansLayer::M_step(const std::vector<Matrix>& X, const std::vector<int>& y
  *
  * @param X
  */
-int KMeansLayer::fit(const std::vector<Matrix>& X)
+void KMeansLayer::fit(const std::vector<Matrix>& X)
 {
-	int status = 0;
-
 	Timer::push("K-means");
 
 	try {
@@ -178,14 +177,13 @@ int KMeansLayer::fit(const std::vector<Matrix>& X)
 		_num_parameters = _k * (1 + d + d * d);
 		_num_samples = n;
 		_output = y;
+		_success = true;
 	}
 	catch ( std::runtime_error& e ) {
-		status = 1;
+		_success = false;
 	}
 
 	Timer::pop();
-
-	return status;
 }
 
 
