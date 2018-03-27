@@ -9,7 +9,6 @@
 #include "mlearn/classifier/classifier.h"
 #include "mlearn/data/dataset.h"
 #include "mlearn/feature/feature.h"
-#include "mlearn/math/matrix.h"
 
 
 
@@ -28,11 +27,11 @@ public:
 	void load(const std::string& path);
 	void print() const;
 
-	void train(const Dataset& train_set);
-	std::vector<int> predict(const Dataset& test_set);
-	void validate(const Dataset& test_set, const std::vector<int>& y_pred);
+	void fit(const Dataset& dataset);
+	std::vector<int> predict(const Dataset& dataset);
+	void validate(const Dataset& dataset, const std::vector<int>& y_pred);
 
-	void print_results(const Dataset& test_set, const std::vector<int>& y_pred) const;
+	void print_results(const Dataset& dataset, const std::vector<int>& y_pred) const;
 	void print_stats() const;
 
 private:
@@ -49,7 +48,7 @@ private:
 	// performance, accuracy stats
 	struct {
 		float error_rate;
-		float train_time;
+		float fit_time;
 		float predict_time;
 	} _stats;
 };

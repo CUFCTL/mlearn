@@ -29,7 +29,7 @@ ClassificationModel::ClassificationModel(FeatureLayer *feature, ClassifierLayer 
 
 	// initialize stats
 	_stats.error_rate = 0.0f;
-	_stats.train_time = 0.0f;
+	_stats.fit_time = 0.0f;
 	_stats.predict_time = 0.0f;
 }
 
@@ -48,7 +48,6 @@ void ClassificationModel::save(const std::string& path)
 	file << _mean;
 	file << _feature;
 	file << _classifier;
-	file.close();
 }
 
 
@@ -66,7 +65,6 @@ void ClassificationModel::load(const std::string& path)
 	file >> _mean;
 	file >> _feature;
 	file >> _classifier;
-	file.close();
 }
 
 
@@ -87,36 +85,36 @@ void ClassificationModel::print() const
 
 
 /**
- * Perform training on a training set.
+ * Fit the model to a training set.
  *
- * @param train_set
+ * @param dataset
  */
-void ClassificationModel::train(const Dataset& train_set)
+void ClassificationModel::fit(const Dataset& dataset)
 {
 	Timer::push("Training");
 
-	_train_set = train_set;
+	_train_set = dataset;
 
 	Logger::log(LogLevel::Verbose, "Training set: %d samples, %d classes",
-		train_set.entries().size(),
-		train_set.classes().size());
+		dataset.entries().size(),
+		dataset.classes().size());
 
 	// get data matrix X
-	Matrix X = train_set.load_data();
+	Matrix X = dataset.load_data();
 
 	// subtract mean from X
 	_mean = X.mean_column();
 
 	X.subtract_columns(_mean);
 
-	// project X into feature space
+	// perform feature extraction
 	_feature->compute(X, _train_set.labels(), _train_set.classes().size());
 
-	// train classifier
+	// fit classifier
 	_classifier->compute(_feature->project(X), _train_set.labels(), _train_set.classes().size());
 
-	// record training time
-	_stats.train_time = Timer::pop();
+	// record fit time
+	_stats.fit_time = Timer::pop();
 
 	Logger::log(LogLevel::Verbose, "");
 }
@@ -124,20 +122,20 @@ void ClassificationModel::train(const Dataset& train_set)
 
 
 /**
- * Perform recognition on a test set.
+ * Use the model to predict on a dataset.
  *
- * @param test_set
+ * @param dataset
  */
-std::vector<int> ClassificationModel::predict(const Dataset& test_set)
+std::vector<int> ClassificationModel::predict(const Dataset& dataset)
 {
 	Timer::push("Prediction");
 
 	Logger::log(LogLevel::Verbose, "Test set: %d samples, %d classes",
-		test_set.entries().size(),
-		test_set.classes().size());
+		dataset.entries().size(),
+		dataset.classes().size());
 
 	// compute projected test images
-	Matrix X_test = test_set.load_data();
+	Matrix X_test = dataset.load_data();
 	X_test.subtract_columns(_mean);
 
 	Matrix P_test = _feature->project(X_test);
@@ -158,20 +156,20 @@ std::vector<int> ClassificationModel::predict(const Dataset& test_set)
 /**
  * Validate a set of predicted labels against the ground truth.
  *
- * @param test_set
+ * @param dataset
  * @param y_pred
  */
-void ClassificationModel::validate(const Dataset& test_set, const std::vector<int>& y_pred)
+void ClassificationModel::validate(const Dataset& dataset, const std::vector<int>& y_pred)
 {
 	int num_errors = 0;
 
-	for ( size_t i = 0; i < test_set.labels().size(); i++ ) {
-		if ( y_pred[i] != test_set.labels()[i] ) {
+	for ( size_t i = 0; i < dataset.labels().size(); i++ ) {
+		if ( y_pred[i] != dataset.labels()[i] ) {
 			num_errors++;
 		}
 	}
 
-	_stats.error_rate = (float) num_errors / test_set.entries().size();
+	_stats.error_rate = (float) num_errors / dataset.entries().size();
 }
 
 
@@ -179,18 +177,18 @@ void ClassificationModel::validate(const Dataset& test_set, const std::vector<in
 /**
  * Print prediction results of a model.
  *
- * @param test_set
+ * @param dataset
  * @param y_pred
  */
-void ClassificationModel::print_results(const Dataset& test_set, const std::vector<int>& y_pred) const
+void ClassificationModel::print_results(const Dataset& dataset, const std::vector<int>& y_pred) const
 {
 	Logger::log(LogLevel::Verbose, "Results");
 
-	for ( size_t i = 0; i < test_set.entries().size(); i++ ) {
-		const std::string& name = test_set.entries()[i].name;
-		const std::string& label = test_set.classes()[y_pred[i]];
+	for ( size_t i = 0; i < dataset.entries().size(); i++ ) {
+		const std::string& name = dataset.entries()[i].name;
+		const std::string& label = dataset.classes()[y_pred[i]];
 
-		const char *s = (y_pred[i] != test_set.labels()[i])
+		const char *s = (y_pred[i] != dataset.labels()[i])
 			? "(!)"
 			: "";
 
@@ -210,7 +208,7 @@ void ClassificationModel::print_stats() const
 {
 	std::cout
 		<< std::setw(12) << std::setprecision(3) << _stats.error_rate
-		<< std::setw(12) << std::setprecision(3) << _stats.train_time
+		<< std::setw(12) << std::setprecision(3) << _stats.fit_time
 		<< std::setw(12) << std::setprecision(3) << _stats.predict_time
 		<< "\n";
 }

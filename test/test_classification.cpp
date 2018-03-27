@@ -173,8 +173,8 @@ int main(int argc, char **argv)
 
 	model.print();
 
-	// extract features from training set
-	model.train(train_set);
+	// fit model to training set
+	model.fit(train_set);
 
 	// perform classification on test set
 	std::vector<int> y_pred = model.predict(test_set);
