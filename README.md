@@ -1,6 +1,6 @@
-# libmlearn
+# mlearn
 
-Machine learning library written in C++ with GPU acceleration.
+A condensed machine learning library written in C++/CUDA.
 
 ## Features
 
@@ -8,7 +8,7 @@ Data types
 - Image and Genome types included
 - Plugin interface for creating your own data types
 
-Feature extraction
+Dimensionality reduction
 - Principal Component Analysis
 - Linear Discriminant Analysis
 - Independent Component Analysis
@@ -23,23 +23,26 @@ Clustering
 
 ## Installation
 
+This project depends on CUDA. The CUDA Toolkit can be downloaded [here](https://developer.nvidia.com/cuda-downloads).
+
 Before running any commands, append these lines to `~/.bashrc`:
 ```
 # CUDADIR should point to your CUDA installation
-export CUDADIR=/usr/local/cuda
-export PATH=$PATH:$CUDADIR/bin
+export CUDADIR="/usr/local/cuda"
+export PATH="$CUDADIR/bin:$PATH"
+export LD_LIBRARY_PATH="$CUDADIR/lib64:$LD_LIBRARY_PATH"
 
-export INSTALL_PREFIX=$HOME/software
-export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$INSTALL_PREFIX/include
-export LIBRARY_PATH=$LIBRARY_PATH:$INSTALL_PREFIX/lib
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PREFIX/lib
+export INSTALL_PREFIX="$HOME/software"
+export CPLUS_INCLUDE_PATH="$INSTALL_PREFIX/include:$CPLUS_INCLUDE_PATH"
+export LIBRARY_PATH="$INSTALL_PREFIX/lib:$LIBRARY_PATH"
+export LD_LIBRARY_PATH="$INSTALL_PREFIX/lib:$LD_LIBRARY_PATH"
 ```
 
-You should then be able to install libmlearn and its dependencies:
+You should then be able to install mlearn and its dependencies:
 ```
 # clone repository
-git clone https://github.com/CUFCTL/libmlearn.git
-cd libmlearn
+git clone https://github.com/CUFCTL/mlearn.git
+cd mlearn
 
 # install OpenBLAS and MAGMA
 make install-deps -j [num-jobs]
@@ -50,7 +53,7 @@ make -j [num-jobs]
 
 ## Usage
 
-Refer to the test programs in the `test` folder for example uses of libmlearn:
+Refer to the test programs in the `test` folder for example uses of mlearn:
 ```
 make examples
 
