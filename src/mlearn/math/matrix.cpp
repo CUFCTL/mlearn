@@ -737,25 +737,26 @@ Matrix Matrix::inverse() const
 
 	int m = M._rows;
 	int n = M._cols;
-	Matrix M_inv = M;
+	Matrix A = M;
+	Matrix M_inv = Matrix::identity(n);
 	int lda = M._rows;
 
 	if ( GPU ) {
-		int nb = magma_get_sgetri_nb(n);
 		int *ipiv = new int[n];
-		int lwork = n * nb;
-		float *dwork = (float *)gpu_malloc(lwork * sizeof(float));
 		int info;
 
-		magma_sgetrf_gpu(m, n, M_inv._data_gpu, lda,
+		magma_sgetrf_gpu(
+			m, n, A._data_gpu, lda,
 			ipiv, &info);
 		assert(info >= 0);
 
-		magma_sgetri_gpu(n, M_inv._data_gpu, lda,
-			ipiv, dwork, lwork, &info);
+		magma_sgetrs_gpu(
+			MagmaNoTrans,
+			n, n, A._data_gpu, lda,
+			ipiv,
+			M_inv._data_gpu, n, &info);
 
 		delete[] ipiv;
-		gpu_free(dwork);
 
 		throw_on_fail(info == 0, "Failed to compute inverse");
 
@@ -763,20 +764,20 @@ Matrix Matrix::inverse() const
 	}
 	else {
 		int *ipiv = new int[n];
-		int lwork = n;
-		float *work = new float[lwork];
 
-		int info = LAPACKE_sgetrf_work(LAPACK_COL_MAJOR,
-			m, n, M_inv._data_cpu, lda,
+		int info = LAPACKE_sgetrf_work(
+			LAPACK_COL_MAJOR,
+			m, n, A._data_cpu, lda,
 			ipiv);
 		assert(info >= 0);
 
-		info = LAPACKE_sgetri_work(LAPACK_COL_MAJOR,
-			n, M_inv._data_cpu, lda,
-			ipiv, work, lwork);
+		info = LAPACKE_sgetrs_work(
+			LAPACK_COL_MAJOR, 'N',
+			n, n, A._data_cpu, lda,
+			ipiv,
+			M_inv._data_cpu, n);
 
 		delete[] ipiv;
-		delete[] work;
 
 		throw_on_fail(info == 0, "Failed to compute inverse");
 	}
