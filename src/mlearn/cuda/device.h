@@ -11,6 +11,7 @@
 #include <memory>
 #include <cublas_v2.h>
 #include <cusolverDn.h>
+#include "mlearn/util/error.h"
 
 
 
@@ -18,13 +19,18 @@ namespace ML {
 
 
 
-inline void CHECK_CUDA(cudaError_t err)
-{
-	if ( err != cudaSuccess ) {
-		fprintf(stderr, "CUDA Runtime Error: %s\n", cudaGetErrorString(err));
-		exit(-1);
-	}
-}
+#define CHECK_CUDA(ret) \
+	CHECK_ERROR(ret == cudaSuccess, #ret)
+
+
+
+#define CHECK_CUBLAS(ret) \
+	CHECK_ERROR(ret == CUBLAS_STATUS_SUCCESS, #ret)
+
+
+
+#define CHECK_CUSOLVER(ret) \
+	CHECK_ERROR(ret == CUSOLVER_STATUS_SUCCESS, #ret)
 
 
 

@@ -3,7 +3,6 @@
  *
  * Implementation of the CUDA device type.
  */
-#include <cassert>
 #include "mlearn/cuda/device.h"
 
 
@@ -35,20 +34,16 @@ Device * Device::instance()
 
 Device::Device()
 {
-	cublasStatus_t cublas_status = cublasCreate(&_cublas_handle);
-	cusolverStatus_t cusolver_status = cusolverDnCreate(&_cusolver_handle);
-
-	assert(cublas_status == CUBLAS_STATUS_SUCCESS && cusolver_status == CUSOLVER_STATUS_SUCCESS);
+	CHECK_CUBLAS(cublasCreate(&_cublas_handle));
+	CHECK_CUSOLVER(cusolverDnCreate(&_cusolver_handle));
 }
 
 
 
 Device::~Device()
 {
-	cublasStatus_t cublas_status = cublasDestroy(_cublas_handle);
-	cusolverStatus_t cusolver_status = cusolverDnDestroy(_cusolver_handle);
-
-	assert(cublas_status == CUBLAS_STATUS_SUCCESS && cusolver_status == CUSOLVER_STATUS_SUCCESS);
+	CHECK_CUBLAS(cublasDestroy(_cublas_handle));
+	CHECK_CUSOLVER(cusolverDnDestroy(_cusolver_handle));
 }
 
 

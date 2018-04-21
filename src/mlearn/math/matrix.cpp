@@ -7,17 +7,16 @@
 #include <cmath>
 #include <cstring>
 #include <iomanip>
-#include <stdexcept>
 
 #include <cblas.h>
 #include <lapacke.h>
-#include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <cusolverDn.h>
 
 #include "mlearn/cuda/device.h"
 #include "mlearn/math/matrix.h"
 #include "mlearn/math/random.h"
+#include "mlearn/util/error.h"
 #include "mlearn/util/logger.h"
 
 
@@ -27,21 +26,6 @@ namespace ML {
 
 
 const float EPSILON = 1e-16;
-
-
-
-/**
- * Throw an exception if a condition is false.
- *
- * @param condition
- * @param errmsg
- */
-inline void throw_on_fail(bool condition, const std::string& errmsg="")
-{
-	if ( !condition ) {
-		throw std::runtime_error(errmsg);
-	}
-}
 
 
 
@@ -537,7 +521,7 @@ Matrix Matrix::inverse() const
 	// compute inverse
 	bool success = getrs(A, M_inv, ipiv);
 
-	throw_on_fail(success, "Failed to compute inverse");
+	CHECK_ERROR(success, "Failed to compute inverse");
 
 	M_inv.gpu_read();
 
@@ -893,12 +877,12 @@ void Matrix::axpy(float alpha, const Matrix& A)
 	int incY = 1;
 
 	if ( Device::instance() ) {
-		cublasStatus_t status = cublasSaxpy(
+		CHECK_CUBLAS(cublasSaxpy(
 			Device::instance()->cublas_handle(), n,
 			&alpha,
 			A._buffer.device_data(), incX,
-			B._buffer.device_data(), incY);
-		assert(status == CUBLAS_STATUS_SUCCESS);
+			B._buffer.device_data(), incY
+		));
 
 		B.gpu_read();
 	}
@@ -932,12 +916,12 @@ float Matrix::dot(const Matrix& y) const
 	float dot;
 
 	if ( Device::instance() ) {
-		cublasStatus_t status = cublasSdot(
+		CHECK_CUBLAS(cublasSdot(
 			Device::instance()->cublas_handle(), n,
 			x._buffer.device_data(), incX,
 			y._buffer.device_data(), incY,
-			&dot);
-		assert(status == CUBLAS_STATUS_SUCCESS);
+			&dot
+		));
 	}
 	else {
 		dot = cblas_sdot(n, x._buffer.host_data(), incX, y._buffer.host_data(), incY);
@@ -979,15 +963,15 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 		cublasOperation_t TransA = A._transposed ? CUBLAS_OP_T : CUBLAS_OP_N;
 		cublasOperation_t TransB = B._transposed ? CUBLAS_OP_T : CUBLAS_OP_N;
 
-		cublasStatus_t status = cublasSgemm(
+		CHECK_CUBLAS(cublasSgemm(
 			Device::instance()->cublas_handle(), TransA, TransB,
 			m, n, k1,
 			&alpha,
 			A._buffer.device_data(), A._rows,
 			B._buffer.device_data(), B._rows,
 			&beta,
-			C._buffer.device_data(), C._rows);
-		assert(status == CUBLAS_STATUS_SUCCESS);
+			C._buffer.device_data(), C._rows
+		));
 
 		C.gpu_read();
 	}
@@ -1002,7 +986,8 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 			A._buffer.host_data(), A._rows,
 			B._buffer.host_data(), B._rows,
 			beta,
-			C._buffer.host_data(), C._rows);
+			C._buffer.host_data(), C._rows
+		);
 	}
 }
 
@@ -1027,11 +1012,11 @@ float Matrix::nrm2() const
 	float nrm2;
 
 	if ( Device::instance() ) {
-		cublasStatus_t status = cublasSnrm2(
+		CHECK_CUBLAS(cublasSnrm2(
 			Device::instance()->cublas_handle(), n,
 			x._buffer.device_data(), incX,
-			&nrm2);
-		assert(status == CUBLAS_STATUS_SUCCESS);
+			&nrm2
+		));
 	}
 	else {
 		nrm2 = cblas_snrm2(n, x._buffer.host_data(), incX);
@@ -1060,11 +1045,11 @@ void Matrix::scal(float alpha)
 	int incX = 1;
 
 	if ( Device::instance() ) {
-		cublasStatus_t status = cublasSscal(
+		CHECK_CUBLAS(cublasSscal(
 			Device::instance()->cublas_handle(), n,
 			&alpha,
-			M._buffer.device_data(), incX);
-		assert(status == CUBLAS_STATUS_SUCCESS);
+			M._buffer.device_data(), incX
+		));
 
 		M.gpu_read();
 	}
@@ -1097,12 +1082,12 @@ void Matrix::syr(float alpha, const Matrix& x)
 	int incX = 1;
 
 	if ( Device::instance() ) {
-		cublasStatus_t status = cublasSsyr(
+		CHECK_CUBLAS(cublasSsyr(
 			Device::instance()->cublas_handle(), CUBLAS_FILL_MODE_UPPER,
 			n, &alpha,
 			x._buffer.device_data(), incX,
-			A._buffer.device_data(), A._rows);
-		assert(status == CUBLAS_STATUS_SUCCESS);
+			A._buffer.device_data(), A._rows
+		));
 
 		A.gpu_read();
 	}
@@ -1111,7 +1096,8 @@ void Matrix::syr(float alpha, const Matrix& x)
 			CblasColMajor, CblasUpper,
 			n, alpha,
 			x._buffer.host_data(), incX,
-			A._buffer.host_data(), A._rows);
+			A._buffer.host_data(), A._rows
+		);
 	}
 }
 
@@ -1147,13 +1133,13 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 	if ( Device::instance() ) {
 		cublasOperation_t Trans = trans ? CUBLAS_OP_T : CUBLAS_OP_N;
 
-		cublasStatus_t status = cublasSsyrk(
+		CHECK_CUBLAS(cublasSsyrk(
 			Device::instance()->cublas_handle(), CUBLAS_FILL_MODE_UPPER, Trans,
 			n, k, &alpha,
 			A._buffer.device_data(), A._rows,
 			&beta,
-			C._buffer.device_data(), C._rows);
-		assert(status == CUBLAS_STATUS_SUCCESS);
+			C._buffer.device_data(), C._rows
+		));
 
 		C.gpu_read();
 	}
@@ -1165,7 +1151,8 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 			n, k, alpha,
 			A._buffer.host_data(), A._rows,
 			beta,
-			C._buffer.host_data(), C._rows);
+			C._buffer.host_data(), C._rows
+		);
 	}
 }
 
@@ -1194,16 +1181,16 @@ void Matrix::gesvd(Matrix& U, Matrix& S, Matrix& VT) const
 		Matrix wA = A;
 		int lwork;
 
-		cusolverStatus_t status = cusolverDnSgesvd_bufferSize(
+		CHECK_CUSOLVER(cusolverDnSgesvd_bufferSize(
 			Device::instance()->cusolver_handle(),
 			m, n,
-			&lwork);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
+			&lwork
+		));
 
 		Buffer<float> work(lwork, false);
 		Buffer<int> info(1);
 
-		status = cusolverDnSgesvd(
+		CHECK_CUSOLVER(cusolverDnSgesvd(
 			Device::instance()->cusolver_handle(), 'S', 'S',
 			m, n, wA._buffer.device_data(), lda,
 			S._buffer.device_data(),
@@ -1211,8 +1198,8 @@ void Matrix::gesvd(Matrix& U, Matrix& S, Matrix& VT) const
 			VT._buffer.device_data(), ldvt,
 			work.device_data(), lwork,
 			nullptr,
-			info.device_data());
-		assert(status == CUSOLVER_STATUS_SUCCESS);
+			info.device_data()
+		));
 
 		info.read();
 		assert(info.host_data()[0] == 0);
@@ -1228,7 +1215,8 @@ void Matrix::gesvd(Matrix& U, Matrix& S, Matrix& VT) const
 			S._buffer.host_data(),
 			U._buffer.host_data(), ldu,
 			VT._buffer.host_data(), ldvt,
-			work.host_data(), lwork);
+			work.host_data(), lwork
+		);
 		assert(info == 0);
 	}
 }
@@ -1254,22 +1242,21 @@ void Matrix::getrf(Matrix& U, Buffer<int>& ipiv) const
 	if ( Device::instance() ) {
 		int lwork;
 
-		cusolverStatus_t status = cusolverDnSgetrf_bufferSize(
+		CHECK_CUSOLVER(cusolverDnSgetrf_bufferSize(
 			Device::instance()->cusolver_handle(),
 			m, n, U._buffer.device_data(), lda,
 			&lwork
-		);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
+		));
 
 		Buffer<float> work(lwork, false);
 		Buffer<int> info(1);
 
-		status = cusolverDnSgetrf(
+		CHECK_CUSOLVER(cusolverDnSgetrf(
 			Device::instance()->cusolver_handle(),
 			m, n, U._buffer.device_data(), lda,
 			work.device_data(), ipiv.device_data(),
-			info.device_data());
-		assert(status == CUSOLVER_STATUS_SUCCESS);
+			info.device_data()
+		));
 
 		info.read();
 		assert(info.host_data()[0] >= 0);
@@ -1278,7 +1265,8 @@ void Matrix::getrf(Matrix& U, Buffer<int>& ipiv) const
 		int info = LAPACKE_sgetrf_work(
 			LAPACK_COL_MAJOR,
 			m, n, U._buffer.host_data(), lda,
-			ipiv.host_data());
+			ipiv.host_data()
+		);
 		assert(info >= 0);
 	}
 }
@@ -1303,13 +1291,13 @@ bool Matrix::getrs(const Matrix& A, Matrix& B, Buffer<int>& ipiv) const
 	if ( Device::instance() ) {
 		Buffer<int> info(1);
 
-		cusolverStatus_t status = cusolverDnSgetrs(
+		CHECK_CUSOLVER(cusolverDnSgetrs(
 			Device::instance()->cusolver_handle(), CUBLAS_OP_N,
 			n, n, A._buffer.device_data(), lda,
 			ipiv.device_data(),
 			B._buffer.device_data(), n,
-			info.device_data());
-		assert(status == CUSOLVER_STATUS_SUCCESS);
+			info.device_data()
+		));
 
 		info.read();
 		return (info.host_data()[0] == 0);
@@ -1319,7 +1307,8 @@ bool Matrix::getrs(const Matrix& A, Matrix& B, Buffer<int>& ipiv) const
 			LAPACK_COL_MAJOR, 'N',
 			n, n, A._buffer.host_data(), lda,
 			ipiv.host_data(),
-			B._buffer.host_data(), n);
+			B._buffer.host_data(), n
+		);
 
 		return (info == 0);
 	}
@@ -1347,20 +1336,19 @@ void Matrix::syev(Matrix& V, Matrix& D) const
 	if ( Device::instance() ) {
 		int lwork;
 
-		cusolverStatus_t status = cusolverDnSsyevd_bufferSize(
+		CHECK_CUSOLVER(cusolverDnSsyevd_bufferSize(
 			Device::instance()->cusolver_handle(),
 			CUSOLVER_EIG_MODE_VECTOR,
 			CUBLAS_FILL_MODE_UPPER,
 			n, V._buffer.device_data(), lda,
 			D._buffer.device_data(),
 			&lwork
-		);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
+		));
 
 		Buffer<float> work(lwork, false);
 		Buffer<int> info(1);
 
-		status = cusolverDnSsyevd(
+		CHECK_CUSOLVER(cusolverDnSsyevd(
 			Device::instance()->cusolver_handle(),
 			CUSOLVER_EIG_MODE_VECTOR,
 			CUBLAS_FILL_MODE_UPPER,
@@ -1368,8 +1356,7 @@ void Matrix::syev(Matrix& V, Matrix& D) const
 			D._buffer.device_data(),
 			work.device_data(), lwork,
 			info.device_data()
-		);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
+		));
 
 		info.read();
 		assert(info.host_data()[0] == 0);
