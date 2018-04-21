@@ -104,6 +104,12 @@ public:
 	void syr(float alpha, const Matrix& x);
 	void syrk(bool trans, float alpha, const Matrix& A, float beta);
 
+	// LAPACK wrapper functions
+	void gesvd(Matrix& U, Matrix& S, Matrix& VT) const;
+	void getrf(Matrix& U, int *ipiv) const;
+	bool getrs(const Matrix& A, Matrix& B, int *ipiv) const;
+	void syev(Matrix& V, Matrix& D) const;
+
 	// operators
 	inline Matrix operator()(int i, int j) const { return Matrix(*this, i, j); }
 	inline Matrix operator()(int i) const { return (*this)(i, i + 1); }

@@ -547,50 +547,13 @@ float Matrix::determinant() const
 	int m = M._rows;
 	int n = M._cols;
 	Matrix U = M;
-	int lda = m;
 	int lipiv = std::min(m, n);
 	int *ipiv = new int[lipiv];
 
 	// compute LU decomposition
-	if ( GPU ) {
-		int lwork;
+	getrf(U, ipiv);
 
-		cusolverStatus_t status = cusolverDnSgetrf_bufferSize(
-			CUSOLVER_HANDLE,
-			m, n, U._data_gpu, lda,
-			&lwork
-		);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
-
-		float *work = (float *)gpu_malloc(lwork * sizeof(float));
-		int *devIpiv = (int *)gpu_malloc(lipiv * sizeof(int));
-		int *info = (int *)gpu_malloc(sizeof(int));
-
-		status = cusolverDnSgetrf(
-			CUSOLVER_HANDLE,
-			m, n, U._data_gpu, lda,
-			work, devIpiv,
-			info);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
-		// assert(*info >= 0);
-
-		// TODO: handle with buffer type
-		cudaError_t error = cudaMemcpy(ipiv, devIpiv, lipiv * sizeof(int), cudaMemcpyDeviceToHost);
-		assert(error == cudaSuccess);
-
-		gpu_free(work);
-		gpu_free(devIpiv);
-		gpu_free(info);
-
-		U.gpu_read();
-	}
-	else {
-		int info = LAPACKE_sgetrf_work(
-			LAPACK_COL_MAJOR,
-			m, n, U._data_cpu, lda,
-			ipiv);
-		assert(info >= 0);
-	}
+	U.gpu_read();
 
 	// compute det(A) = det(P * L * U) = 1^S * det(U)
 	float det = 1;
@@ -659,63 +622,14 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 		n1, n1,
 		M._rows, M._cols, n1);
 
-	assert(is_square(M));
-
 	V = M;
 	D = Matrix(1, M._cols);
 
 	// compute eigenvalues and eigenvectors
-	int n = M._cols;
-	int lda = M._rows;
+	syev(V, D);
 
-	if ( GPU ) {
-		int lwork;
-
-		cusolverStatus_t status = cusolverDnSsyevd_bufferSize(
-			CUSOLVER_HANDLE,
-			CUSOLVER_EIG_MODE_VECTOR,
-			CUBLAS_FILL_MODE_UPPER,
-			n, V._data_gpu, lda,
-			D._data_gpu,
-			&lwork
-		);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
-
-		float *work = (float *)gpu_malloc(lwork * sizeof(float));
-		int *info = (int *)gpu_malloc(sizeof(int));
-
-		status = cusolverDnSsyevd(
-			CUSOLVER_HANDLE,
-			CUSOLVER_EIG_MODE_VECTOR,
-			CUBLAS_FILL_MODE_UPPER,
-			n, V._data_gpu, lda,
-			D._data_gpu,
-			work, lwork,
-			info
-		);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
-		// assert(*info >= 0);
-
-		gpu_free(work);
-		gpu_free(info);
-
-		V.gpu_read();
-		D.gpu_read();
-	}
-	else {
-		int lwork = 3 * n;
-		float *work = new float[lwork];
-
-		int info = LAPACKE_ssyev_work(
-			LAPACK_COL_MAJOR, 'V', 'U',
-			n, V._data_cpu, lda,
-			D._data_cpu,
-			work, lwork
-		);
-		assert(info == 0);
-
-		delete[] work;
-	}
+	V.gpu_read();
+	D.gpu_read();
 
 	// take only positive eigenvalues
 	int i = 0;
@@ -742,70 +656,23 @@ Matrix Matrix::inverse() const
 	Logger::log(LogLevel::Debug, "debug: M^-1 [%d,%d] <- inv(M [%d,%d])",
 		M._rows, M._cols, M._rows, M._cols);
 
-	assert(is_square(M));
-
-	int m = M._rows;
 	int n = M._cols;
 	Matrix A = M;
 	Matrix M_inv = Matrix::identity(n);
-	int lda = M._rows;
+	int *ipiv = new int[n];
 
-	if ( GPU ) {
-		int lwork;
+	// compute LU decomposition
+	getrf(A, ipiv);
 
-		cusolverStatus_t status = cusolverDnSgetrf_bufferSize(
-			CUSOLVER_HANDLE,
-			m, n, A._data_gpu, lda,
-			&lwork
-		);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
+	// compute inverse
+	bool success = getrs(A, M_inv, ipiv);
 
-		float *work = (float *)gpu_malloc(lwork * sizeof(float));
-		int *ipiv = (int *)gpu_malloc(n * sizeof(int));
-		int *info = (int *)gpu_malloc(sizeof(int));
+	// cleanup
+	delete[] ipiv;
 
-		status = cusolverDnSgetrf(
-			CUSOLVER_HANDLE,
-			m, n, A._data_gpu, lda,
-			work, ipiv,
-			info);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
-		// assert(*info >= 0);
+	throw_on_fail(success, "Failed to compute inverse");
 
-		cusolverDnSgetrs(
-			CUSOLVER_HANDLE, CUBLAS_OP_N,
-			n, n, A._data_gpu, lda,
-			ipiv,
-			M_inv._data_gpu, n,
-			info);
-
-		gpu_free(work);
-		gpu_free(ipiv);
-		gpu_free(info);
-
-		// throw_on_fail(info == 0, "Failed to compute inverse");
-
-		M_inv.gpu_read();
-	}
-	else {
-		int *ipiv = new int[n];
-
-		int info = LAPACKE_sgetrf_work(
-			LAPACK_COL_MAJOR,
-			m, n, A._data_cpu, lda,
-			ipiv);
-		assert(info >= 0);
-
-		info = LAPACKE_sgetrs_work(
-			LAPACK_COL_MAJOR, 'N',
-			n, n, A._data_cpu, lda,
-			ipiv,
-			M_inv._data_cpu, n);
-
-		delete[] ipiv;
-
-		throw_on_fail(info == 0, "Failed to compute inverse");
-	}
+	M_inv.gpu_read();
 
 	return M_inv;
 }
@@ -927,62 +794,16 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 
 	int m = M._rows;
 	int n = M._cols;
-	int lda = m;
-	int ldu = m;
-	int ldvt = std::min(m, n);
 
-	U = Matrix(ldu, std::min(m, n));
+	U = Matrix(m, std::min(m, n));
 	S = Matrix(1, std::min(m, n));
-	Matrix VT = Matrix(ldvt, n);
+	Matrix VT = Matrix(std::min(m, n), n);
 
-	if ( GPU ) {
-		Matrix wA = M;
-		int lwork;
+	gesvd(U, S, VT);
 
-		cusolverStatus_t status = cusolverDnSgesvd_bufferSize(
-			CUSOLVER_HANDLE,
-			m, n,
-			&lwork);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
-
-		float *work = (float *)gpu_malloc(lwork * sizeof(float));
-		int *info = (int *)gpu_malloc(sizeof(int));
-
-		status = cusolverDnSgesvd(
-			CUSOLVER_HANDLE, 'S', 'S',
-			m, n, wA._data_gpu, lda,
-			S._data_gpu,
-			U._data_gpu, ldu,
-			VT._data_gpu, ldvt,
-			work, lwork,
-			nullptr,
-			info);
-		assert(status == CUSOLVER_STATUS_SUCCESS);
-		// assert(*info == 0);
-
-		gpu_free(work);
-		gpu_free(info);
-
-		U.gpu_read();
-		S.gpu_read();
-		VT.gpu_read();
-	}
-	else {
-		Matrix wA = M;
-		int lwork = 5 * std::min(m, n);
-		float *work = new float[lwork];
-
-		int info = LAPACKE_sgesvd_work(
-			LAPACK_COL_MAJOR, 'S', 'S',
-			m, n, wA._data_cpu, lda,
-			S._data_cpu,
-			U._data_cpu, ldu,
-			VT._data_cpu, ldvt,
-			work, lwork);
-		assert(info == 0);
-
-		delete[] work;
-	}
+	U.gpu_read();
+	S.gpu_read();
+	VT.gpu_read();
 
 	S = S.diagonalize();
 	V = VT.transpose();
@@ -1403,7 +1224,7 @@ void Matrix::syr(float alpha, const Matrix& x)
 		A._rows, A._cols,
 		alpha, x._rows, x._cols, x._cols, x._rows);
 
-	assert(A._rows == A._cols && is_vector(x) && A._rows == length(x));
+	assert(is_square(A) && is_vector(x) && A._rows == length(x));
 
 	int n = A._rows;
 	int incX = 1;
@@ -1454,7 +1275,7 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 		trans ? "" : "'", k, n,
 		beta);
 
-	assert(C._rows == C._cols && C._rows == n);
+	assert(is_square(C) && C._rows == n);
 
 	if ( GPU ) {
 		cublasOperation_t Trans = trans ? CUBLAS_OP_T : CUBLAS_OP_N;
@@ -1478,6 +1299,247 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 			A._data_cpu, A._rows,
 			beta,
 			C._data_cpu, C._rows);
+	}
+}
+
+
+
+/**
+ * Wrapper function for LAPACK gesvd:
+ *
+ *   A = U * S * V^T
+ *
+ * @param U
+ * @param S
+ * @param VT
+ */
+void Matrix::gesvd(Matrix& U, Matrix& S, Matrix& VT) const
+{
+	const Matrix& A = *this;
+
+	int m = A._rows;
+	int n = A._cols;
+	int lda = m;
+	int ldu = m;
+	int ldvt = VT._rows;
+
+	if ( GPU ) {
+		Matrix wA = A;
+		int lwork;
+
+		cusolverStatus_t status = cusolverDnSgesvd_bufferSize(
+			CUSOLVER_HANDLE,
+			m, n,
+			&lwork);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+
+		float *work = (float *)gpu_malloc(lwork * sizeof(float));
+		int *info = (int *)gpu_malloc(sizeof(int));
+
+		status = cusolverDnSgesvd(
+			CUSOLVER_HANDLE, 'S', 'S',
+			m, n, wA._data_gpu, lda,
+			S._data_gpu,
+			U._data_gpu, ldu,
+			VT._data_gpu, ldvt,
+			work, lwork,
+			nullptr,
+			info);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+		// assert(*info == 0);
+
+		gpu_free(work);
+		gpu_free(info);
+	}
+	else {
+		Matrix wA = A;
+		int lwork = 5 * std::min(m, n);
+		float *work = new float[lwork];
+
+		int info = LAPACKE_sgesvd_work(
+			LAPACK_COL_MAJOR, 'S', 'S',
+			m, n, wA._data_cpu, lda,
+			S._data_cpu,
+			U._data_cpu, ldu,
+			VT._data_cpu, ldvt,
+			work, lwork);
+		assert(info == 0);
+
+		delete[] work;
+	}
+}
+
+
+
+/**
+ * Wrapper function for LAPACK getrf:
+ *
+ *   A = P * L * U
+ *
+ * @param U
+ * @param ipiv
+ */
+void Matrix::getrf(Matrix& U, int *ipiv) const
+{
+	const Matrix& A = *this;
+
+	int m = A._rows;
+	int n = A._cols;
+	int lda = m;
+	int lipiv = std::min(m, n);
+
+	if ( GPU ) {
+		int lwork;
+
+		cusolverStatus_t status = cusolverDnSgetrf_bufferSize(
+			CUSOLVER_HANDLE,
+			m, n, U._data_gpu, lda,
+			&lwork
+		);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+
+		float *work = (float *)gpu_malloc(lwork * sizeof(float));
+		int *devIpiv = (int *)gpu_malloc(lipiv * sizeof(int));
+		int *devInfo = (int *)gpu_malloc(sizeof(int));
+
+		status = cusolverDnSgetrf(
+			CUSOLVER_HANDLE,
+			m, n, U._data_gpu, lda,
+			work, devIpiv,
+			devInfo);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+		// assert(*devInfo >= 0);
+
+		// TODO: handle with buffer type
+		cudaError_t error = cudaMemcpy(ipiv, devIpiv, lipiv * sizeof(int), cudaMemcpyDeviceToHost);
+		assert(error == cudaSuccess);
+
+		gpu_free(work);
+		gpu_free(devIpiv);
+		gpu_free(devInfo);
+	}
+	else {
+		int info = LAPACKE_sgetrf_work(
+			LAPACK_COL_MAJOR,
+			m, n, U._data_cpu, lda,
+			ipiv);
+		assert(info >= 0);
+	}
+}
+
+
+
+/**
+ * Wrapper function for LAPACK getrs:
+ *
+ *   A * X = B
+ *
+ * @param U
+ * @param ipiv
+ */
+bool Matrix::getrs(const Matrix& A, Matrix& B, int *ipiv) const
+{
+	assert(is_square(A));
+
+	int n = A._cols;
+	int lda = A._rows;
+
+	if ( GPU ) {
+		int *devIpiv = (int *)gpu_malloc(n * sizeof(int));
+		int *devInfo = (int *)gpu_malloc(sizeof(int));
+
+		// TODO: handle with buffer type
+		cudaError_t error = cudaMemcpy(devIpiv, ipiv, n * sizeof(int), cudaMemcpyHostToDevice);
+		assert(error == cudaSuccess);
+
+		cusolverStatus_t status = cusolverDnSgetrs(
+			CUSOLVER_HANDLE, CUBLAS_OP_N,
+			n, n, A._data_gpu, lda,
+			devIpiv,
+			B._data_gpu, n,
+			devInfo);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+
+		gpu_free(devIpiv);
+		gpu_free(devInfo);
+
+		// return (*devInfo == 0);
+		return true;
+	}
+	else {
+		int info = LAPACKE_sgetrs_work(
+			LAPACK_COL_MAJOR, 'N',
+			n, n, A._data_cpu, lda,
+			ipiv,
+			B._data_cpu, n);
+
+		return (info == 0);
+	}
+}
+
+
+
+/**
+ * Wrapper function for LAPACK syev:
+ *
+ *   A = V * D * V^-1
+ *
+ * @param V
+ * @param D
+ */
+void Matrix::syev(Matrix& V, Matrix& D) const
+{
+	const Matrix& A = *this;
+
+	assert(is_square(A));
+
+	int n = A._cols;
+	int lda = A._rows;
+
+	if ( GPU ) {
+		int lwork;
+
+		cusolverStatus_t status = cusolverDnSsyevd_bufferSize(
+			CUSOLVER_HANDLE,
+			CUSOLVER_EIG_MODE_VECTOR,
+			CUBLAS_FILL_MODE_UPPER,
+			n, V._data_gpu, lda,
+			D._data_gpu,
+			&lwork
+		);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+
+		float *work = (float *)gpu_malloc(lwork * sizeof(float));
+		int *info = (int *)gpu_malloc(sizeof(int));
+
+		status = cusolverDnSsyevd(
+			CUSOLVER_HANDLE,
+			CUSOLVER_EIG_MODE_VECTOR,
+			CUBLAS_FILL_MODE_UPPER,
+			n, V._data_gpu, lda,
+			D._data_gpu,
+			work, lwork,
+			info
+		);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+		// assert(*info >= 0);
+
+		gpu_free(work);
+		gpu_free(info);
+	}
+	else {
+		int lwork = 3 * n;
+		float *work = new float[lwork];
+
+		int info = LAPACKE_ssyev_work(
+			LAPACK_COL_MAJOR, 'V', 'U',
+			n, V._data_cpu, lda,
+			D._data_cpu,
+			work, lwork
+		);
+		assert(info == 0);
+
+		delete[] work;
 	}
 }
 
