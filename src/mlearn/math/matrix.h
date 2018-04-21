@@ -6,6 +6,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include "mlearn/util/buffer.h"
 #include "mlearn/util/iodevice.h"
 
 
@@ -18,22 +19,11 @@ typedef float (*elem_func_t)(float);
 
 
 
-extern bool GPU;
-extern int GPU_DEVICE;
-
-
-
-void gpu_init();
-void gpu_finalize();
-
-
-
 class Matrix {
 private:
 	int _rows;
 	int _cols;
-	float *_data_cpu;
-	float *_data_gpu;
+	Buffer<float> _buffer;
 	bool _transposed;
 	Matrix *_T;
 
@@ -62,14 +52,14 @@ public:
 	friend IODevice& operator>>(IODevice& file, Matrix& M);
 
 	void print() const;
-	void gpu_read();
-	void gpu_write();
+	void gpu_read() { _buffer.read(); }
+	void gpu_write() { _buffer.write(); }
 
 	// getter functions
 	int rows() const { return _rows; }
 	int cols() const { return _cols; }
-	const float& elem(int i, int j) const { return _data_cpu[j * _rows + i]; }
-	float& elem(int i, int j) { return _data_cpu[j * _rows + i]; }
+	const float& elem(int i, int j) const { return _buffer.host_data()[j * _rows + i]; }
+	float& elem(int i, int j) { return _buffer.host_data()[j * _rows + i]; }
 	const Matrix& T() const { return *(_T); }
 
 	float determinant() const;
@@ -103,8 +93,8 @@ public:
 
 	// LAPACK wrapper functions
 	void gesvd(Matrix& U, Matrix& S, Matrix& VT) const;
-	void getrf(Matrix& U, int *ipiv) const;
-	bool getrs(const Matrix& A, Matrix& B, int *ipiv) const;
+	void getrf(Matrix& U, Buffer<int>& ipiv) const;
+	bool getrs(const Matrix& A, Matrix& B, Buffer<int>& ipiv) const;
 	void syev(Matrix& V, Matrix& D) const;
 
 	// operators

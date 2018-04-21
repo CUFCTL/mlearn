@@ -67,7 +67,7 @@ args_t parse_args(int argc, char **argv)
 	while ( (opt = getopt_long_only(argc, argv, "", long_options, nullptr)) != -1 ) {
 		switch ( opt ) {
 		case 'g':
-			GPU = true;
+			Device::initialize();
 			break;
 		case 'e':
 			Logger::LEVEL = (LogLevel) atoi(optarg);
@@ -105,9 +105,6 @@ int main(int argc, char **argv)
 
 	// initialize random number engine
 	Random::seed();
-
-	// initialize GPU if enabled
-	gpu_init();
 
 	// construct data iterators
 	std::unique_ptr<DataIterator> train_iter;
@@ -185,8 +182,6 @@ int main(int argc, char **argv)
 
 	// print timing results
 	Timer::print();
-
-	gpu_finalize();
 
 	return 0;
 }

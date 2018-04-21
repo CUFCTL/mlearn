@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -pg -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wno-unused-result")
 set(CMAKE_EXE_LINKER_FLAGS "-L$ENV{INSTALL_PREFIX}/lib")
 
+include_directories($ENV{CUDADIR}/include)
 include_directories($ENV{INSTALL_PREFIX}/include)
 
 # build executables

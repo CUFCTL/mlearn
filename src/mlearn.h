@@ -15,6 +15,8 @@
 #include "mlearn/criterion/bic.h"
 #include "mlearn/criterion/icl.h"
 
+#include "mlearn/cuda/device.h"
+
 #include "mlearn/data/csviterator.h"
 #include "mlearn/data/dataset.h"
 #include "mlearn/data/genomeiterator.h"

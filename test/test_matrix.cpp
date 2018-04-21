@@ -958,7 +958,7 @@ int main(int argc, char **argv)
 	while ( (opt = getopt_long_only(argc, argv, "", long_options, nullptr)) != -1 ) {
 		switch ( opt ) {
 		case 'g':
-			GPU = true;
+			Device::initialize();
 			break;
 		case 'e':
 			Logger::LEVEL = (LogLevel) atoi(optarg);
@@ -968,8 +968,6 @@ int main(int argc, char **argv)
 			exit(1);
 		}
 	}
-
-	gpu_init();
 
 	// run tests
 	test_func_t tests[] = {
@@ -1008,8 +1006,6 @@ int main(int argc, char **argv)
 		test();
 		std::cout << "\n";
 	}
-
-	gpu_finalize();
 
 	return 0;
 }

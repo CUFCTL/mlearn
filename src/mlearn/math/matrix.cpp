@@ -15,6 +15,7 @@
 #include <cublas_v2.h>
 #include <cusolverDn.h>
 
+#include "mlearn/cuda/device.h"
 #include "mlearn/math/matrix.h"
 #include "mlearn/math/random.h"
 #include "mlearn/util/logger.h"
@@ -22,13 +23,6 @@
 
 
 namespace ML {
-
-
-
-bool GPU = false;
-int GPU_DEVICE = 0;
-cublasHandle_t CUBLAS_HANDLE;
-cusolverDnHandle_t CUSOLVER_HANDLE;
 
 
 
@@ -88,82 +82,6 @@ inline int length(const Matrix& v)
 
 
 /**
- * Create a connection to the GPU.
- */
-void gpu_init()
-{
-	if ( !GPU ) {
-		return;
-	}
-
-	cublasStatus_t cublas_status = cublasCreate(&CUBLAS_HANDLE);
-	cusolverStatus_t cusolver_status = cusolverDnCreate(&CUSOLVER_HANDLE);
-
-	throw_on_fail(
-		cublas_status == CUBLAS_STATUS_SUCCESS && cusolver_status == CUSOLVER_STATUS_SUCCESS,
-		"Failed to initialize GPU");
-}
-
-
-
-/**
- * Close the connection to the GPU.
- */
-void gpu_finalize()
-{
-	if ( !GPU ) {
-		return;
-	}
-
-	cublasStatus_t cublas_status = cublasDestroy(CUBLAS_HANDLE);
-	cusolverStatus_t cusolver_status = cusolverDnDestroy(CUSOLVER_HANDLE);
-
-	throw_on_fail(
-		cublas_status == CUBLAS_STATUS_SUCCESS && cusolver_status == CUSOLVER_STATUS_SUCCESS,
-		"Failed to finalize GPU");
-}
-
-
-
-/**
- * Allocate memory on the GPU.
- *
- * @param size
- */
-void * gpu_malloc(size_t size)
-{
-	if ( !GPU ) {
-		return nullptr;
-	}
-
-	void *ptr = nullptr;
-
-	cudaError_t error = cudaMalloc(&ptr, size);
-	throw_on_fail(error == cudaSuccess, "Failed to allocate GPU memory");
-
-	return ptr;
-}
-
-
-
-/**
- * Free memory on the GPU.
- *
- * @param ptr
- */
-void gpu_free(void *ptr)
-{
-	if ( !GPU ) {
-		return;
-	}
-
-	cudaError_t error = cudaFree(ptr);
-	throw_on_fail(error == cudaSuccess, "Failed to release GPU memory");
-}
-
-
-
-/**
  * Construct a matrix.
  *
  * @param rows
@@ -176,16 +94,13 @@ Matrix::Matrix(int rows, int cols)
 
 	_rows = rows;
 	_cols = cols;
-	_data_cpu = new float[rows * cols];
-	_data_gpu = (float *)gpu_malloc(rows * cols * sizeof(float));
+	_buffer = Buffer<float>(rows * cols);
 	_transposed = false;
 	_T = new Matrix();
 
 	// initialize transpose
 	_T->_rows = rows;
 	_T->_cols = cols;
-	_T->_data_cpu = _data_cpu;
-	_T->_data_gpu = _data_gpu;
 	_T->_transposed = true;
 	_T->_T = nullptr;
 }
@@ -229,7 +144,7 @@ Matrix::Matrix(const Matrix& M, int i, int j)
 
 	assert(0 <= i && i < j && j <= M._cols);
 
-	memcpy(_data_cpu, &M.elem(0, i), _rows * _cols * sizeof(float));
+	memcpy(_buffer.host_data(), &M.elem(0, i), _rows * _cols * sizeof(float));
 
 	gpu_write();
 }
@@ -268,8 +183,6 @@ Matrix::Matrix()
 {
 	_rows = 0;
 	_cols = 0;
-	_data_cpu = nullptr;
-	_data_gpu = nullptr;
 	_transposed = false;
 	_T = nullptr;
 }
@@ -284,9 +197,6 @@ Matrix::~Matrix()
 	if ( _transposed ) {
 		return;
 	}
-
-	delete[] _data_cpu;
-	gpu_free(_data_gpu);
 
 	delete _T;
 }
@@ -451,7 +361,7 @@ IODevice& operator<<(IODevice& file, const Matrix& M)
 {
 	file << M._rows;
 	file << M._cols;
-	file.write(reinterpret_cast<const char *>(M._data_cpu), M._rows * M._cols * sizeof(float));
+	file.write(reinterpret_cast<const char *>(M._buffer.host_data()), M._rows * M._cols * sizeof(float));
 	return file;
 }
 
@@ -472,7 +382,7 @@ IODevice& operator>>(IODevice& file, Matrix& M)
 	file >> cols;
 
 	M = Matrix(rows, cols);
-	file.read(reinterpret_cast<char *>(M._data_cpu), M._rows * M._cols * sizeof(float));
+	file.read(reinterpret_cast<char *>(M._buffer.host_data()), M._rows * M._cols * sizeof(float));
 	return file;
 }
 
@@ -496,42 +406,6 @@ void Matrix::print() const
 
 
 /**
- * Copy matrix data from device memory to host memory.
- */
-void Matrix::gpu_read()
-{
-	if ( !GPU ) {
-		return;
-	}
-
-	cublasStatus_t status = cublasGetMatrix(
-		_rows, _cols, sizeof(float),
-		_data_gpu, _rows,
-		_data_cpu, _rows);
-	throw_on_fail(status == CUBLAS_STATUS_SUCCESS, "Failed to write GPU memory");
-}
-
-
-
-/**
- * Copy matrix data from host memory to device memory.
- */
-void Matrix::gpu_write()
-{
-	if ( !GPU ) {
-		return;
-	}
-
-	cublasStatus_t status = cublasSetMatrix(
-		_rows, _cols, sizeof(float),
-		_data_cpu, _rows,
-		_data_gpu, _rows);
-	throw_on_fail(status == CUBLAS_STATUS_SUCCESS, "Failed to write GPU memory");
-}
-
-
-
-/**
  * Compute the determinant of a matrix using LU decomposition:
  *
  *   det(M) = det(P * L * U)
@@ -546,18 +420,18 @@ float Matrix::determinant() const
 	int m = M._rows;
 	int n = M._cols;
 	Matrix U = M;
-	int lipiv = std::min(m, n);
-	int *ipiv = new int[lipiv];
+	Buffer<int> ipiv(std::min(m, n));
 
 	// compute LU decomposition
 	getrf(U, ipiv);
 
 	U.gpu_read();
+	ipiv.read();
 
 	// compute det(A) = det(P * L * U) = 1^S * det(U)
 	float det = 1;
 	for ( int i = 0; i < std::min(m, n); i++ ) {
-		if ( i + 1 != ipiv[i] ) {
+		if ( i + 1 != ipiv.host_data()[i] ) {
 			det *= -1;
 		}
 	}
@@ -565,9 +439,6 @@ float Matrix::determinant() const
 	for ( int i = 0; i < std::min(m, n); i++ ) {
 		det *= U.elem(i, i);
 	}
-
-	// cleanup
-	delete[] ipiv;
 
 	return det;
 }
@@ -590,7 +461,7 @@ Matrix Matrix::diagonalize() const
 	Matrix D = Matrix::zeros(n, n);
 
 	for ( int i = 0; i < n; i++ ) {
-		D.elem(i, i) = v._data_cpu[i];
+		D.elem(i, i) = v._buffer.host_data()[i];
 	}
 
 	D.gpu_write();
@@ -658,16 +529,13 @@ Matrix Matrix::inverse() const
 	int n = M._cols;
 	Matrix A = M;
 	Matrix M_inv = Matrix::identity(n);
-	int *ipiv = new int[n];
+	Buffer<int> ipiv(n);
 
 	// compute LU decomposition
 	getrf(A, ipiv);
 
 	// compute inverse
 	bool success = getrs(A, M_inv, ipiv);
-
-	// cleanup
-	delete[] ipiv;
 
 	throw_on_fail(success, "Failed to compute inverse");
 
@@ -766,7 +634,7 @@ float Matrix::sum() const
 	float sum = 0.0f;
 
 	for ( int i = 0; i < n; i++ ) {
-		sum += v._data_cpu[i];
+		sum += v._buffer.host_data()[i];
 	}
 
 	return sum;
@@ -868,7 +736,7 @@ void Matrix::assign_column(int i, const Matrix& B, int j)
 	assert(0 <= i && i < A._cols);
 	assert(0 <= j && j < B._cols);
 
-	memcpy(&A.elem(0, i), B._data_cpu, B._rows * sizeof(float));
+	memcpy(&A.elem(0, i), B._buffer.host_data(), B._rows * sizeof(float));
 
 	A.gpu_write();
 }
@@ -1024,18 +892,18 @@ void Matrix::axpy(float alpha, const Matrix& A)
 	int incX = 1;
 	int incY = 1;
 
-	if ( GPU ) {
+	if ( Device::instance() ) {
 		cublasStatus_t status = cublasSaxpy(
-			CUBLAS_HANDLE, n,
+			Device::instance()->cublas_handle(), n,
 			&alpha,
-			A._data_gpu, incX,
-			B._data_gpu, incY);
+			A._buffer.device_data(), incX,
+			B._buffer.device_data(), incY);
 		assert(status == CUBLAS_STATUS_SUCCESS);
 
 		B.gpu_read();
 	}
 	else {
-		cblas_saxpy(n, alpha, A._data_cpu, incX, B._data_cpu, incY);
+		cblas_saxpy(n, alpha, A._buffer.host_data(), incX, B._buffer.host_data(), incY);
 	}
 }
 
@@ -1063,16 +931,16 @@ float Matrix::dot(const Matrix& y) const
 	int incY = 1;
 	float dot;
 
-	if ( GPU ) {
+	if ( Device::instance() ) {
 		cublasStatus_t status = cublasSdot(
-			CUBLAS_HANDLE, n,
-			x._data_gpu, incX,
-			y._data_gpu, incY,
+			Device::instance()->cublas_handle(), n,
+			x._buffer.device_data(), incX,
+			y._buffer.device_data(), incY,
 			&dot);
 		assert(status == CUBLAS_STATUS_SUCCESS);
 	}
 	else {
-		dot = cblas_sdot(n, x._data_cpu, incX, y._data_cpu, incY);
+		dot = cblas_sdot(n, x._buffer.host_data(), incX, y._buffer.host_data(), incY);
 	}
 
 	return dot;
@@ -1107,18 +975,18 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 
 	assert(C._rows == m && C._cols == n && k1 == k2);
 
-	if ( GPU ) {
+	if ( Device::instance() ) {
 		cublasOperation_t TransA = A._transposed ? CUBLAS_OP_T : CUBLAS_OP_N;
 		cublasOperation_t TransB = B._transposed ? CUBLAS_OP_T : CUBLAS_OP_N;
 
 		cublasStatus_t status = cublasSgemm(
-			CUBLAS_HANDLE, TransA, TransB,
+			Device::instance()->cublas_handle(), TransA, TransB,
 			m, n, k1,
 			&alpha,
-			A._data_gpu, A._rows,
-			B._data_gpu, B._rows,
+			A._buffer.device_data(), A._rows,
+			B._buffer.device_data(), B._rows,
 			&beta,
-			C._data_gpu, C._rows);
+			C._buffer.device_data(), C._rows);
 		assert(status == CUBLAS_STATUS_SUCCESS);
 
 		C.gpu_read();
@@ -1131,10 +999,10 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 			CblasColMajor, TransA, TransB,
 			m, n, k1,
 			alpha,
-			A._data_cpu, A._rows,
-			B._data_cpu, B._rows,
+			A._buffer.host_data(), A._rows,
+			B._buffer.host_data(), B._rows,
 			beta,
-			C._data_cpu, C._rows);
+			C._buffer.host_data(), C._rows);
 	}
 }
 
@@ -1158,15 +1026,15 @@ float Matrix::nrm2() const
 	int incX = 1;
 	float nrm2;
 
-	if ( GPU ) {
+	if ( Device::instance() ) {
 		cublasStatus_t status = cublasSnrm2(
-			CUBLAS_HANDLE, n,
-			x._data_gpu, incX,
+			Device::instance()->cublas_handle(), n,
+			x._buffer.device_data(), incX,
 			&nrm2);
 		assert(status == CUBLAS_STATUS_SUCCESS);
 	}
 	else {
-		nrm2 = cblas_snrm2(n, x._data_cpu, incX);
+		nrm2 = cblas_snrm2(n, x._buffer.host_data(), incX);
 	}
 
 	return nrm2;
@@ -1191,17 +1059,17 @@ void Matrix::scal(float alpha)
 	int n = M._rows * M._cols;
 	int incX = 1;
 
-	if ( GPU ) {
+	if ( Device::instance() ) {
 		cublasStatus_t status = cublasSscal(
-			CUBLAS_HANDLE, n,
+			Device::instance()->cublas_handle(), n,
 			&alpha,
-			M._data_gpu, incX);
+			M._buffer.device_data(), incX);
 		assert(status == CUBLAS_STATUS_SUCCESS);
 
 		M.gpu_read();
 	}
 	else {
-		cblas_sscal(n, alpha, M._data_cpu, incX);
+		cblas_sscal(n, alpha, M._buffer.host_data(), incX);
 	}
 }
 
@@ -1228,12 +1096,12 @@ void Matrix::syr(float alpha, const Matrix& x)
 	int n = A._rows;
 	int incX = 1;
 
-	if ( GPU ) {
+	if ( Device::instance() ) {
 		cublasStatus_t status = cublasSsyr(
-			CUBLAS_HANDLE, CUBLAS_FILL_MODE_UPPER,
+			Device::instance()->cublas_handle(), CUBLAS_FILL_MODE_UPPER,
 			n, &alpha,
-			x._data_gpu, incX,
-			A._data_gpu, A._rows);
+			x._buffer.device_data(), incX,
+			A._buffer.device_data(), A._rows);
 		assert(status == CUBLAS_STATUS_SUCCESS);
 
 		A.gpu_read();
@@ -1242,8 +1110,8 @@ void Matrix::syr(float alpha, const Matrix& x)
 		cblas_ssyr(
 			CblasColMajor, CblasUpper,
 			n, alpha,
-			x._data_cpu, incX,
-			A._data_cpu, A._rows);
+			x._buffer.host_data(), incX,
+			A._buffer.host_data(), A._rows);
 	}
 }
 
@@ -1276,15 +1144,15 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 
 	assert(is_square(C) && C._rows == n);
 
-	if ( GPU ) {
+	if ( Device::instance() ) {
 		cublasOperation_t Trans = trans ? CUBLAS_OP_T : CUBLAS_OP_N;
 
 		cublasStatus_t status = cublasSsyrk(
-			CUBLAS_HANDLE, CUBLAS_FILL_MODE_UPPER, Trans,
+			Device::instance()->cublas_handle(), CUBLAS_FILL_MODE_UPPER, Trans,
 			n, k, &alpha,
-			A._data_gpu, A._rows,
+			A._buffer.device_data(), A._rows,
 			&beta,
-			C._data_gpu, C._rows);
+			C._buffer.device_data(), C._rows);
 		assert(status == CUBLAS_STATUS_SUCCESS);
 
 		C.gpu_read();
@@ -1295,9 +1163,9 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 		cblas_ssyrk(
 			CblasColMajor, CblasUpper, Trans,
 			n, k, alpha,
-			A._data_cpu, A._rows,
+			A._buffer.host_data(), A._rows,
 			beta,
-			C._data_cpu, C._rows);
+			C._buffer.host_data(), C._rows);
 	}
 }
 
@@ -1322,49 +1190,46 @@ void Matrix::gesvd(Matrix& U, Matrix& S, Matrix& VT) const
 	int ldu = m;
 	int ldvt = VT._rows;
 
-	if ( GPU ) {
+	if ( Device::instance() ) {
 		Matrix wA = A;
 		int lwork;
 
 		cusolverStatus_t status = cusolverDnSgesvd_bufferSize(
-			CUSOLVER_HANDLE,
+			Device::instance()->cusolver_handle(),
 			m, n,
 			&lwork);
 		assert(status == CUSOLVER_STATUS_SUCCESS);
 
-		float *work = (float *)gpu_malloc(lwork * sizeof(float));
-		int *info = (int *)gpu_malloc(sizeof(int));
+		Buffer<float> work(lwork, false);
+		Buffer<int> info(1);
 
 		status = cusolverDnSgesvd(
-			CUSOLVER_HANDLE, 'S', 'S',
-			m, n, wA._data_gpu, lda,
-			S._data_gpu,
-			U._data_gpu, ldu,
-			VT._data_gpu, ldvt,
-			work, lwork,
+			Device::instance()->cusolver_handle(), 'S', 'S',
+			m, n, wA._buffer.device_data(), lda,
+			S._buffer.device_data(),
+			U._buffer.device_data(), ldu,
+			VT._buffer.device_data(), ldvt,
+			work.device_data(), lwork,
 			nullptr,
-			info);
+			info.device_data());
 		assert(status == CUSOLVER_STATUS_SUCCESS);
-		// assert(*info == 0);
 
-		gpu_free(work);
-		gpu_free(info);
+		info.read();
+		assert(info.host_data()[0] == 0);
 	}
 	else {
 		Matrix wA = A;
 		int lwork = 5 * std::min(m, n);
-		float *work = new float[lwork];
+		Buffer<float> work(lwork);
 
 		int info = LAPACKE_sgesvd_work(
 			LAPACK_COL_MAJOR, 'S', 'S',
-			m, n, wA._data_cpu, lda,
-			S._data_cpu,
-			U._data_cpu, ldu,
-			VT._data_cpu, ldvt,
-			work, lwork);
+			m, n, wA._buffer.host_data(), lda,
+			S._buffer.host_data(),
+			U._buffer.host_data(), ldu,
+			VT._buffer.host_data(), ldvt,
+			work.host_data(), lwork);
 		assert(info == 0);
-
-		delete[] work;
 	}
 }
 
@@ -1378,50 +1243,42 @@ void Matrix::gesvd(Matrix& U, Matrix& S, Matrix& VT) const
  * @param U
  * @param ipiv
  */
-void Matrix::getrf(Matrix& U, int *ipiv) const
+void Matrix::getrf(Matrix& U, Buffer<int>& ipiv) const
 {
 	const Matrix& A = *this;
 
 	int m = A._rows;
 	int n = A._cols;
 	int lda = m;
-	int lipiv = std::min(m, n);
 
-	if ( GPU ) {
+	if ( Device::instance() ) {
 		int lwork;
 
 		cusolverStatus_t status = cusolverDnSgetrf_bufferSize(
-			CUSOLVER_HANDLE,
-			m, n, U._data_gpu, lda,
+			Device::instance()->cusolver_handle(),
+			m, n, U._buffer.device_data(), lda,
 			&lwork
 		);
 		assert(status == CUSOLVER_STATUS_SUCCESS);
 
-		float *work = (float *)gpu_malloc(lwork * sizeof(float));
-		int *devIpiv = (int *)gpu_malloc(lipiv * sizeof(int));
-		int *devInfo = (int *)gpu_malloc(sizeof(int));
+		Buffer<float> work(lwork, false);
+		Buffer<int> info(1);
 
 		status = cusolverDnSgetrf(
-			CUSOLVER_HANDLE,
-			m, n, U._data_gpu, lda,
-			work, devIpiv,
-			devInfo);
+			Device::instance()->cusolver_handle(),
+			m, n, U._buffer.device_data(), lda,
+			work.device_data(), ipiv.device_data(),
+			info.device_data());
 		assert(status == CUSOLVER_STATUS_SUCCESS);
-		// assert(*devInfo >= 0);
 
-		// TODO: handle with buffer type
-		cudaError_t error = cudaMemcpy(ipiv, devIpiv, lipiv * sizeof(int), cudaMemcpyDeviceToHost);
-		assert(error == cudaSuccess);
-
-		gpu_free(work);
-		gpu_free(devIpiv);
-		gpu_free(devInfo);
+		info.read();
+		assert(info.host_data()[0] >= 0);
 	}
 	else {
 		int info = LAPACKE_sgetrf_work(
 			LAPACK_COL_MAJOR,
-			m, n, U._data_cpu, lda,
-			ipiv);
+			m, n, U._buffer.host_data(), lda,
+			ipiv.host_data());
 		assert(info >= 0);
 	}
 }
@@ -1436,41 +1293,33 @@ void Matrix::getrf(Matrix& U, int *ipiv) const
  * @param U
  * @param ipiv
  */
-bool Matrix::getrs(const Matrix& A, Matrix& B, int *ipiv) const
+bool Matrix::getrs(const Matrix& A, Matrix& B, Buffer<int>& ipiv) const
 {
 	assert(is_square(A));
 
 	int n = A._cols;
 	int lda = A._rows;
 
-	if ( GPU ) {
-		int *devIpiv = (int *)gpu_malloc(n * sizeof(int));
-		int *devInfo = (int *)gpu_malloc(sizeof(int));
-
-		// TODO: handle with buffer type
-		cudaError_t error = cudaMemcpy(devIpiv, ipiv, n * sizeof(int), cudaMemcpyHostToDevice);
-		assert(error == cudaSuccess);
+	if ( Device::instance() ) {
+		Buffer<int> info(1);
 
 		cusolverStatus_t status = cusolverDnSgetrs(
-			CUSOLVER_HANDLE, CUBLAS_OP_N,
-			n, n, A._data_gpu, lda,
-			devIpiv,
-			B._data_gpu, n,
-			devInfo);
+			Device::instance()->cusolver_handle(), CUBLAS_OP_N,
+			n, n, A._buffer.device_data(), lda,
+			ipiv.device_data(),
+			B._buffer.device_data(), n,
+			info.device_data());
 		assert(status == CUSOLVER_STATUS_SUCCESS);
 
-		gpu_free(devIpiv);
-		gpu_free(devInfo);
-
-		// return (*devInfo == 0);
-		return true;
+		info.read();
+		return (info.host_data()[0] == 0);
 	}
 	else {
 		int info = LAPACKE_sgetrs_work(
 			LAPACK_COL_MAJOR, 'N',
-			n, n, A._data_cpu, lda,
-			ipiv,
-			B._data_cpu, n);
+			n, n, A._buffer.host_data(), lda,
+			ipiv.host_data(),
+			B._buffer.host_data(), n);
 
 		return (info == 0);
 	}
@@ -1495,50 +1344,47 @@ void Matrix::syev(Matrix& V, Matrix& D) const
 	int n = A._cols;
 	int lda = A._rows;
 
-	if ( GPU ) {
+	if ( Device::instance() ) {
 		int lwork;
 
 		cusolverStatus_t status = cusolverDnSsyevd_bufferSize(
-			CUSOLVER_HANDLE,
+			Device::instance()->cusolver_handle(),
 			CUSOLVER_EIG_MODE_VECTOR,
 			CUBLAS_FILL_MODE_UPPER,
-			n, V._data_gpu, lda,
-			D._data_gpu,
+			n, V._buffer.device_data(), lda,
+			D._buffer.device_data(),
 			&lwork
 		);
 		assert(status == CUSOLVER_STATUS_SUCCESS);
 
-		float *work = (float *)gpu_malloc(lwork * sizeof(float));
-		int *info = (int *)gpu_malloc(sizeof(int));
+		Buffer<float> work(lwork, false);
+		Buffer<int> info(1);
 
 		status = cusolverDnSsyevd(
-			CUSOLVER_HANDLE,
+			Device::instance()->cusolver_handle(),
 			CUSOLVER_EIG_MODE_VECTOR,
 			CUBLAS_FILL_MODE_UPPER,
-			n, V._data_gpu, lda,
-			D._data_gpu,
-			work, lwork,
-			info
+			n, V._buffer.device_data(), lda,
+			D._buffer.device_data(),
+			work.device_data(), lwork,
+			info.device_data()
 		);
 		assert(status == CUSOLVER_STATUS_SUCCESS);
-		// assert(*info >= 0);
 
-		gpu_free(work);
-		gpu_free(info);
+		info.read();
+		assert(info.host_data()[0] == 0);
 	}
 	else {
 		int lwork = 3 * n;
-		float *work = new float[lwork];
+		Buffer<float> work(lwork);
 
 		int info = LAPACKE_ssyev_work(
 			LAPACK_COL_MAJOR, 'V', 'U',
-			n, V._data_cpu, lda,
-			D._data_cpu,
-			work, lwork
+			n, V._buffer.host_data(), lda,
+			D._buffer.host_data(),
+			work.host_data(), lwork
 		);
 		assert(info == 0);
-
-		delete[] work;
 	}
 }
 
@@ -1554,8 +1400,7 @@ void swap(Matrix& A, Matrix& B)
 {
 	std::swap(A._rows, B._rows);
 	std::swap(A._cols, B._cols);
-	std::swap(A._data_cpu, B._data_cpu);
-	std::swap(A._data_gpu, B._data_gpu);
+	std::swap(A._buffer, B._buffer);
 	std::swap(A._transposed, B._transposed);
 	std::swap(A._T, B._T);
 }
