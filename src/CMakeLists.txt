@@ -8,8 +8,7 @@ file(GLOB_RECURSE mlearn_src ${CMAKE_SOURCE_DIR}/src/*.cpp)
 set_source_files_properties(${mlearn_src} PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
 cuda_add_library(mlearn SHARED ${mlearn_src})
-cuda_add_cublas_to_target(mlearn)
-target_link_libraries(mlearn openblas magma)
+target_link_libraries(mlearn blas lapacke -L$ENV{CUDADIR}/lib64 cudart cublas cusolver)
 
 # install libmlearn.so
 install(

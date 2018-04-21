@@ -9,10 +9,13 @@
 #include <cstring>
 #include <iomanip>
 #include <stdexcept>
+
 #include <cblas.h>
-#include <cuda_runtime.h>
 #include <lapacke.h>
-#include <magma_v2.h>
+#include <cuda_runtime.h>
+#include <cublas_v2.h>
+#include <cusolverDn.h>
+
 #include "mlearn/math/matrix.h"
 #include "mlearn/math/random.h"
 #include "mlearn/util/logger.h"
@@ -25,6 +28,8 @@ namespace ML {
 
 bool GPU = false;
 int GPU_DEVICE = 0;
+cublasHandle_t CUBLAS_HANDLE;
+cusolverDnHandle_t CUSOLVER_HANDLE;
 
 
 
@@ -92,8 +97,12 @@ void gpu_init()
 		return;
 	}
 
-	magma_int_t stat = magma_init();
-	throw_on_fail(stat == MAGMA_SUCCESS, "Failed to initialize GPU");
+	cublasStatus_t cublas_status = cublasCreate(&CUBLAS_HANDLE);
+	cusolverStatus_t cusolver_status = cusolverDnCreate(&CUSOLVER_HANDLE);
+
+	throw_on_fail(
+		cublas_status == CUBLAS_STATUS_SUCCESS && cusolver_status == CUSOLVER_STATUS_SUCCESS,
+		"Failed to initialize GPU");
 }
 
 
@@ -107,8 +116,12 @@ void gpu_finalize()
 		return;
 	}
 
-	magma_int_t stat = magma_finalize();
-	throw_on_fail(stat == MAGMA_SUCCESS, "Failed to finalize GPU");
+	cublasStatus_t cublas_status = cublasDestroy(CUBLAS_HANDLE);
+	cusolverStatus_t cusolver_status = cusolverDnDestroy(CUSOLVER_HANDLE);
+
+	throw_on_fail(
+		cublas_status == CUBLAS_STATUS_SUCCESS && cusolver_status == CUSOLVER_STATUS_SUCCESS,
+		"Failed to finalize GPU");
 }
 
 
@@ -126,8 +139,8 @@ void * gpu_malloc(size_t size)
 
 	void *ptr = nullptr;
 
-	int stat = magma_malloc(&ptr, size);
-	throw_on_fail(stat == MAGMA_SUCCESS, "Failed to allocate GPU memory");
+	cudaError_t error = cudaMalloc(&ptr, size);
+	throw_on_fail(error == cudaSuccess, "Failed to allocate GPU memory");
 
 	return ptr;
 }
@@ -145,39 +158,8 @@ void gpu_free(void *ptr)
 		return;
 	}
 
-	int stat = magma_free(ptr);
-	throw_on_fail(stat == MAGMA_SUCCESS, "Failed to release GPU memory");
-}
-
-
-
-/**
- * Allocate a matrix on the GPU.
- *
- * @param rows
- * @param cols
- */
-float * gpu_malloc_matrix(int rows, int cols)
-{
-	return (float *)gpu_malloc(rows * cols * sizeof(float));
-}
-
-
-
-/**
- * Get a MAGMA queue.
- */
-magma_queue_t magma_queue()
-{
-	static int init = 1;
-	static magma_queue_t queue;
-
-	if ( GPU && init == 1 ) {
-		magma_queue_create(GPU_DEVICE, &queue);
-		init = 0;
-	}
-
-	return queue;
+	cudaError_t error = cudaFree(ptr);
+	throw_on_fail(error == cudaSuccess, "Failed to release GPU memory");
 }
 
 
@@ -196,7 +178,7 @@ Matrix::Matrix(int rows, int cols)
 	_rows = rows;
 	_cols = cols;
 	_data_cpu = new float[rows * cols];
-	_data_gpu = gpu_malloc_matrix(rows, cols);
+	_data_gpu = (float *)gpu_malloc(rows * cols * sizeof(float));
 	_transposed = false;
 	_T = new Matrix();
 
@@ -523,12 +505,11 @@ void Matrix::gpu_read()
 		return;
 	}
 
-	magma_queue_t queue = magma_queue();
-
-	magma_getmatrix(_rows, _cols, sizeof(float),
+	cublasStatus_t status = cublasGetMatrix(
+		_rows, _cols, sizeof(float),
 		_data_gpu, _rows,
-		_data_cpu, _rows,
-		queue);
+		_data_cpu, _rows);
+	throw_on_fail(status == CUBLAS_STATUS_SUCCESS, "Failed to write GPU memory");
 }
 
 
@@ -542,12 +523,11 @@ void Matrix::gpu_write()
 		return;
 	}
 
-	magma_queue_t queue = magma_queue();
-
-	magma_setmatrix(_rows, _cols, sizeof(float),
+	cublasStatus_t status = cublasSetMatrix(
+		_rows, _cols, sizeof(float),
 		_data_cpu, _rows,
-		_data_gpu, _rows,
-		queue);
+		_data_gpu, _rows);
+	throw_on_fail(status == CUBLAS_STATUS_SUCCESS, "Failed to write GPU memory");
 }
 
 
@@ -568,17 +548,39 @@ float Matrix::determinant() const
 	int n = M._cols;
 	Matrix U = M;
 	int lda = m;
-	int *ipiv = new int[std::min(m, n)];
+	int lipiv = std::min(m, n);
+	int *ipiv = new int[lipiv];
 
 	// compute LU decomposition
 	if ( GPU ) {
-		int info;
+		int lwork;
 
-		magma_sgetrf_gpu(
+		cusolverStatus_t status = cusolverDnSgetrf_bufferSize(
+			CUSOLVER_HANDLE,
 			m, n, U._data_gpu, lda,
-			ipiv,
-			&info);
-		assert(info >= 0);
+			&lwork
+		);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+
+		float *work = (float *)gpu_malloc(lwork * sizeof(float));
+		int *devIpiv = (int *)gpu_malloc(lipiv * sizeof(int));
+		int *info = (int *)gpu_malloc(sizeof(int));
+
+		status = cusolverDnSgetrf(
+			CUSOLVER_HANDLE,
+			m, n, U._data_gpu, lda,
+			work, devIpiv,
+			info);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+		// assert(*info >= 0);
+
+		// TODO: handle with buffer type
+		cudaError_t error = cudaMemcpy(ipiv, devIpiv, lipiv * sizeof(int), cudaMemcpyDeviceToHost);
+		assert(error == cudaSuccess);
+
+		gpu_free(work);
+		gpu_free(devIpiv);
+		gpu_free(info);
 
 		U.gpu_read();
 	}
@@ -667,31 +669,38 @@ void Matrix::eigen(int n1, Matrix& V, Matrix& D) const
 	int lda = M._rows;
 
 	if ( GPU ) {
-		int nb = magma_get_ssytrd_nb(n);
-		int ldwa = n;
-		float *wA = new float[ldwa * n];
-		int lwork = std::max(2*n + n*nb, 1 + 6*n + 2*n*n);
-		float *work = new float[lwork];
-		int liwork = 3 + 5*n;
-		int *iwork = new int[liwork];
-		int info;
+		int lwork;
 
-		magma_ssyevd_gpu(
-			MagmaVec, MagmaUpper,
+		cusolverStatus_t status = cusolverDnSsyevd_bufferSize(
+			CUSOLVER_HANDLE,
+			CUSOLVER_EIG_MODE_VECTOR,
+			CUBLAS_FILL_MODE_UPPER,
 			n, V._data_gpu, lda,
-			D._data_cpu,
-			wA, ldwa,
-			work, lwork,
-			iwork, liwork,
-			&info
+			D._data_gpu,
+			&lwork
 		);
-		assert(info == 0);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
 
-		delete[] wA;
-		delete[] work;
-		delete[] iwork;
+		float *work = (float *)gpu_malloc(lwork * sizeof(float));
+		int *info = (int *)gpu_malloc(sizeof(int));
+
+		status = cusolverDnSsyevd(
+			CUSOLVER_HANDLE,
+			CUSOLVER_EIG_MODE_VECTOR,
+			CUBLAS_FILL_MODE_UPPER,
+			n, V._data_gpu, lda,
+			D._data_gpu,
+			work, lwork,
+			info
+		);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+		// assert(*info >= 0);
+
+		gpu_free(work);
+		gpu_free(info);
 
 		V.gpu_read();
+		D.gpu_read();
 	}
 	else {
 		int lwork = 3 * n;
@@ -742,23 +751,39 @@ Matrix Matrix::inverse() const
 	int lda = M._rows;
 
 	if ( GPU ) {
-		int *ipiv = new int[n];
-		int info;
+		int lwork;
 
-		magma_sgetrf_gpu(
+		cusolverStatus_t status = cusolverDnSgetrf_bufferSize(
+			CUSOLVER_HANDLE,
 			m, n, A._data_gpu, lda,
-			ipiv, &info);
-		assert(info >= 0);
+			&lwork
+		);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
 
-		magma_sgetrs_gpu(
-			MagmaNoTrans,
+		float *work = (float *)gpu_malloc(lwork * sizeof(float));
+		int *ipiv = (int *)gpu_malloc(n * sizeof(int));
+		int *info = (int *)gpu_malloc(sizeof(int));
+
+		status = cusolverDnSgetrf(
+			CUSOLVER_HANDLE,
+			m, n, A._data_gpu, lda,
+			work, ipiv,
+			info);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+		// assert(*info >= 0);
+
+		cusolverDnSgetrs(
+			CUSOLVER_HANDLE, CUBLAS_OP_N,
 			n, n, A._data_gpu, lda,
 			ipiv,
-			M_inv._data_gpu, n, &info);
+			M_inv._data_gpu, n,
+			info);
 
-		delete[] ipiv;
+		gpu_free(work);
+		gpu_free(ipiv);
+		gpu_free(info);
 
-		throw_on_fail(info == 0, "Failed to compute inverse");
+		// throw_on_fail(info == 0, "Failed to compute inverse");
 
 		M_inv.gpu_read();
 	}
@@ -912,22 +937,35 @@ void Matrix::svd(Matrix& U, Matrix& S, Matrix& V) const
 
 	if ( GPU ) {
 		Matrix wA = M;
-		int nb = magma_get_sgesvd_nb(m, n);
-		int lwork = 2 * std::min(m, n) + (std::max(m, n) + std::min(m, n)) * nb;
-		float *work = new float[lwork];
-		int info;
+		int lwork;
 
-		magma_sgesvd(
-			MagmaSomeVec, MagmaSomeVec,
-			m, n, wA._data_cpu, lda,
-			S._data_cpu,
-			U._data_cpu, ldu,
-			VT._data_cpu, ldvt,
+		cusolverStatus_t status = cusolverDnSgesvd_bufferSize(
+			CUSOLVER_HANDLE,
+			m, n,
+			&lwork);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+
+		float *work = (float *)gpu_malloc(lwork * sizeof(float));
+		int *info = (int *)gpu_malloc(sizeof(int));
+
+		status = cusolverDnSgesvd(
+			CUSOLVER_HANDLE, 'S', 'S',
+			m, n, wA._data_gpu, lda,
+			S._data_gpu,
+			U._data_gpu, ldu,
+			VT._data_gpu, ldvt,
 			work, lwork,
-			&info);
-		assert(info == 0);
+			nullptr,
+			info);
+		assert(status == CUSOLVER_STATUS_SUCCESS);
+		// assert(*info == 0);
 
-		delete[] work;
+		gpu_free(work);
+		gpu_free(info);
+
+		U.gpu_read();
+		S.gpu_read();
+		VT.gpu_read();
 	}
 	else {
 		Matrix wA = M;
@@ -1167,9 +1205,12 @@ void Matrix::axpy(float alpha, const Matrix& A)
 	int incY = 1;
 
 	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-
-		magma_saxpy(n, alpha, A._data_gpu, incX, B._data_gpu, incY, queue);
+		cublasStatus_t status = cublasSaxpy(
+			CUBLAS_HANDLE, n,
+			&alpha,
+			A._data_gpu, incX,
+			B._data_gpu, incY);
+		assert(status == CUBLAS_STATUS_SUCCESS);
 
 		B.gpu_read();
 	}
@@ -1203,9 +1244,12 @@ float Matrix::dot(const Matrix& y) const
 	float dot;
 
 	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-
-		dot = magma_sdot(n, x._data_gpu, incX, y._data_gpu, incY, queue);
+		cublasStatus_t status = cublasSdot(
+			CUBLAS_HANDLE, n,
+			x._data_gpu, incX,
+			y._data_gpu, incY,
+			&dot);
+		assert(status == CUBLAS_STATUS_SUCCESS);
 	}
 	else {
 		dot = cblas_sdot(n, x._data_cpu, incX, y._data_cpu, incY);
@@ -1244,15 +1288,18 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 	assert(C._rows == m && C._cols == n && k1 == k2);
 
 	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-		magma_trans_t TransA = A._transposed ? MagmaTrans : MagmaNoTrans;
-		magma_trans_t TransB = B._transposed ? MagmaTrans : MagmaNoTrans;
+		cublasOperation_t TransA = A._transposed ? CUBLAS_OP_T : CUBLAS_OP_N;
+		cublasOperation_t TransB = B._transposed ? CUBLAS_OP_T : CUBLAS_OP_N;
 
-		magma_sgemm(TransA, TransB,
+		cublasStatus_t status = cublasSgemm(
+			CUBLAS_HANDLE, TransA, TransB,
 			m, n, k1,
-			alpha, A._data_gpu, A._rows, B._data_gpu, B._rows,
-			beta, C._data_gpu, C._rows,
-			queue);
+			&alpha,
+			A._data_gpu, A._rows,
+			B._data_gpu, B._rows,
+			&beta,
+			C._data_gpu, C._rows);
+		assert(status == CUBLAS_STATUS_SUCCESS);
 
 		C.gpu_read();
 	}
@@ -1260,10 +1307,14 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 		CBLAS_TRANSPOSE TransA = A._transposed ? CblasTrans : CblasNoTrans;
 		CBLAS_TRANSPOSE TransB = B._transposed ? CblasTrans : CblasNoTrans;
 
-		cblas_sgemm(CblasColMajor, TransA, TransB,
+		cblas_sgemm(
+			CblasColMajor, TransA, TransB,
 			m, n, k1,
-			alpha, A._data_cpu, A._rows, B._data_cpu, B._rows,
-			beta, C._data_cpu, C._rows);
+			alpha,
+			A._data_cpu, A._rows,
+			B._data_cpu, B._rows,
+			beta,
+			C._data_cpu, C._rows);
 	}
 }
 
@@ -1288,9 +1339,11 @@ float Matrix::nrm2() const
 	float nrm2;
 
 	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-
-		nrm2 = magma_snrm2(n, x._data_gpu, incX, queue);
+		cublasStatus_t status = cublasSnrm2(
+			CUBLAS_HANDLE, n,
+			x._data_gpu, incX,
+			&nrm2);
+		assert(status == CUBLAS_STATUS_SUCCESS);
 	}
 	else {
 		nrm2 = cblas_snrm2(n, x._data_cpu, incX);
@@ -1319,9 +1372,11 @@ void Matrix::scal(float alpha)
 	int incX = 1;
 
 	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-
-		magma_sscal(n, alpha, M._data_gpu, incX, queue);
+		cublasStatus_t status = cublasSscal(
+			CUBLAS_HANDLE, n,
+			&alpha,
+			M._data_gpu, incX);
+		assert(status == CUBLAS_STATUS_SUCCESS);
 
 		M.gpu_read();
 	}
@@ -1354,18 +1409,20 @@ void Matrix::syr(float alpha, const Matrix& x)
 	int incX = 1;
 
 	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-
-		magma_ssyr(MagmaUpper,
-			n, alpha, x._data_gpu, incX,
-			A._data_gpu, A._rows,
-			queue);
+		cublasStatus_t status = cublasSsyr(
+			CUBLAS_HANDLE, CUBLAS_FILL_MODE_UPPER,
+			n, &alpha,
+			x._data_gpu, incX,
+			A._data_gpu, A._rows);
+		assert(status == CUBLAS_STATUS_SUCCESS);
 
 		A.gpu_read();
 	}
 	else {
-		cblas_ssyr(CblasColMajor, CblasUpper,
-			n, alpha, x._data_cpu, incX,
+		cblas_ssyr(
+			CblasColMajor, CblasUpper,
+			n, alpha,
+			x._data_cpu, incX,
 			A._data_cpu, A._rows);
 	}
 }
@@ -1400,22 +1457,27 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 	assert(C._rows == C._cols && C._rows == n);
 
 	if ( GPU ) {
-		magma_queue_t queue = magma_queue();
-		magma_trans_t Trans = trans ? MagmaTrans : MagmaNoTrans;
+		cublasOperation_t Trans = trans ? CUBLAS_OP_T : CUBLAS_OP_N;
 
-		magma_ssyrk(MagmaUpper, Trans,
-			n, k, alpha, A._data_gpu, A._rows,
-			beta, C._data_gpu, C._rows,
-			queue);
+		cublasStatus_t status = cublasSsyrk(
+			CUBLAS_HANDLE, CUBLAS_FILL_MODE_UPPER, Trans,
+			n, k, &alpha,
+			A._data_gpu, A._rows,
+			&beta,
+			C._data_gpu, C._rows);
+		assert(status == CUBLAS_STATUS_SUCCESS);
 
 		C.gpu_read();
 	}
 	else {
 		CBLAS_TRANSPOSE Trans = trans ? CblasTrans : CblasNoTrans;
 
-		cblas_ssyrk(CblasColMajor, CblasUpper, Trans,
-			n, k, alpha, A._data_cpu, A._rows,
-			beta, C._data_cpu, C._rows);
+		cblas_ssyrk(
+			CblasColMajor, CblasUpper, Trans,
+			n, k, alpha,
+			A._data_cpu, A._rows,
+			beta,
+			C._data_cpu, C._rows);
 	}
 }
 

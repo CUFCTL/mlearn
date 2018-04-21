@@ -33,19 +33,14 @@ export PATH="$CUDADIR/bin:$PATH"
 export LD_LIBRARY_PATH="$CUDADIR/lib64:$LD_LIBRARY_PATH"
 
 export INSTALL_PREFIX="$HOME/software"
-export CPLUS_INCLUDE_PATH="$INSTALL_PREFIX/include:$CPLUS_INCLUDE_PATH"
-export LIBRARY_PATH="$INSTALL_PREFIX/lib:$LIBRARY_PATH"
 export LD_LIBRARY_PATH="$INSTALL_PREFIX/lib:$LD_LIBRARY_PATH"
 ```
 
-You should then be able to install mlearn and its dependencies:
+You should then be able to install mlearn:
 ```
 # clone repository
 git clone https://github.com/CUFCTL/mlearn.git
 cd mlearn
-
-# install OpenBLAS and MAGMA
-make install-deps -j [num-jobs]
 
 # install library
 make -j [num-jobs]
