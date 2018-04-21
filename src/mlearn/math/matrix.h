@@ -28,10 +28,6 @@ void gpu_finalize();
 
 
 
-#define ELEM(M, i, j) (M)._data_cpu[(j) * (M)._rows + (i)]
-
-
-
 class Matrix {
 private:
 	int _rows;
@@ -72,7 +68,8 @@ public:
 	// getter functions
 	int rows() const { return _rows; }
 	int cols() const { return _cols; }
-	float& elem(int i, int j) const { return ELEM(*this, i, j); }
+	const float& elem(int i, int j) const { return _data_cpu[j * _rows + i]; }
+	float& elem(int i, int j) { return _data_cpu[j * _rows + i]; }
 	const Matrix& T() const { return *(_T); }
 
 	float determinant() const;

@@ -1,9 +1,8 @@
 /**
  * @file math/matrix.cpp
  *
- * Implementation of the matrix library.
+ * Implementation of the matrix type.
  */
-#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -230,7 +229,7 @@ Matrix::Matrix(const Matrix& M, int i, int j)
 
 	assert(0 <= i && i < j && j <= M._cols);
 
-	memcpy(_data_cpu, &ELEM(M, 0, i), _rows * _cols * sizeof(float));
+	memcpy(_data_cpu, &M.elem(0, i), _rows * _cols * sizeof(float));
 
 	gpu_write();
 }
@@ -869,7 +868,7 @@ void Matrix::assign_column(int i, const Matrix& B, int j)
 	assert(0 <= i && i < A._cols);
 	assert(0 <= j && j < B._cols);
 
-	memcpy(&ELEM(A, 0, i), B._data_cpu, B._rows * sizeof(float));
+	memcpy(&A.elem(0, i), B._data_cpu, B._rows * sizeof(float));
 
 	A.gpu_write();
 }
