@@ -25,7 +25,12 @@ Clustering
 
 This project depends on CUDA. The CUDA Toolkit can be downloaded [here](https://developer.nvidia.com/cuda-downloads).
 
-Before running any commands, append these lines to `~/.bashrc`:
+Install all other dependencies:
+```
+sudo apt-get install libblas-dev liblapacke-dev
+```
+
+Append these lines to `~/.bashrc`:
 ```
 # CUDADIR should point to your CUDA installation
 export CUDADIR="/usr/local/cuda"
