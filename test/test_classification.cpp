@@ -135,7 +135,7 @@ int main(int argc, char **argv)
 	std::unique_ptr<FeatureLayer> feature;
 
 	if ( args.feature == "identity" ) {
-		feature.reset(new IdentityLayer());
+		feature.reset();
 	}
 	else if ( args.feature == "pca" ) {
 		feature.reset(new PCALayer());

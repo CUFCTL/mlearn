@@ -46,7 +46,7 @@ void ClassificationModel::save(const std::string& path)
 
 	file << _train_set;
 	file << _mean;
-	file << _feature;
+	if ( _feature ) file << _feature;
 	file << _classifier;
 }
 
@@ -63,7 +63,7 @@ void ClassificationModel::load(const std::string& path)
 
 	file >> _train_set;
 	file >> _mean;
-	file >> _feature;
+	if ( _feature ) file >> _feature;
 	file >> _classifier;
 }
 
@@ -76,7 +76,7 @@ void ClassificationModel::print() const
 {
 	Logger::log(LogLevel::Verbose, "Hyperparameters");
 
-	_feature->print();
+	if ( _feature ) { _feature->print(); }
 	_classifier->print();
 
 	Logger::log(LogLevel::Verbose, "");
@@ -108,10 +108,13 @@ void ClassificationModel::fit(const Dataset& dataset)
 	X.subtract_columns(_mean);
 
 	// perform feature extraction
-	_feature->compute(X, _train_set.labels(), _train_set.classes().size());
+	if ( _feature )
+	{
+		_feature->compute(X, _train_set.labels(), _train_set.classes().size());
+	}
 
 	// fit classifier
-	_classifier->compute(_feature->project(X), _train_set.labels(), _train_set.classes().size());
+	_classifier->compute(_feature ? _feature->project(X) : X, _train_set.labels(), _train_set.classes().size());
 
 	// record fit time
 	_stats.fit_time = Timer::pop();
@@ -138,10 +141,8 @@ std::vector<int> ClassificationModel::predict(const Dataset& dataset)
 	Matrix X_test = dataset.load_data();
 	X_test.subtract_columns(_mean);
 
-	Matrix P_test = _feature->project(X_test);
-
 	// compute predicted labels
-	std::vector<int> y_pred = _classifier->predict(P_test);
+	std::vector<int> y_pred = _classifier->predict(_feature ? _feature->project(X_test) : X_test);
 
 	// record prediction time
 	_stats.predict_time = Timer::pop();
