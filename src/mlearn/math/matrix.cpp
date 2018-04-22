@@ -86,7 +86,7 @@ Matrix::Matrix(int rows, int cols)
 	_T->_rows = rows;
 	_T->_cols = cols;
 	_T->_transposed = true;
-	_T->_T = nullptr;
+	_T->_T = this;
 }
 
 
@@ -128,7 +128,7 @@ Matrix::Matrix(const Matrix& M, int i, int j)
 
 	assert(0 <= i && i < j && j <= M._cols);
 
-	memcpy(_buffer.host_data(), &M.elem(0, i), _rows * _cols * sizeof(float));
+	memcpy(buffer().host_data(), &M.elem(0, i), _rows * _cols * sizeof(float));
 
 	gpu_write();
 }
@@ -345,7 +345,7 @@ IODevice& operator<<(IODevice& file, const Matrix& M)
 {
 	file << M._rows;
 	file << M._cols;
-	file.write(reinterpret_cast<const char *>(M._buffer.host_data()), M._rows * M._cols * sizeof(float));
+	file.write(reinterpret_cast<const char *>(M.buffer().host_data()), M._rows * M._cols * sizeof(float));
 	return file;
 }
 
@@ -366,7 +366,7 @@ IODevice& operator>>(IODevice& file, Matrix& M)
 	file >> cols;
 
 	M = Matrix(rows, cols);
-	file.read(reinterpret_cast<char *>(M._buffer.host_data()), M._rows * M._cols * sizeof(float));
+	file.read(reinterpret_cast<char *>(M.buffer().host_data()), M._rows * M._cols * sizeof(float));
 	return file;
 }
 
@@ -445,7 +445,7 @@ Matrix Matrix::diagonalize() const
 	Matrix D = Matrix::zeros(n, n);
 
 	for ( int i = 0; i < n; i++ ) {
-		D.elem(i, i) = v._buffer.host_data()[i];
+		D.elem(i, i) = v.buffer().host_data()[i];
 	}
 
 	D.gpu_write();
@@ -618,7 +618,7 @@ float Matrix::sum() const
 	float sum = 0.0f;
 
 	for ( int i = 0; i < n; i++ ) {
-		sum += v._buffer.host_data()[i];
+		sum += v.buffer().host_data()[i];
 	}
 
 	return sum;
@@ -720,7 +720,7 @@ void Matrix::assign_column(int i, const Matrix& B, int j)
 	assert(0 <= i && i < A._cols);
 	assert(0 <= j && j < B._cols);
 
-	memcpy(&A.elem(0, i), B._buffer.host_data(), B._rows * sizeof(float));
+	memcpy(&A.elem(0, i), B.buffer().host_data(), B._rows * sizeof(float));
 
 	A.gpu_write();
 }
@@ -880,14 +880,14 @@ void Matrix::axpy(float alpha, const Matrix& A)
 		CHECK_CUBLAS(cublasSaxpy(
 			Device::instance()->cublas_handle(), n,
 			&alpha,
-			A._buffer.device_data(), incX,
-			B._buffer.device_data(), incY
+			A.buffer().device_data(), incX,
+			B.buffer().device_data(), incY
 		));
 
 		B.gpu_read();
 	}
 	else {
-		cblas_saxpy(n, alpha, A._buffer.host_data(), incX, B._buffer.host_data(), incY);
+		cblas_saxpy(n, alpha, A.buffer().host_data(), incX, B.buffer().host_data(), incY);
 	}
 }
 
@@ -918,13 +918,13 @@ float Matrix::dot(const Matrix& y) const
 	if ( Device::instance() ) {
 		CHECK_CUBLAS(cublasSdot(
 			Device::instance()->cublas_handle(), n,
-			x._buffer.device_data(), incX,
-			y._buffer.device_data(), incY,
+			x.buffer().device_data(), incX,
+			y.buffer().device_data(), incY,
 			&dot
 		));
 	}
 	else {
-		dot = cblas_sdot(n, x._buffer.host_data(), incX, y._buffer.host_data(), incY);
+		dot = cblas_sdot(n, x.buffer().host_data(), incX, y.buffer().host_data(), incY);
 	}
 
 	return dot;
@@ -967,10 +967,10 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 			Device::instance()->cublas_handle(), TransA, TransB,
 			m, n, k1,
 			&alpha,
-			A._buffer.device_data(), A._rows,
-			B._buffer.device_data(), B._rows,
+			A.buffer().device_data(), A._rows,
+			B.buffer().device_data(), B._rows,
 			&beta,
-			C._buffer.device_data(), C._rows
+			C.buffer().device_data(), C._rows
 		));
 
 		C.gpu_read();
@@ -983,10 +983,10 @@ void Matrix::gemm(float alpha, const Matrix& A, const Matrix& B, float beta)
 			CblasColMajor, TransA, TransB,
 			m, n, k1,
 			alpha,
-			A._buffer.host_data(), A._rows,
-			B._buffer.host_data(), B._rows,
+			A.buffer().host_data(), A._rows,
+			B.buffer().host_data(), B._rows,
 			beta,
-			C._buffer.host_data(), C._rows
+			C.buffer().host_data(), C._rows
 		);
 	}
 }
@@ -1014,12 +1014,12 @@ float Matrix::nrm2() const
 	if ( Device::instance() ) {
 		CHECK_CUBLAS(cublasSnrm2(
 			Device::instance()->cublas_handle(), n,
-			x._buffer.device_data(), incX,
+			x.buffer().device_data(), incX,
 			&nrm2
 		));
 	}
 	else {
-		nrm2 = cblas_snrm2(n, x._buffer.host_data(), incX);
+		nrm2 = cblas_snrm2(n, x.buffer().host_data(), incX);
 	}
 
 	return nrm2;
@@ -1048,13 +1048,13 @@ void Matrix::scal(float alpha)
 		CHECK_CUBLAS(cublasSscal(
 			Device::instance()->cublas_handle(), n,
 			&alpha,
-			M._buffer.device_data(), incX
+			M.buffer().device_data(), incX
 		));
 
 		M.gpu_read();
 	}
 	else {
-		cblas_sscal(n, alpha, M._buffer.host_data(), incX);
+		cblas_sscal(n, alpha, M.buffer().host_data(), incX);
 	}
 }
 
@@ -1085,8 +1085,8 @@ void Matrix::syr(float alpha, const Matrix& x)
 		CHECK_CUBLAS(cublasSsyr(
 			Device::instance()->cublas_handle(), CUBLAS_FILL_MODE_UPPER,
 			n, &alpha,
-			x._buffer.device_data(), incX,
-			A._buffer.device_data(), A._rows
+			x.buffer().device_data(), incX,
+			A.buffer().device_data(), A._rows
 		));
 
 		A.gpu_read();
@@ -1095,8 +1095,8 @@ void Matrix::syr(float alpha, const Matrix& x)
 		cblas_ssyr(
 			CblasColMajor, CblasUpper,
 			n, alpha,
-			x._buffer.host_data(), incX,
-			A._buffer.host_data(), A._rows
+			x.buffer().host_data(), incX,
+			A.buffer().host_data(), A._rows
 		);
 	}
 }
@@ -1136,9 +1136,9 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 		CHECK_CUBLAS(cublasSsyrk(
 			Device::instance()->cublas_handle(), CUBLAS_FILL_MODE_UPPER, Trans,
 			n, k, &alpha,
-			A._buffer.device_data(), A._rows,
+			A.buffer().device_data(), A._rows,
 			&beta,
-			C._buffer.device_data(), C._rows
+			C.buffer().device_data(), C._rows
 		));
 
 		C.gpu_read();
@@ -1149,9 +1149,9 @@ void Matrix::syrk(bool trans, float alpha, const Matrix& A, float beta)
 		cblas_ssyrk(
 			CblasColMajor, CblasUpper, Trans,
 			n, k, alpha,
-			A._buffer.host_data(), A._rows,
+			A.buffer().host_data(), A._rows,
 			beta,
-			C._buffer.host_data(), C._rows
+			C.buffer().host_data(), C._rows
 		);
 	}
 }
@@ -1192,10 +1192,10 @@ void Matrix::gesvd(Matrix& U, Matrix& S, Matrix& VT) const
 
 		CHECK_CUSOLVER(cusolverDnSgesvd(
 			Device::instance()->cusolver_handle(), 'S', 'S',
-			m, n, wA._buffer.device_data(), lda,
-			S._buffer.device_data(),
-			U._buffer.device_data(), ldu,
-			VT._buffer.device_data(), ldvt,
+			m, n, wA.buffer().device_data(), lda,
+			S.buffer().device_data(),
+			U.buffer().device_data(), ldu,
+			VT.buffer().device_data(), ldvt,
 			work.device_data(), lwork,
 			nullptr,
 			info.device_data()
@@ -1211,10 +1211,10 @@ void Matrix::gesvd(Matrix& U, Matrix& S, Matrix& VT) const
 
 		int info = LAPACKE_sgesvd_work(
 			LAPACK_COL_MAJOR, 'S', 'S',
-			m, n, wA._buffer.host_data(), lda,
-			S._buffer.host_data(),
-			U._buffer.host_data(), ldu,
-			VT._buffer.host_data(), ldvt,
+			m, n, wA.buffer().host_data(), lda,
+			S.buffer().host_data(),
+			U.buffer().host_data(), ldu,
+			VT.buffer().host_data(), ldvt,
 			work.host_data(), lwork
 		);
 		assert(info == 0);
@@ -1244,7 +1244,7 @@ void Matrix::getrf(Matrix& U, Buffer<int>& ipiv) const
 
 		CHECK_CUSOLVER(cusolverDnSgetrf_bufferSize(
 			Device::instance()->cusolver_handle(),
-			m, n, U._buffer.device_data(), lda,
+			m, n, U.buffer().device_data(), lda,
 			&lwork
 		));
 
@@ -1253,7 +1253,7 @@ void Matrix::getrf(Matrix& U, Buffer<int>& ipiv) const
 
 		CHECK_CUSOLVER(cusolverDnSgetrf(
 			Device::instance()->cusolver_handle(),
-			m, n, U._buffer.device_data(), lda,
+			m, n, U.buffer().device_data(), lda,
 			work.device_data(), ipiv.device_data(),
 			info.device_data()
 		));
@@ -1264,7 +1264,7 @@ void Matrix::getrf(Matrix& U, Buffer<int>& ipiv) const
 	else {
 		int info = LAPACKE_sgetrf_work(
 			LAPACK_COL_MAJOR,
-			m, n, U._buffer.host_data(), lda,
+			m, n, U.buffer().host_data(), lda,
 			ipiv.host_data()
 		);
 		assert(info >= 0);
@@ -1293,9 +1293,9 @@ bool Matrix::getrs(const Matrix& A, Matrix& B, Buffer<int>& ipiv) const
 
 		CHECK_CUSOLVER(cusolverDnSgetrs(
 			Device::instance()->cusolver_handle(), CUBLAS_OP_N,
-			n, n, A._buffer.device_data(), lda,
+			n, n, A.buffer().device_data(), lda,
 			ipiv.device_data(),
-			B._buffer.device_data(), n,
+			B.buffer().device_data(), n,
 			info.device_data()
 		));
 
@@ -1305,9 +1305,9 @@ bool Matrix::getrs(const Matrix& A, Matrix& B, Buffer<int>& ipiv) const
 	else {
 		int info = LAPACKE_sgetrs_work(
 			LAPACK_COL_MAJOR, 'N',
-			n, n, A._buffer.host_data(), lda,
+			n, n, A.buffer().host_data(), lda,
 			ipiv.host_data(),
-			B._buffer.host_data(), n
+			B.buffer().host_data(), n
 		);
 
 		return (info == 0);
@@ -1340,8 +1340,8 @@ void Matrix::syev(Matrix& V, Matrix& D) const
 			Device::instance()->cusolver_handle(),
 			CUSOLVER_EIG_MODE_VECTOR,
 			CUBLAS_FILL_MODE_UPPER,
-			n, V._buffer.device_data(), lda,
-			D._buffer.device_data(),
+			n, V.buffer().device_data(), lda,
+			D.buffer().device_data(),
 			&lwork
 		));
 
@@ -1352,8 +1352,8 @@ void Matrix::syev(Matrix& V, Matrix& D) const
 			Device::instance()->cusolver_handle(),
 			CUSOLVER_EIG_MODE_VECTOR,
 			CUBLAS_FILL_MODE_UPPER,
-			n, V._buffer.device_data(), lda,
-			D._buffer.device_data(),
+			n, V.buffer().device_data(), lda,
+			D.buffer().device_data(),
 			work.device_data(), lwork,
 			info.device_data()
 		));
@@ -1367,8 +1367,8 @@ void Matrix::syev(Matrix& V, Matrix& D) const
 
 		int info = LAPACKE_ssyev_work(
 			LAPACK_COL_MAJOR, 'V', 'U',
-			n, V._buffer.host_data(), lda,
-			D._buffer.host_data(),
+			n, V.buffer().host_data(), lda,
+			D.buffer().host_data(),
 			work.host_data(), lwork
 		);
 		assert(info == 0);
@@ -1387,7 +1387,7 @@ void swap(Matrix& A, Matrix& B)
 {
 	std::swap(A._rows, B._rows);
 	std::swap(A._cols, B._cols);
-	std::swap(A._buffer, B._buffer);
+	std::swap(A.buffer(), B.buffer());
 	std::swap(A._transposed, B._transposed);
 	std::swap(A._T, B._T);
 }
