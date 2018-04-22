@@ -47,7 +47,7 @@ ICALayer::ICALayer(int n1, int n2, ICANonl nonl, int max_iter, float eps)
  * @param y
  * @param c
  */
-void ICALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
+void ICALayer::fit(const Matrix& X, const std::vector<int>& y, int c)
 {
 	Timer::push("ICA");
 
@@ -66,7 +66,7 @@ void ICALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 	// compute whitening matrix W_z = inv(sqrt(D)) * W_pca'
 	PCALayer pca(_n1);
 
-	pca.compute(mixedsig, y, c);
+	pca.fit(mixedsig, y, c);
 
 	Matrix D = pca.D();
 	D.elem_apply(sqrt);
@@ -110,7 +110,7 @@ void ICALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
  *
  * @param X
  */
-Matrix ICALayer::project(const Matrix& X)
+Matrix ICALayer::transform(const Matrix& X)
 {
 	return _W.T() * X;
 }

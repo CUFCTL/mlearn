@@ -76,12 +76,12 @@ void ClusteringModel::fit(const std::vector<Matrix>& X)
 
 
 /**
- * Validate a set of predicted labels against the ground truth.
+ * Score a model against ground truth labels.
  *
  * @param input
  * @param y_pred
  */
-void ClusteringModel::validate(const Dataset& input, const std::vector<int>& y_pred)
+void ClusteringModel::score(const Dataset& input, const std::vector<int>& y_pred)
 {
 	// compute purity
 	float purity = 0;

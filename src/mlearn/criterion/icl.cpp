@@ -19,7 +19,7 @@ namespace ML {
  *
  * @param layer
  */
-float ICLLayer::compute(ClusteringLayer *layer)
+float ICLLayer::score(ClusteringLayer *layer)
 {
 	int k = layer->num_parameters();
 	int n = layer->num_samples();

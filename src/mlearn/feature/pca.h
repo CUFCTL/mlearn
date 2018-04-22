@@ -22,8 +22,8 @@ public:
 	const Matrix& W() const { return _W; }
 	const Matrix& D() const { return _D; }
 
-	void compute(const Matrix& X, const std::vector<int>& y, int c);
-	Matrix project(const Matrix& X);
+	void fit(const Matrix& X, const std::vector<int>& y, int c);
+	Matrix transform(const Matrix& X);
 
 	void save(IODevice& file) const;
 	void load(IODevice& file);

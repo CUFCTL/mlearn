@@ -110,7 +110,7 @@ KNNLayer::KNNLayer(int k, KNNDist dist)
  * @param y
  * @param c
  */
-void KNNLayer::compute(const Matrix& X, const std::vector<int>& y, int c)
+void KNNLayer::fit(const Matrix& X, const std::vector<int>& y, int c)
 {
 	_X = X;
 	_y = y;

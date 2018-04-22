@@ -22,7 +22,7 @@ namespace ML {
  * @param y
  * @param c
  */
-void BayesLayer::compute(const Matrix& X, const std::vector<int>& y, int c)
+void BayesLayer::fit(const Matrix& X, const std::vector<int>& y, int c)
 {
 	std::vector<Matrix> X_c = m_copy_classes(X, y, c);
 

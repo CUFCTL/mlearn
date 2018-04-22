@@ -28,7 +28,7 @@ public:
 	KNNLayer(int k, KNNDist dist);
 	KNNLayer() : KNNLayer(1, KNNDist::L1) {}
 
-	void compute(const Matrix& X, const std::vector<int>& y, int c);
+	void fit(const Matrix& X, const std::vector<int>& y, int c);
 	std::vector<int> predict(const Matrix& X_test);
 
 	void save(IODevice& file) const;

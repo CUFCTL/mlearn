@@ -19,7 +19,7 @@ namespace ML {
  *
  * @param layer
  */
-float BICLayer::compute(ClusteringLayer *layer)
+float BICLayer::score(ClusteringLayer *layer)
 {
 	int k = layer->num_parameters();
 	int n = layer->num_samples();

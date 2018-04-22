@@ -36,7 +36,7 @@ LDALayer::LDALayer(int n1, int n2)
  * @param y
  * @param c
  */
-void LDALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
+void LDALayer::fit(const Matrix& X, const std::vector<int>& y, int c)
 {
 	// if n1 = -1, use default value
 	int n1 = (_n1 == -1)
@@ -58,8 +58,8 @@ void LDALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
 	Timer::push("compute eigenfaces");
 
 	PCALayer pca(n1);
-	pca.compute(X, y, c);
-	Matrix P_pca = pca.project(X);
+	pca.fit(X, y, c);
+	Matrix P_pca = pca.transform(X);
 
 	Timer::pop();
 
@@ -99,7 +99,7 @@ void LDALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
  *
  * @param X
  */
-Matrix LDALayer::project(const Matrix& X)
+Matrix LDALayer::transform(const Matrix& X)
 {
 	return _W.T() * X;
 }

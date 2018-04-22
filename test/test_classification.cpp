@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 	std::vector<int> y_pred = model.predict(test_set);
 
 	// print classification results
-	model.validate(test_set, y_pred);
+	model.score(test_set, y_pred);
 	model.print_results(test_set, y_pred);
 
 	// print timing results

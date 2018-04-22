@@ -25,7 +25,7 @@ ClusteringLayer * CriterionLayer::select(const std::vector<ClusteringLayer *>& l
 
 	for ( size_t i = 0; i < layers.size(); i++ ) {
 		if ( layers[i]->success() ) {
-			float value = compute(layers[i]);
+			float value = score(layers[i]);
 
 			if ( value < min_value ) {
 				min_layer = layers[i];

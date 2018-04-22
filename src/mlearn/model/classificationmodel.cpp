@@ -110,11 +110,11 @@ void ClassificationModel::fit(const Dataset& dataset)
 	// perform feature extraction
 	if ( _feature )
 	{
-		_feature->compute(X, _train_set.labels(), _train_set.classes().size());
+		_feature->fit(X, _train_set.labels(), _train_set.classes().size());
 	}
 
 	// fit classifier
-	_classifier->compute(_feature ? _feature->project(X) : X, _train_set.labels(), _train_set.classes().size());
+	_classifier->fit(_feature ? _feature->transform(X) : X, _train_set.labels(), _train_set.classes().size());
 
 	// record fit time
 	_stats.fit_time = Timer::pop();
@@ -142,7 +142,7 @@ std::vector<int> ClassificationModel::predict(const Dataset& dataset)
 	X_test.subtract_columns(_mean);
 
 	// compute predicted labels
-	std::vector<int> y_pred = _classifier->predict(_feature ? _feature->project(X_test) : X_test);
+	std::vector<int> y_pred = _classifier->predict(_feature ? _feature->transform(X_test) : X_test);
 
 	// record prediction time
 	_stats.predict_time = Timer::pop();
@@ -155,12 +155,12 @@ std::vector<int> ClassificationModel::predict(const Dataset& dataset)
 
 
 /**
- * Validate a set of predicted labels against the ground truth.
+ * Score a model against ground truth labels.
  *
  * @param dataset
  * @param y_pred
  */
-void ClassificationModel::validate(const Dataset& dataset, const std::vector<int>& y_pred)
+void ClassificationModel::score(const Dataset& dataset, const std::vector<int>& y_pred)
 {
 	int num_errors = 0;
 

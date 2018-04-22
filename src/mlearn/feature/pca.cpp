@@ -37,7 +37,7 @@ PCALayer::PCALayer(int n1)
  * @param y
  * @param c
  */
-void PCALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
+void PCALayer::fit(const Matrix& X, const std::vector<int>& y, int c)
 {
 	// if n1 = -1, use default value
 	int n1 = (_n1 == -1)
@@ -90,7 +90,7 @@ void PCALayer::compute(const Matrix& X, const std::vector<int>& y, int c)
  *
  * @param X
  */
-Matrix PCALayer::project(const Matrix& X)
+Matrix PCALayer::transform(const Matrix& X)
 {
 	return _W.T() * X;
 }

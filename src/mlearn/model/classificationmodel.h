@@ -29,7 +29,7 @@ public:
 
 	void fit(const Dataset& dataset);
 	std::vector<int> predict(const Dataset& dataset);
-	void validate(const Dataset& dataset, const std::vector<int>& y_pred);
+	void score(const Dataset& dataset, const std::vector<int>& y_pred);
 
 	void print_results(const Dataset& dataset, const std::vector<int>& y_pred) const;
 	void print_stats() const;

@@ -20,8 +20,8 @@ class FeatureLayer : public Layer {
 public:
 	virtual ~FeatureLayer() {};
 
-	virtual void compute(const Matrix& X, const std::vector<int>& y, int c) = 0;
-	virtual Matrix project(const Matrix& X) = 0;
+	virtual void fit(const Matrix& X, const std::vector<int>& y, int c) = 0;
+	virtual Matrix transform(const Matrix& X) = 0;
 };
 
 

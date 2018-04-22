@@ -19,8 +19,8 @@ public:
 	LDALayer(int n1, int n2);
 	LDALayer() : LDALayer(-1, -1) {}
 
-	void compute(const Matrix& X, const std::vector<int>& y, int c);
-	Matrix project(const Matrix& X);
+	void fit(const Matrix& X, const std::vector<int>& y, int c);
+	Matrix transform(const Matrix& X);
 
 	void save(IODevice& file) const;
 	void load(IODevice& file);

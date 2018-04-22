@@ -185,7 +185,7 @@ int main(int argc, char **argv)
 	model.best_layer()->print();
 	Logger::log(LogLevel::Verbose, "");
 
-	model.validate(input_data, y_pred);
+	model.score(input_data, y_pred);
 	model.print_results(input_data, y_pred);
 
 	// print timing results

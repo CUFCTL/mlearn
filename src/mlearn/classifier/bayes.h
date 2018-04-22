@@ -18,7 +18,7 @@ class BayesLayer : public ClassifierLayer {
 public:
 	BayesLayer() = default;
 
-	void compute(const Matrix& X, const std::vector<int>& y, int c);
+	void fit(const Matrix& X, const std::vector<int>& y, int c);
 	std::vector<int> predict(const Matrix& X_test);
 
 	void save(IODevice& file) const;
