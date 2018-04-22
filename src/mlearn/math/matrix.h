@@ -62,7 +62,7 @@ public:
 	Buffer<float>& buffer() { return _transposed ? _T->_buffer : _buffer; }
 	const float& elem(int i, int j) const { return buffer().host_data()[j * _rows + i]; }
 	float& elem(int i, int j) { return buffer().host_data()[j * _rows + i]; }
-	const Matrix& T() const { return *(_T); }
+	const Matrix& T() const { return *_T; }
 
 	float determinant() const;
 	Matrix diagonalize() const;

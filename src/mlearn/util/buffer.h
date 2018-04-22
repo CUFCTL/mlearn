@@ -36,7 +36,10 @@ public:
 	void read();
 	void write();
 
-	Buffer& operator=(Buffer&& move);
+	Buffer<T>& operator=(Buffer<T>&& move);
+
+	template <class U>
+	friend void swap(Buffer<U>& lhs, Buffer<U>& rhs);
 };
 
 
@@ -67,9 +70,7 @@ template <class T>
 Buffer<T>::Buffer(Buffer&& move)
 	: Buffer()
 {
-	std::swap(_size, move._size);
-	std::swap(_host, move._host);
-	std::swap(_dev, move._dev);
+	swap(*this, move);
 }
 
 
@@ -117,11 +118,19 @@ void Buffer<T>::write()
 template <class T>
 Buffer<T>& Buffer<T>::operator=(Buffer<T>&& move)
 {
-	std::swap(_size, move._size);
-	std::swap(_host, move._host);
-	std::swap(_dev, move._dev);
+	swap(*this, move);
 
 	return *this;
+}
+
+
+
+template <class T>
+void swap(Buffer<T>& lhs, Buffer<T>& rhs)
+{
+	std::swap(lhs._size, rhs._size);
+	std::swap(lhs._host, rhs._host);
+	std::swap(lhs._dev, rhs._dev);
 }
 
 

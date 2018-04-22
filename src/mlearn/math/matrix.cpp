@@ -513,7 +513,7 @@ Matrix Matrix::inverse() const
 	int n = M._cols;
 	Matrix A = M;
 	Matrix M_inv = Matrix::identity(n);
-	Buffer<int> ipiv(n);
+	Buffer<int> ipiv(n, false);
 
 	// compute LU decomposition
 	getrf(A, ipiv);
