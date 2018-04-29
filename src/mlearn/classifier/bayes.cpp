@@ -35,7 +35,7 @@ void BayesLayer::fit(const Matrix& X, const std::vector<int>& y, int c)
 	// compute inverses of each class covariance
 	_S_inv.reserve(c);
 
-	for ( size_t i = 0; i < c; i++ ) {
+	for ( int i = 0; i < c; i++ ) {
 		_S_inv.push_back(S[i].inverse());
 	}
 }
@@ -77,7 +77,7 @@ std::vector<int> BayesLayer::predict(const Matrix& X_test)
 		std::vector<float> probs(_mu.size());
 
 		// compute the Bayes probability for each class
-		for ( int j = 0; j < probs.size(); j++ ) {
+		for ( size_t j = 0; j < probs.size(); j++ ) {
 			probs[j] = prob(X_test(i), _mu[j], _S_inv[j]);
 		}
 

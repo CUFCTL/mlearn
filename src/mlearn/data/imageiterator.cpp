@@ -45,10 +45,7 @@ ImageIterator::ImageIterator(const std::string& path)
 	// construct entries
 	_entries.reserve(dir.entries().size());
 
-	for ( int i = 0; i < dir.entries().size(); i++ ) {
-		// construct entry name
-		std::string name(dir.entries()[i]);
-
+	for ( auto& name : dir.entries() ) {
 		// construct label name
 		std::string label = name.substr(0, name.find_first_of('_'));
 
