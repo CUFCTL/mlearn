@@ -18,12 +18,12 @@ namespace ML {
 
 class ClusteringModel {
 public:
-	ClusteringModel(const std::vector<ClusteringLayer *>& clustering, CriterionLayer *criterion);
+	ClusteringModel(const std::vector<ClusteringLayer *>& models, CriterionLayer *criterion, ClusteringLayer *clustering=nullptr);
 	~ClusteringModel() {}
 
+	void save(const std::string& path);
+	void load(const std::string& path);
 	void print() const;
-
-	ClusteringLayer * best_layer() const { return _best_layer; }
 
 	void fit(const std::vector<Matrix>& X);
 	std::vector<int> predict(const std::vector<Matrix>& X);
@@ -34,9 +34,9 @@ public:
 
 private:
 	// layers
-	std::vector<ClusteringLayer *> _clustering;
+	std::vector<ClusteringLayer *> _models;
 	CriterionLayer *_criterion;
-	ClusteringLayer *_best_layer;
+	ClusteringLayer *_clustering;
 
 	// performance, accuracy stats
 	struct {

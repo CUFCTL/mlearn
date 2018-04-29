@@ -17,20 +17,49 @@ namespace ML {
 /**
  * Construct a clustering model.
  *
- * @param clustering
+ * @param models
  * @param criterion
+ * @param clustering
  */
-ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clustering, CriterionLayer *criterion)
+ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& models, CriterionLayer *criterion, ClusteringLayer *clustering)
 {
 	// initialize layers
-	_clustering = clustering;
+	_models = models;
 	_criterion = criterion;
-	_best_layer = nullptr;
+	_clustering = clustering;
 
 	// initialize stats
 	_stats.error_rate = 0.0f;
 	_stats.fit_time = 0.0f;
 	_stats.predict_time = 0.0f;
+}
+
+
+
+/**
+ * Save a model to a file.
+ *
+ * @param path
+ */
+void ClusteringModel::save(const std::string& path)
+{
+	IODevice file(path, std::ofstream::out);
+
+	file << *_clustering;
+}
+
+
+
+/**
+ * Load a model from a file.
+ *
+ * @param path
+ */
+void ClusteringModel::load(const std::string& path)
+{
+	IODevice file(path, std::ifstream::in);
+
+	file >> *_clustering;
 }
 
 
@@ -42,7 +71,7 @@ void ClusteringModel::print() const
 {
 	Logger::log(LogLevel::Verbose, "Hyperparameters");
 
-	for ( ClusteringLayer *c : _clustering ) {
+	for ( ClusteringLayer *c : _models ) {
 		c->print();
 	}
 
@@ -63,7 +92,7 @@ void ClusteringModel::fit(const std::vector<Matrix>& X)
 	Timer::push("Clustering");
 
 	// run clustering layers
-	for ( ClusteringLayer *layer : _clustering ) {
+	for ( ClusteringLayer *layer : _models ) {
 		layer->fit(X);
 	}
 
@@ -71,7 +100,7 @@ void ClusteringModel::fit(const std::vector<Matrix>& X)
 	_stats.fit_time = Timer::pop();
 
 	// select model with lowest criterion value
-	_best_layer = _criterion->select(_clustering);
+	_clustering = _criterion->select(_models);
 }
 
 
@@ -86,7 +115,7 @@ std::vector<int> ClusteringModel::predict(const std::vector<Matrix>& X)
 	Timer::push("Prediction");
 
 	// predict labels
-	std::vector<int> y_pred = _best_layer->predict(X);
+	std::vector<int> y_pred = _clustering->predict(X);
 
 	// record prediction time
 	_stats.predict_time = Timer::pop();
@@ -109,7 +138,7 @@ void ClusteringModel::score(const Dataset& dataset, const std::vector<int>& y_pr
 
 	int c = dataset.classes().size();
 	int n = dataset.entries().size();
-	int k = _best_layer->num_clusters();
+	int k = _clustering->num_clusters();
 
 	for ( int i = 0; i < k; i++ ) {
 		int max_correct = 0;

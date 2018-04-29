@@ -179,12 +179,6 @@ int main(int argc, char **argv)
 	std::vector<int> y_pred = model.predict(X_col);
 
 	// print clustering results
-	Logger::log(LogLevel::Verbose, "Best clustering model:");
-	Logger::log(LogLevel::Verbose, "");
-
-	model.best_layer()->print();
-	Logger::log(LogLevel::Verbose, "");
-
 	model.score(dataset, y_pred);
 	model.print_results(dataset, y_pred);
 
