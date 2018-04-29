@@ -169,7 +169,7 @@ void GMMLayer::compute_log_gamma_nk(const Matrix& logpi, Matrix& loggamma, float
       float maxArg = -INFINITY;
       for ( int k = 0; k < _K; k++ )
       {
-         float logProbK = logpi.elem(k, 0) + loggamma.elem(k, i);
+         float logProbK = logpi.elem(k) + loggamma.elem(k, i);
          if ( logProbK > maxArg )
          {
             maxArg = logProbK;
@@ -179,7 +179,7 @@ void GMMLayer::compute_log_gamma_nk(const Matrix& logpi, Matrix& loggamma, float
       float sum = 0;
       for ( int k = 0; k < _K; k++ )
       {
-         float logProbK = logpi.elem(k, 0) + loggamma.elem(k, i);
+         float logProbK = logpi.elem(k) + loggamma.elem(k, i);
          sum += exp(logProbK - maxArg);
       }
 
@@ -218,7 +218,7 @@ void GMMLayer::compute_log_gamma_k(const Matrix& loggamma, Matrix& logGamma)
          sum += exp(loggammank - maxArg);
       }
 
-      logGamma.elem(k, 0) = maxArg + log(sum);
+      logGamma.elem(k) = maxArg + log(sum);
    }
 }
 
@@ -229,7 +229,7 @@ float GMMLayer::compute_log_gamma_sum(const Matrix& logpi, const Matrix& logGamm
    float maxArg = -INFINITY;
    for ( int k = 0; k < _K; k++ )
    {
-      float arg = logpi.elem(k, 0) + logGamma.elem(k, 0);
+      float arg = logpi.elem(k) + logGamma.elem(k);
       if ( arg > maxArg )
       {
          maxArg = arg;
@@ -239,7 +239,7 @@ float GMMLayer::compute_log_gamma_sum(const Matrix& logpi, const Matrix& logGamm
    float sum = 0;
    for ( int k = 0; k < _K; k++ )
    {
-		float arg = logpi.elem(k, 0) + logGamma.elem(k, 0);
+		float arg = logpi.elem(k) + logGamma.elem(k);
       sum += exp(arg - maxArg);
    }
 
@@ -255,7 +255,7 @@ void GMMLayer::update(Matrix& logpi, Matrix& loggamma, Matrix& logGamma, float l
    // update logpi
    for ( int k = 0; k < _K; k++ )
    {
-      logpi.elem(k, 0) += logGamma.elem(k, 0) - logGammaSum;
+      logpi.elem(k) += logGamma.elem(k) - logGammaSum;
    }
 
    // convert loggamma / logGamma to gamma / Gamma to avoid duplicate exp(x) calls
@@ -269,7 +269,7 @@ void GMMLayer::update(Matrix& logpi, Matrix& loggamma, Matrix& logGamma, float l
    for ( int k = 0; k < _K; k++ )
    {
 		// update pi
-		_components[k].pi = exp(logpi.elem(k, 0));
+		_components[k].pi = exp(logpi.elem(k));
 
       // update mu
 		Matrix& mu = _components[k].mu;
@@ -280,7 +280,7 @@ void GMMLayer::update(Matrix& logpi, Matrix& loggamma, Matrix& logGamma, float l
 			mu.axpy(gamma.elem(k, i), X[i]);
       }
 
-		mu /= Gamma.elem(k, 0);
+		mu /= Gamma.elem(k);
 
       // update sigma
       Matrix& sigma = _components[k].sigma;
@@ -296,7 +296,7 @@ void GMMLayer::update(Matrix& logpi, Matrix& loggamma, Matrix& logGamma, float l
 			sigma.gemm(gamma.elem(k, i), xm, xm.T(), 1.0f);
       }
 
-		sigma /= Gamma.elem(k, 0);
+		sigma /= Gamma.elem(k);
 
       _components[k].prepare();
    }
@@ -380,7 +380,7 @@ void GMMLayer::fit(const std::vector<Matrix>& X)
 
    for ( int k = 0; k < _K; k++ )
    {
-      logpi.elem(k, 0) = log(_components[k].pi);
+      logpi.elem(k) = log(_components[k].pi);
    }
 
 	// run EM algorithm
