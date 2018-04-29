@@ -7,7 +7,6 @@
 #define LAYER_H
 
 #include <vector>
-#include "mlearn/math/matrix.h"
 #include "mlearn/util/iodevice.h"
 
 
@@ -27,8 +26,8 @@ public:
 
 
 
-IODevice& operator<<(IODevice& file, const Layer* layer);
-IODevice& operator>>(IODevice& file, Layer* layer);
+IODevice& operator<<(IODevice& file, const Layer& layer);
+IODevice& operator>>(IODevice& file, Layer& layer);
 
 
 

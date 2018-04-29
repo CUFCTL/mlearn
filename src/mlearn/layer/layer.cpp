@@ -11,17 +11,17 @@ namespace ML {
 
 
 
-IODevice& operator<<(IODevice& file, const Layer* layer)
+IODevice& operator<<(IODevice& file, const Layer& layer)
 {
-	layer->save(file);
+	layer.save(file);
 	return file;
 }
 
 
 
-IODevice& operator>>(IODevice& file, Layer* layer)
+IODevice& operator>>(IODevice& file, Layer& layer)
 {
-	layer->load(file);
+	layer.load(file);
 	return file;
 }
 

@@ -33,13 +33,9 @@ public:
 	void print_stats() const;
 
 private:
-	// clustering layers
+	// layers
 	std::vector<ClusteringLayer *> _clustering;
-
-	// criterion layer
 	CriterionLayer *_criterion;
-
-	// selected clustering layer
 	ClusteringLayer *_best_layer;
 
 	// performance, accuracy stats

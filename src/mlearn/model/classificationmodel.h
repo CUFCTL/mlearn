@@ -9,6 +9,7 @@
 #include "mlearn/classifier/classifier.h"
 #include "mlearn/data/dataset.h"
 #include "mlearn/feature/feature.h"
+#include "mlearn/preprocessing/scaler.h"
 
 
 
@@ -35,14 +36,10 @@ public:
 	void print_stats() const;
 
 private:
-	// input data
+	// layers
 	Dataset _train_set;
-	Matrix _mean;
-
-	// feature layer
+	Scaler _scaler;
 	FeatureLayer *_feature;
-
-	// classifier layer
 	ClassifierLayer *_classifier;
 
 	// performance, accuracy stats

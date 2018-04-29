@@ -12,9 +12,9 @@ namespace ML {
 
 
 
-IODevice& IODevice::operator<<(int val)
+IODevice& IODevice::operator<<(bool val)
 {
-	write(reinterpret_cast<char *>(&val), sizeof(int));
+	write(reinterpret_cast<char *>(&val), sizeof(bool));
 	return (*this);
 }
 
@@ -23,6 +23,14 @@ IODevice& IODevice::operator<<(int val)
 IODevice& IODevice::operator<<(float val)
 {
 	write(reinterpret_cast<char *>(&val), sizeof(float));
+	return (*this);
+}
+
+
+
+IODevice& IODevice::operator<<(int val)
+{
+	write(reinterpret_cast<char *>(&val), sizeof(int));
 	return (*this);
 }
 
@@ -39,9 +47,9 @@ IODevice& IODevice::operator<<(const std::string& val)
 
 
 
-IODevice& IODevice::operator>>(int& val)
+IODevice& IODevice::operator>>(bool& val)
 {
-	read(reinterpret_cast<char *>(&val), sizeof(int));
+	read(reinterpret_cast<char *>(&val), sizeof(bool));
 	return (*this);
 }
 
@@ -50,6 +58,14 @@ IODevice& IODevice::operator>>(int& val)
 IODevice& IODevice::operator>>(float& val)
 {
 	read(reinterpret_cast<char *>(&val), sizeof(float));
+	return (*this);
+}
+
+
+
+IODevice& IODevice::operator>>(int& val)
+{
+	read(reinterpret_cast<char *>(&val), sizeof(int));
 	return (*this);
 }
 

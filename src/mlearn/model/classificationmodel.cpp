@@ -24,6 +24,7 @@ namespace ML {
 ClassificationModel::ClassificationModel(FeatureLayer *feature, ClassifierLayer *classifier)
 {
 	// initialize layers
+	_scaler = Scaler(true, false);
 	_feature = feature;
 	_classifier = classifier;
 
@@ -45,9 +46,9 @@ void ClassificationModel::save(const std::string& path)
 	IODevice file(path, std::ofstream::out);
 
 	file << _train_set;
-	file << _mean;
-	if ( _feature ) file << _feature;
-	file << _classifier;
+	file << _scaler;
+	if ( _feature ) file << *_feature;
+	file << *_classifier;
 }
 
 
@@ -62,9 +63,9 @@ void ClassificationModel::load(const std::string& path)
 	IODevice file(path, std::ifstream::in);
 
 	file >> _train_set;
-	file >> _mean;
-	if ( _feature ) file >> _feature;
-	file >> _classifier;
+	file >> _scaler;
+	if ( _feature ) file >> *_feature;
+	file >> *_classifier;
 }
 
 
@@ -99,13 +100,12 @@ void ClassificationModel::fit(const Dataset& dataset)
 		dataset.entries().size(),
 		dataset.classes().size());
 
-	// get data matrix X
+	// load data
 	Matrix X = dataset.load_data();
 
-	// subtract mean from X
-	_mean = X.mean_column();
-
-	X.subtract_columns(_mean);
+	// scale data
+	_scaler.fit(X);
+	_scaler.transform(X);
 
 	// perform feature extraction
 	if ( _feature )
@@ -137,12 +137,14 @@ std::vector<int> ClassificationModel::predict(const Dataset& dataset)
 		dataset.entries().size(),
 		dataset.classes().size());
 
-	// compute projected test images
-	Matrix X_test = dataset.load_data();
-	X_test.subtract_columns(_mean);
+	// load data
+	Matrix X = dataset.load_data();
+
+	// scale data
+	_scaler.transform(X);
 
 	// compute predicted labels
-	std::vector<int> y_pred = _classifier->predict(_feature ? _feature->transform(X_test) : X_test);
+	std::vector<int> y_pred = _classifier->predict(_feature ? _feature->transform(X) : X);
 
 	// record prediction time
 	_stats.predict_time = Timer::pop();
