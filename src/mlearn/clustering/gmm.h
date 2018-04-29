@@ -7,7 +7,6 @@
 #define GMM_H
 
 #include "mlearn/clustering/clustering.h"
-#include "mlearn/clustering/parameterset.h"
 
 
 
@@ -18,6 +17,23 @@ namespace ML {
 class GMMLayer : public ClusteringLayer {
 public:
 	GMMLayer(int K);
+
+	class Component {
+	public:
+		Component() = default;
+
+		void initialize(float pi, const Matrix& mu);
+		void prepare();
+		void compute_log_mv_norm(const std::vector<Matrix>& X, float *logP);
+
+		float pi;
+		Matrix mu;
+		Matrix sigma;
+
+	private:
+		Matrix _sigma_inv;
+		float _normalizer;
+	};
 
 	void fit(const std::vector<Matrix>& X);
 
@@ -32,11 +48,17 @@ public:
 	void print() const;
 
 private:
-	ParameterSet initialize(const std::vector<Matrix>& X, int num_init, bool small_em);
-	void E_step(const std::vector<Matrix>& X, const ParameterSet& theta, Matrix& c);
-	void M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSet& theta);
+	void kmeans(const std::vector<Matrix>& X);
+	void compute_log_mv_norm(const std::vector<Matrix>& X, float *loggamma);
+	void compute_log_likelihood_gamma_nk(const float *logpi, int K, float *loggamma, int N, float *logL);
+	void compute_log_gamma_k(const float *loggamma, int N, int K, float *logGamma);
+	float compute_log_gamma_sum(const float *logpi, int K, const float *logGamma);
+	void update(float *logpi, int K, float *loggamma, float *logGamma, float logGammaSum, const std::vector<Matrix>& X);
+	std::vector<int> compute_labels(float *loggamma, int N, int K);
+	float compute_entropy(float *loggamma, int N, const std::vector<int>& labels);
 
 	int _K;
+	std::vector<Component> _components;
 	float _entropy;
 	float _log_likelihood;
 	int _num_parameters;

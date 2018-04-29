@@ -47,17 +47,21 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 	std::vector<int> y(N);
 	std::vector<int> y_next(N);
 
-	while ( true ) {
+	while ( true )
+	{
 		// compute new labels
-		for ( int i = 0; i < N; i++ ) {
+		for ( int i = 0; i < N; i++ )
+		{
 			// find k that minimizes norm(x_i - mu_k)
 			int min_k = -1;
 			float min_dist;
 
-			for ( int k = 0; k < _K; k++ ) {
+			for ( int k = 0; k < _K; k++ )
+			{
 				float dist = m_dist_L2(X[i], 0, means[k], 0);
 
-				if ( min_k == -1 || dist < min_dist ) {
+				if ( min_k == -1 || dist < min_dist )
+				{
 					min_k = k;
 					min_dist = dist;
 				}
@@ -67,7 +71,8 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 		}
 
 		// check for convergence
-		if ( y == y_next ) {
+		if ( y == y_next )
+		{
 			break;
 		}
 
@@ -75,14 +80,17 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 		std::swap(y, y_next);
 
 		// update means
-		for ( int k = 0; k < _K; k++ ) {
+		for ( int k = 0; k < _K; k++ )
+		{
 			// compute mu_k = mean of all x_i in cluster k
 			int n_k = 0;
 
 			means[k].init_zeros();
 
-			for ( int i = 0; i < N; i++ ) {
-				if ( y[i] == k ) {
+			for ( int i = 0; i < N; i++ )
+			{
+				if ( y[i] == k )
+				{
 					means[k] += X[i];
 					n_k++;
 				}
@@ -94,9 +102,12 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 	// compute within-class scatter
 	float S = 0;
 
-	for ( int k = 0; k < _K; k++ ) {
-		for ( int i = 0; i < N; i++ ) {
-			if ( y[i] == k ) {
+	for ( int k = 0; k < _K; k++ )
+	{
+		for ( int i = 0; i < N; i++ )
+		{
+			if ( y[i] == k )
+			{
 				float dist = m_dist_L2(X[i], 0, means[k], 0);
 
 				S += dist * dist;
