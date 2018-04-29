@@ -17,16 +17,16 @@ namespace ML {
 
 class GMMLayer : public ClusteringLayer {
 public:
-	GMMLayer(int k);
+	GMMLayer(int K);
 
 	void fit(const std::vector<Matrix>& X);
 
 	float entropy() const { return _entropy; }
 	float log_likelihood() const { return _log_likelihood; }
-	int num_clusters() const { return _k; }
+	int num_clusters() const { return _K; }
 	int num_parameters() const { return _num_parameters; }
 	int num_samples() const { return _num_samples; }
-	const std::vector<int>& output() const { return _output; }
+	const std::vector<int>& output() const { return _labels; }
 	bool success() const { return _success; }
 
 	void print() const;
@@ -36,12 +36,12 @@ private:
 	void E_step(const std::vector<Matrix>& X, const ParameterSet& theta, Matrix& c);
 	void M_step(const std::vector<Matrix>& X, const Matrix& c, ParameterSet& theta);
 
-	int _k;
+	int _K;
 	float _entropy;
 	float _log_likelihood;
 	int _num_parameters;
 	int _num_samples;
-	std::vector<int> _output;
+	std::vector<int> _labels;
 	bool _success;
 };
 

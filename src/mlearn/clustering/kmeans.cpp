@@ -37,19 +37,19 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 {
 	Timer::push("K-means");
 
-	int n = X.size();
-	int d = X[0].rows();
+	int N = X.size();
+	int D = X[0].rows();
 
 	// initialize means randomly from X
 	std::vector<Matrix> means = m_random_sample(X, _K);
 
 	// iterate k means until convergence
-	std::vector<int> y(n);
-	std::vector<int> y_next(n);
+	std::vector<int> y(N);
+	std::vector<int> y_next(N);
 
 	while ( true ) {
 		// compute new labels
-		for ( int i = 0; i < n; i++ ) {
+		for ( int i = 0; i < N; i++ ) {
 			// find k that minimizes norm(x_i - mu_k)
 			int min_k = -1;
 			float min_dist;
@@ -81,7 +81,7 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 
 			means[k].init_zeros();
 
-			for ( int i = 0; i < n; i++ ) {
+			for ( int i = 0; i < N; i++ ) {
 				if ( y[i] == k ) {
 					means[k] += X[i];
 					n_k++;
@@ -95,7 +95,7 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 	float S = 0;
 
 	for ( int k = 0; k < _K; k++ ) {
-		for ( int i = 0; i < n; i++ ) {
+		for ( int i = 0; i < N; i++ ) {
 			if ( y[i] == k ) {
 				float dist = m_dist_L2(X[i], 0, means[k], 0);
 
@@ -106,8 +106,8 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 
 	// save outputs
 	_log_likelihood = -S;
-	_num_parameters = _K * d;
-	_num_samples = n;
+	_num_parameters = _K * D;
+	_num_samples = N;
 	_labels = y;
 
 	Timer::pop();
