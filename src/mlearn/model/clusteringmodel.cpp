@@ -29,6 +29,7 @@ ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& clusterin
 
 	// initialize stats
 	_stats.error_rate = 0.0f;
+	_stats.fit_time = 0.0f;
 	_stats.predict_time = 0.0f;
 }
 
@@ -53,7 +54,7 @@ void ClusteringModel::print() const
 
 
 /**
- * Perform clustering on the input data.
+ * Fit model to a dataset.
  *
  * @param X
  */
@@ -66,8 +67,8 @@ void ClusteringModel::fit(const std::vector<Matrix>& X)
 		layer->fit(X);
 	}
 
-	// record prediction time
-	_stats.predict_time = Timer::pop();
+	// record fit time
+	_stats.fit_time = Timer::pop();
 
 	// select model with lowest criterion value
 	_best_layer = _criterion->select(_clustering);
@@ -76,18 +77,38 @@ void ClusteringModel::fit(const std::vector<Matrix>& X)
 
 
 /**
+ * Predict labels for a dataset.
+ *
+ * @param X
+ */
+std::vector<int> ClusteringModel::predict(const std::vector<Matrix>& X)
+{
+	Timer::push("Prediction");
+
+	// predict labels
+	std::vector<int> y_pred = _best_layer->predict(X);
+
+	// record prediction time
+	_stats.predict_time = Timer::pop();
+
+	return y_pred;
+}
+
+
+
+/**
  * Score a model against ground truth labels.
  *
- * @param input
+ * @param dataset
  * @param y_pred
  */
-void ClusteringModel::score(const Dataset& input, const std::vector<int>& y_pred)
+void ClusteringModel::score(const Dataset& dataset, const std::vector<int>& y_pred)
 {
 	// compute purity
 	float purity = 0;
 
-	int c = input.classes().size();
-	int n = input.entries().size();
+	int c = dataset.classes().size();
+	int n = dataset.entries().size();
 	int k = _best_layer->num_clusters();
 
 	for ( int i = 0; i < k; i++ ) {
@@ -97,7 +118,7 @@ void ClusteringModel::score(const Dataset& input, const std::vector<int>& y_pred
 			int num_correct = 0;
 
 			for ( int p = 0; p < n; p++ ) {
-				if ( y_pred[p] == i && input.entries()[p].label == input.classes()[j] ) {
+				if ( y_pred[p] == i && dataset.entries()[p].label == dataset.classes()[j] ) {
 					num_correct++;
 				}
 			}
@@ -121,15 +142,15 @@ void ClusteringModel::score(const Dataset& input, const std::vector<int>& y_pred
 /**
  * Print prediction results of a model.
  *
- * @oaram input
+ * @oaram dataset
  * @param y_pred
  */
-void ClusteringModel::print_results(const Dataset& input, const std::vector<int>& y_pred) const
+void ClusteringModel::print_results(const Dataset& dataset, const std::vector<int>& y_pred) const
 {
 	Logger::log(LogLevel::Verbose, "Results");
 
-	for ( size_t i = 0; i < input.entries().size(); i++ ) {
-		const DataEntry& entry = input.entries()[i];
+	for ( size_t i = 0; i < dataset.entries().size(); i++ ) {
+		const DataEntry& entry = dataset.entries()[i];
 
 		Logger::log(LogLevel::Verbose, "%-4s (%s) -> %d",
 			entry.name.c_str(),
@@ -150,6 +171,7 @@ void ClusteringModel::print_stats() const
 {
 	std::cout
 		<< std::setw(12) << std::setprecision(3) << _stats.error_rate
+		<< std::setw(12) << std::setprecision(3) << _stats.fit_time
 		<< std::setw(12) << std::setprecision(3) << _stats.predict_time
 		<< "\n";
 }

@@ -19,23 +19,23 @@ public:
 	KMeansLayer(int K);
 
 	void fit(const std::vector<Matrix>& X);
+	std::vector<int> predict(const std::vector<Matrix>& X);
 
 	float entropy() const { return 0; }
 	float log_likelihood() const { return _log_likelihood; }
 	int num_clusters() const { return _K; }
 	int num_parameters() const { return _num_parameters; }
 	int num_samples() const { return _num_samples; }
-	const std::vector<int>& labels() const { return _labels; }
 	bool success() const { return true; }
 
 	void print() const;
 
 private:
 	int _K;
+	std::vector<Matrix> _means;
 	float _log_likelihood;
 	int _num_parameters;
 	int _num_samples;
-	std::vector<int> _labels;
 };
 
 

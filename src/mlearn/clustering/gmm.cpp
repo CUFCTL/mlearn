@@ -147,6 +147,16 @@ void GMMLayer::kmeans(const std::vector<Matrix>& X)
 
 
 
+void GMMLayer::compute_log_pi(Matrix& logpi)
+{
+	for ( int k = 0; k < _K; k++ )
+	{
+		logpi.elem(k) = log(_components[k].pi);
+	}
+}
+
+
+
 void GMMLayer::compute_log_mv_norm(const std::vector<Matrix>& X, Matrix& loggamma)
 {
 	const int N = X.size();
@@ -378,10 +388,7 @@ void GMMLayer::fit(const std::vector<Matrix>& X)
 	Matrix loggamma(_K, N);
 	Matrix logGamma(_K, 1);
 
-	for ( int k = 0; k < _K; k++ )
-	{
-		logpi.elem(k) = log(_components[k].pi);
-	}
+	compute_log_pi(logpi);
 
 	// run EM algorithm
 	const int MAX_ITERATIONS = 100;
@@ -421,8 +428,7 @@ void GMMLayer::fit(const std::vector<Matrix>& X)
 		_log_likelihood = L;
 		_num_parameters = _K * (1 + D + D * D);
 		_num_samples = N;
-		_labels = compute_labels(loggamma);
-		_entropy = compute_entropy(loggamma, _labels);
+		_entropy = compute_entropy(loggamma, compute_labels(loggamma));
 		_success = true;
 	}
 	catch ( std::runtime_error& e ) {
@@ -430,6 +436,27 @@ void GMMLayer::fit(const std::vector<Matrix>& X)
 	}
 
 	Timer::pop();
+}
+
+
+
+/**
+ * Predict a set of labels for a dataset.
+ *
+ * @param X
+ */
+std::vector<int> GMMLayer::predict(const std::vector<Matrix>& X)
+{
+	const int N = X.size();
+	Matrix logpi(_K, 1);
+	Matrix loggamma(_K, N);
+	float L;
+
+	compute_log_pi(logpi);
+	compute_log_mv_norm(X, loggamma);
+	compute_log_gamma_nk(logpi, loggamma, L);
+
+	return compute_labels(loggamma);
 }
 
 

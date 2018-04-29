@@ -3,8 +3,6 @@
  *
  * Implementation of k-means clustering.
  */
-#include <cmath>
-#include <stdexcept>
 #include "mlearn/clustering/kmeans.h"
 #include "mlearn/math/matrix_utils.h"
 #include "mlearn/util/logger.h"
@@ -29,7 +27,7 @@ KMeansLayer::KMeansLayer(int K)
 
 
 /**
- * Fit a clustering model to a dataset X using k-means.
+ * Fit a k-means clustering model to a dataset.
  *
  * @param X
  */
@@ -41,7 +39,7 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 	int D = X[0].rows();
 
 	// initialize means randomly from X
-	std::vector<Matrix> means = m_random_sample(X, _K);
+	_means = m_random_sample(X, _K);
 
 	// iterate k means until convergence
 	std::vector<int> y(N);
@@ -54,13 +52,13 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 		{
 			// find k that minimizes norm(x_i - mu_k)
 			int min_k = -1;
-			float min_dist;
+			float min_dist = INFINITY;
 
 			for ( int k = 0; k < _K; k++ )
 			{
-				float dist = m_dist_L2(X[i], 0, means[k], 0);
+				float dist = m_dist_L2(X[i], 0, _means[k], 0);
 
-				if ( min_k == -1 || dist < min_dist )
+				if ( dist < min_dist )
 				{
 					min_k = k;
 					min_dist = dist;
@@ -85,17 +83,17 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 			// compute mu_k = mean of all x_i in cluster k
 			int n_k = 0;
 
-			means[k].init_zeros();
+			_means[k].init_zeros();
 
 			for ( int i = 0; i < N; i++ )
 			{
 				if ( y[i] == k )
 				{
-					means[k] += X[i];
+					_means[k] += X[i];
 					n_k++;
 				}
 			}
-			means[k] /= n_k;
+			_means[k] /= n_k;
 		}
 	}
 
@@ -108,7 +106,7 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 		{
 			if ( y[i] == k )
 			{
-				float dist = m_dist_L2(X[i], 0, means[k], 0);
+				float dist = m_dist_L2(X[i], 0, _means[k], 0);
 
 				S += dist * dist;
 			}
@@ -119,9 +117,42 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 	_log_likelihood = -S;
 	_num_parameters = _K * D;
 	_num_samples = N;
-	_labels = y;
 
 	Timer::pop();
+}
+
+
+
+/**
+ * Predict a set of labels for a dataset.
+ *
+ * @param X
+ */
+std::vector<int> KMeansLayer::predict(const std::vector<Matrix>& X)
+{
+	const int N = X.size();
+	std::vector<int> labels(N);
+
+	for ( int i = 0; i < N; i++ )
+	{
+		int min_k = -1;
+		float min_dist = INFINITY;
+
+		for ( int k = 0; k < _K; k++ )
+		{
+			float dist = m_dist_L2(X[i], 0, _means[k], 0);
+
+			if ( dist < min_dist )
+			{
+				min_k = k;
+				min_dist = dist;
+			}
+		}
+
+		labels[i] = min_k;
+	}
+
+	return labels;
 }
 
 

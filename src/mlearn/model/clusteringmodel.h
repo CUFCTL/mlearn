@@ -26,9 +26,10 @@ public:
 	ClusteringLayer * best_layer() const { return _best_layer; }
 
 	void fit(const std::vector<Matrix>& X);
-	void score(const Dataset& input, const std::vector<int>& y_pred);
+	std::vector<int> predict(const std::vector<Matrix>& X);
+	void score(const Dataset& dataset, const std::vector<int>& y_pred);
 
-	void print_results(const Dataset& input, const std::vector<int>& y_pred) const;
+	void print_results(const Dataset& dataset, const std::vector<int>& y_pred) const;
 	void print_stats() const;
 
 private:
@@ -44,6 +45,7 @@ private:
 	// performance, accuracy stats
 	struct {
 		float error_rate;
+		float fit_time;
 		float predict_time;
 	} _stats;
 };

@@ -133,8 +133,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	// load input data
-	Dataset input_data(data_iter);
+	// load dataset
+	Dataset dataset(data_iter);
 
 	// construct clustering layers
 	std::vector<ClusteringLayer *> clustering;
@@ -172,11 +172,11 @@ int main(int argc, char **argv)
 	model.print();
 
 	// perform clustering on input data
-	Matrix X = input_data.load_data();
+	Matrix X = dataset.load_data();
 	std::vector<Matrix> X_col = m_copy_columns(X);
 	model.fit(X_col);
 
-	std::vector<int> y_pred = model.best_layer()->labels();
+	std::vector<int> y_pred = model.predict(X_col);
 
 	// print clustering results
 	Logger::log(LogLevel::Verbose, "Best clustering model:");
@@ -185,8 +185,8 @@ int main(int argc, char **argv)
 	model.best_layer()->print();
 	Logger::log(LogLevel::Verbose, "");
 
-	model.score(input_data, y_pred);
-	model.print_results(input_data, y_pred);
+	model.score(dataset, y_pred);
+	model.print_results(dataset, y_pred);
 
 	// print timing results
 	Timer::print();
