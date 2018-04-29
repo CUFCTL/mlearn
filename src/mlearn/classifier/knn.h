@@ -3,8 +3,8 @@
  *
  * Interface definitions for the kNN classifier.
  */
-#ifndef KNN_H
-#define KNN_H
+#ifndef ML_CLASSIFIER_KNN_H
+#define ML_CLASSIFIER_KNN_H
 
 #include "mlearn/classifier/classifier.h"
 

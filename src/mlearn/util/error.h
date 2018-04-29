@@ -1,8 +1,8 @@
 /**
  * @file util/error.h
  */
-#ifndef ERROR_H
-#define ERROR_H
+#ifndef ML_UTIL_ERROR_H
+#define ML_UTIL_ERROR_H
 
 #include <stdexcept>
 

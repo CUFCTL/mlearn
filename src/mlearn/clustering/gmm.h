@@ -3,8 +3,8 @@
  *
  * Interface definitions for the Gaussian mixture model layer.
  */
-#ifndef GMM_H
-#define GMM_H
+#ifndef ML_CLUSTERING_GMM_H
+#define ML_CLUSTERING_GMM_H
 
 #include "mlearn/clustering/clustering.h"
 

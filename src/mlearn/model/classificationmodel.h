@@ -3,8 +3,8 @@
  *
  * Interface definitions for the classification model.
  */
-#ifndef CLASSIFICATIONMODEL_H
-#define CLASSIFICATIONMODEL_H
+#ifndef ML_MODEL_CLASSIFICATIONMODEL_H
+#define ML_MODEL_CLASSIFICATIONMODEL_H
 
 #include "mlearn/classifier/classifier.h"
 #include "mlearn/data/dataset.h"

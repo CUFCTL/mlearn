@@ -3,8 +3,8 @@
  *
  * Interface definitions for the directory type.
  */
-#ifndef DIRECTORY_H
-#define DIRECTORY_H
+#ifndef ML_DATA_DIRECTORY_H
+#define ML_DATA_DIRECTORY_H
 
 #include <string>
 #include <vector>

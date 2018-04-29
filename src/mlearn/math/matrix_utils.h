@@ -3,8 +3,8 @@
  *
  * Library of helpful matrix functions.
  */
-#ifndef MATRIX_UTILS_H
-#define MATRIX_UTILS_H
+#ifndef ML_MATH_MATRIX_UTILS_H
+#define ML_MATH_MATRIX_UTILS_H
 
 #include <vector>
 #include "mlearn/math/matrix.h"

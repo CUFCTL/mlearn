@@ -3,8 +3,8 @@
  *
  * Interface definitions for the random number generator.
  */
-#ifndef RANDOM_H
-#define RANDOM_H
+#ifndef ML_MATH_RANDOM_H
+#define ML_MATH_RANDOM_H
 
 #include <random>
 

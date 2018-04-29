@@ -3,8 +3,8 @@
  *
  * Interface definitions for the ICA feature layer.
  */
-#ifndef ICA_H
-#define ICA_H
+#ifndef ML_FEATURE_ICA_H
+#define ML_FEATURE_ICA_H
 
 #include "mlearn/feature/feature.h"
 

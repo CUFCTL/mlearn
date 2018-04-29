@@ -3,8 +3,8 @@
  *
  * Interface definitions for the buffer type.
  */
-#ifndef BUFFER_H
-#define BUFFER_H
+#ifndef ML_UTIL_BUFFER_H
+#define ML_UTIL_BUFFER_H
 
 #include <cuda_runtime.h>
 #include "mlearn/cuda/device.h"

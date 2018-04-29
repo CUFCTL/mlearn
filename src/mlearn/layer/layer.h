@@ -3,8 +3,8 @@
  *
  * Interface definitions for the abstract layer type.
  */
-#ifndef LAYER_H
-#define LAYER_H
+#ifndef ML_LAYER_LAYER_H
+#define ML_LAYER_LAYER_H
 
 #include <vector>
 #include "mlearn/util/iodevice.h"

@@ -3,8 +3,8 @@
  *
  * Interface definitions for the abstract clustering layer.
  */
-#ifndef CLUSTERING_H
-#define CLUSTERING_H
+#ifndef ML_CLUSTERING_CLUSTERING_H
+#define ML_CLUSTERING_CLUSTERING_H
 
 #include <vector>
 #include "mlearn/math/matrix.h"

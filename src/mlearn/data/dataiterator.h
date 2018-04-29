@@ -3,8 +3,8 @@
  *
  * Definition of the DataIterator interface.
  */
-#ifndef DATAITERATOR_H
-#define DATAITERATOR_H
+#ifndef ML_DATA_DATAITERATOR_H
+#define ML_DATA_DATAITERATOR_H
 
 #include <string>
 #include <vector>

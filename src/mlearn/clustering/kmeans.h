@@ -3,8 +3,8 @@
  *
  * Interface definitions for the k-means clustering layer.
  */
-#ifndef KMEANS_H
-#define KMEANS_H
+#ifndef ML_CLUSTERING_KMEANS_H
+#define ML_CLUSTERING_KMEANS_H
 
 #include "mlearn/clustering/clustering.h"
 

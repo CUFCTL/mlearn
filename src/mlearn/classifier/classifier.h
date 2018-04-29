@@ -3,8 +3,8 @@
  *
  * Interface definitions for the abstract classifier layer.
  */
-#ifndef CLASSIFIER_H
-#define CLASSIFIER_H
+#ifndef ML_CLASSIFIER_CLASSIFIER_H
+#define ML_CLASSIFIER_CLASSIFIER_H
 
 #include <vector>
 #include "mlearn/layer/layer.h"

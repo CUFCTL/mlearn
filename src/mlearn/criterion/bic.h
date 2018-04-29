@@ -3,8 +3,8 @@
  *
  * Interface definitions for the BIC layer.
  */
-#ifndef BIC_H
-#define BIC_H
+#ifndef ML_CRITERION_BIC_H
+#define ML_CRITERION_BIC_H
 
 #include "mlearn/criterion/criterion.h"
 

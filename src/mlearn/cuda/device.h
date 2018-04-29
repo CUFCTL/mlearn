@@ -3,8 +3,8 @@
  *
  * Interface definitions for the CUDA device type.
  */
-#ifndef DEVICE_H
-#define DEVICE_H
+#ifndef ML_CUDA_DEVICE_H
+#define ML_CUDA_DEVICE_H
 
 #include <cstdio>
 #include <cstdlib>

@@ -3,8 +3,8 @@
  *
  * Interface definitions for the dataset type.
  */
-#ifndef DATASET_H
-#define DATASET_H
+#ifndef ML_DATA_DATASET_H
+#define ML_DATA_DATASET_H
 
 #include <fstream>
 #include <string>

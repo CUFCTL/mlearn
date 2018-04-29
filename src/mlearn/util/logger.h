@@ -3,8 +3,8 @@
  *
  * Interface definitions for the logger.
  */
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef ML_UTIL_LOGGER_H
+#define ML_UTIL_LOGGER_H
 
 
 

@@ -3,8 +3,8 @@
  *
  * Interface definitions for the image iterator.
  */
-#ifndef IMAGEITERATOR_H
-#define IMAGEITERATOR_H
+#ifndef ML_DATA_IMAGEITERATOR_H
+#define ML_DATA_IMAGEITERATOR_H
 
 #include <memory>
 #include "mlearn/data/dataiterator.h"

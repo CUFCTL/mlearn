@@ -3,8 +3,8 @@
  *
  * Interface definitions for the matrix type.
  */
-#ifndef MATRIX_H
-#define MATRIX_H
+#ifndef ML_MATH_MATRIX_H
+#define ML_MATH_MATRIX_H
 
 #include "mlearn/util/buffer.h"
 #include "mlearn/util/iodevice.h"

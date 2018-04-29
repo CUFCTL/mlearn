@@ -3,8 +3,8 @@
  *
  * Interface definitions for the CSV iterator.
  */
-#ifndef CSVITERATOR_H
-#define CSVITERATOR_H
+#ifndef ML_DATA_CSVITERATOR_H
+#define ML_DATA_CSVITERATOR_H
 
 #include <memory>
 #include "mlearn/data/dataiterator.h"

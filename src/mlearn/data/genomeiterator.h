@@ -3,8 +3,8 @@
  *
  * Interface definitions for the genome iterator.
  */
-#ifndef GENOMEITERATOR_H
-#define GENOMEITERATOR_H
+#ifndef ML_DATA_GENOMEITERATOR_H
+#define ML_DATA_GENOMEITERATOR_H
 
 #include <memory>
 #include "mlearn/data/dataiterator.h"

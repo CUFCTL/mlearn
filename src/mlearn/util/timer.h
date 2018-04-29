@@ -3,8 +3,8 @@
  *
  * Interface definitions for the timer.
  */
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef ML_UTIL_TIMER_H
+#define ML_UTIL_TIMER_H
 
 #include <chrono>
 #include <string>
