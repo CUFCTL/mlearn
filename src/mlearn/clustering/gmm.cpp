@@ -31,31 +31,31 @@ void GMMLayer::Component::initialize(float pi, const Matrix& mu)
 {
 	const int D = mu.rows();
 
-   // initialize pi and mu as given
-   this->pi = pi;
-   this->mu = mu;
+	// initialize pi and mu as given
+	this->pi = pi;
+	this->mu = mu;
 
-   // use identity covariance- assume dimensions are independent
-   this->sigma = Matrix::identity(D);
+	// use identity covariance- assume dimensions are independent
+	this->sigma = Matrix::identity(D);
 
-   // initialize zero artifacts
-   _sigma_inv = Matrix::zeros(D, D);
-   _normalizer = 0;
+	// initialize zero artifacts
+	_sigma_inv = Matrix::zeros(D, D);
+	_normalizer = 0;
 }
 
 
 
 void GMMLayer::Component::prepare()
 {
-   const int D = mu.rows();
+	const int D = mu.rows();
 
 	// compute inverse of sigma
 	_sigma_inv = sigma.inverse();
 
-   // compute normalizer for multivariate normal distribution
+	// compute normalizer for multivariate normal distribution
 	float det = sigma.determinant();
 
-   _normalizer = -0.5f * (D * log(2.0f * M_PI) + log(det));
+	_normalizer = -0.5f * (D * log(2.0f * M_PI) + log(det));
 }
 
 
@@ -75,15 +75,15 @@ void GMMLayer::Component::compute_log_mv_norm(const std::vector<Matrix>& X, Matr
 {
 	const int N = X.size();
 
-   for ( int i = 0; i < N; i++ )
-   {
-      // compute xm = (x_i - mu)
-      Matrix xm = X[i];
+	for ( int i = 0; i < N; i++ )
+	{
+		// compute xm = (x_i - mu)
+		Matrix xm = X[i];
 		xm -= mu;
 
-      // compute log(P(x_i|k)) = normalizer - 0.5 * xm^T * S^-1 * xm
-      logP.elem(k, i) = _normalizer - 0.5f * xm.dot(_sigma_inv * xm);
-   }
+		// compute log(P(x_i|k)) = normalizer - 0.5 * xm^T * S^-1 * xm
+		logP.elem(k, i) = _normalizer - 0.5f * xm.dot(_sigma_inv * xm);
+	}
 }
 
 
@@ -91,15 +91,15 @@ void GMMLayer::Component::compute_log_mv_norm(const std::vector<Matrix>& X, Matr
 void GMMLayer::kmeans(const std::vector<Matrix>& X)
 {
 	const int N = X.size();
-   const int MAX_ITERATIONS = 20;
-   const float TOLERANCE = 1e-3;
-   float diff = 0;
+	const int MAX_ITERATIONS = 20;
+	const float TOLERANCE = 1e-3;
+	float diff = 0;
 
 	std::vector<Matrix> MP(_K);
 	std::vector<int> counts(_K);
 
-   for ( int t = 0; t < MAX_ITERATIONS && diff > TOLERANCE; t++ )
-   {
+	for ( int t = 0; t < MAX_ITERATIONS && diff > TOLERANCE; t++ )
+	{
 		for ( int k = 0; k < _K; k++ )
 		{
 			MP[k].init_zeros();
@@ -107,42 +107,42 @@ void GMMLayer::kmeans(const std::vector<Matrix>& X)
 
 		counts.assign(counts.size(), 0);
 
-      for ( int i = 0; i < N; i++ )
-      {
-         float min_dist = INFINITY;
-         int min_k = 0;
+		for ( int i = 0; i < N; i++ )
+		{
+			float min_dist = INFINITY;
+			int min_k = 0;
 
-         for ( int k = 0; k < _K; k++ )
-         {
+			for ( int k = 0; k < _K; k++ )
+			{
 				float dist = m_dist_L2(X[i], 0, _components[k].mu, 0);
-            if ( min_dist > dist )
-            {
-               min_dist = dist;
-               min_k = k;
-            }
-         }
+				if ( min_dist > dist )
+				{
+					min_dist = dist;
+					min_k = k;
+				}
+			}
 
 			MP[min_k] += X[i];
 			counts[min_k]++;
-      }
+		}
 
-      for ( int k = 0; k < _K; k++ )
-      {
+		for ( int k = 0; k < _K; k++ )
+		{
 			MP[k] /= counts[k];
-      }
+		}
 
-      diff = 0;
-      for ( int k = 0; k < _K; k++ )
-      {
-         diff += m_dist_L2(MP[k], 0, _components[k].mu, 0);
-      }
-      diff /= _K;
+		diff = 0;
+		for ( int k = 0; k < _K; k++ )
+		{
+			diff += m_dist_L2(MP[k], 0, _components[k].mu, 0);
+		}
+		diff /= _K;
 
-      for ( int k = 0; k < _K; k++ )
-      {
-         _components[k].mu = MP[k];
-      }
-   }
+		for ( int k = 0; k < _K; k++ )
+		{
+			_components[k].mu = MP[k];
+		}
+	}
 }
 
 
@@ -151,10 +151,10 @@ void GMMLayer::compute_log_mv_norm(const std::vector<Matrix>& X, Matrix& loggamm
 {
 	const int N = X.size();
 
-   for ( int k = 0; k < _K; k++ )
-   {
-      _components[k].compute_log_mv_norm(X, loggamma, k);
-   }
+	for ( int k = 0; k < _K; k++ )
+	{
+		_components[k].compute_log_mv_norm(X, loggamma, k);
+	}
 }
 
 
@@ -163,34 +163,34 @@ void GMMLayer::compute_log_gamma_nk(const Matrix& logpi, Matrix& loggamma, float
 {
 	const int N = loggamma.cols();
 
-   logL = 0;
-   for ( int i = 0; i < N; i++ )
-   {
-      float maxArg = -INFINITY;
-      for ( int k = 0; k < _K; k++ )
-      {
-         float logProbK = logpi.elem(k) + loggamma.elem(k, i);
-         if ( logProbK > maxArg )
-         {
-            maxArg = logProbK;
-         }
-      }
+	logL = 0;
+	for ( int i = 0; i < N; i++ )
+	{
+		float maxArg = -INFINITY;
+		for ( int k = 0; k < _K; k++ )
+		{
+			float logProbK = logpi.elem(k) + loggamma.elem(k, i);
+			if ( logProbK > maxArg )
+			{
+				maxArg = logProbK;
+			}
+		}
 
-      float sum = 0;
-      for ( int k = 0; k < _K; k++ )
-      {
-         float logProbK = logpi.elem(k) + loggamma.elem(k, i);
-         sum += exp(logProbK - maxArg);
-      }
+		float sum = 0;
+		for ( int k = 0; k < _K; k++ )
+		{
+			float logProbK = logpi.elem(k) + loggamma.elem(k, i);
+			sum += exp(logProbK - maxArg);
+		}
 
-      float logpx = maxArg + log(sum);
-      for ( int k = 0; k < _K; k++ )
-      {
-         loggamma.elem(k, i) += -logpx;
-      }
+		float logpx = maxArg + log(sum);
+		for ( int k = 0; k < _K; k++ )
+		{
+			loggamma.elem(k, i) += -logpx;
+		}
 
 		logL += logpx;
-   }
+	}
 }
 
 
@@ -199,51 +199,51 @@ void GMMLayer::compute_log_gamma_k(const Matrix& loggamma, Matrix& logGamma)
 {
 	const int N = loggamma.cols();
 
-   for ( int k = 0; k < _K; k++ )
-   {
-      float maxArg = -INFINITY;
-      for ( int i = 0; i < N; i++ )
-      {
-         float loggammank = loggamma.elem(k, i);
-         if ( loggammank > maxArg )
-         {
-            maxArg = loggammank;
-         }
-      }
+	for ( int k = 0; k < _K; k++ )
+	{
+		float maxArg = -INFINITY;
+		for ( int i = 0; i < N; i++ )
+		{
+			float loggammank = loggamma.elem(k, i);
+			if ( loggammank > maxArg )
+			{
+				maxArg = loggammank;
+			}
+		}
 
-      float sum = 0;
-      for ( int i = 0; i < N; i++ )
-      {
-         float loggammank = loggamma.elem(k, i);
-         sum += exp(loggammank - maxArg);
-      }
+		float sum = 0;
+		for ( int i = 0; i < N; i++ )
+		{
+			float loggammank = loggamma.elem(k, i);
+			sum += exp(loggammank - maxArg);
+		}
 
-      logGamma.elem(k) = maxArg + log(sum);
-   }
+		logGamma.elem(k) = maxArg + log(sum);
+	}
 }
 
 
 
 float GMMLayer::compute_log_gamma_sum(const Matrix& logpi, const Matrix& logGamma)
 {
-   float maxArg = -INFINITY;
-   for ( int k = 0; k < _K; k++ )
-   {
-      float arg = logpi.elem(k) + logGamma.elem(k);
-      if ( arg > maxArg )
-      {
-         maxArg = arg;
-      }
-   }
-
-   float sum = 0;
-   for ( int k = 0; k < _K; k++ )
-   {
+	float maxArg = -INFINITY;
+	for ( int k = 0; k < _K; k++ )
+	{
 		float arg = logpi.elem(k) + logGamma.elem(k);
-      sum += exp(arg - maxArg);
-   }
+		if ( arg > maxArg )
+		{
+			maxArg = arg;
+		}
+	}
 
-   return maxArg + log(sum);
+	float sum = 0;
+	for ( int k = 0; k < _K; k++ )
+	{
+		float arg = logpi.elem(k) + logGamma.elem(k);
+		sum += exp(arg - maxArg);
+	}
+
+	return maxArg + log(sum);
 }
 
 
@@ -252,13 +252,13 @@ void GMMLayer::update(Matrix& logpi, Matrix& loggamma, Matrix& logGamma, float l
 {
 	const int N = X.size();
 
-   // update logpi
-   for ( int k = 0; k < _K; k++ )
-   {
-      logpi.elem(k) += logGamma.elem(k) - logGammaSum;
-   }
+	// update logpi
+	for ( int k = 0; k < _K; k++ )
+	{
+		logpi.elem(k) += logGamma.elem(k) - logGammaSum;
+	}
 
-   // convert loggamma / logGamma to gamma / Gamma to avoid duplicate exp(x) calls
+	// convert loggamma / logGamma to gamma / Gamma to avoid duplicate exp(x) calls
 	loggamma.elem_apply(exp);
 	logGamma.elem_apply(exp);
 
@@ -266,40 +266,40 @@ void GMMLayer::update(Matrix& logpi, Matrix& loggamma, Matrix& logGamma, float l
 	const Matrix& gamma {loggamma};
 	const Matrix& Gamma {logGamma};
 
-   for ( int k = 0; k < _K; k++ )
-   {
+	for ( int k = 0; k < _K; k++ )
+	{
 		// update pi
 		_components[k].pi = exp(logpi.elem(k));
 
-      // update mu
+		// update mu
 		Matrix& mu = _components[k].mu;
 		mu.init_zeros();
 
-      for ( int i = 0; i < N; i++ )
-      {
+		for ( int i = 0; i < N; i++ )
+		{
 			mu.axpy(gamma.elem(k, i), X[i]);
-      }
+		}
 
 		mu /= Gamma.elem(k);
 
-      // update sigma
-      Matrix& sigma = _components[k].sigma;
+		// update sigma
+		Matrix& sigma = _components[k].sigma;
 		sigma.init_zeros();
 
-      for ( int i = 0; i < N; i++ )
-      {
-         // compute xm = (x - mu)
-         Matrix xm = X[i];
+		for ( int i = 0; i < N; i++ )
+		{
+			// compute xm = (x - mu)
+			Matrix xm = X[i];
 			xm -= mu;
 
-         // compute S_i = gamma_ik * (x - mu) (x - mu)^T
+			// compute S_i = gamma_ik * (x - mu) (x - mu)^T
 			sigma.gemm(gamma.elem(k, i), xm, xm.T(), 1.0f);
-      }
+		}
 
 		sigma /= Gamma.elem(k);
 
-      _components[k].prepare();
-   }
+		_components[k].prepare();
+	}
 }
 
 
@@ -362,60 +362,60 @@ void GMMLayer::fit(const std::vector<Matrix>& X)
 	_components.resize(_K);
 
 	for ( int k = 0; k < _K; k++ )
-   {
-      // use uniform mixture proportion and randomly sampled mean
-      int i = rand() % N;
+	{
+		// use uniform mixture proportion and randomly sampled mean
+		int i = rand() % N;
 
-      _components[k].initialize(1.0f / _K, X[i]);
-      _components[k].prepare();
-   }
+		_components[k].initialize(1.0f / _K, X[i]);
+		_components[k].prepare();
+	}
 
 	// initialize means with k-means
-   kmeans(X);
+	kmeans(X);
 
 	// initialize workspace
 	Matrix logpi(_K, 1);
 	Matrix loggamma(_K, N);
 	Matrix logGamma(_K, 1);
 
-   for ( int k = 0; k < _K; k++ )
-   {
-      logpi.elem(k) = log(_components[k].pi);
-   }
+	for ( int k = 0; k < _K; k++ )
+	{
+		logpi.elem(k) = log(_components[k].pi);
+	}
 
 	// run EM algorithm
-   const int MAX_ITERATIONS = 100;
-   const float TOLERANCE = 1e-8;
-   float L_prev = -INFINITY;
-   float L = -INFINITY;
+	const int MAX_ITERATIONS = 100;
+	const float TOLERANCE = 1e-8;
+	float L_prev = -INFINITY;
+	float L = -INFINITY;
 
 	try
 	{
 		for ( int t = 0; t < MAX_ITERATIONS; t++ )
-      {
-         // E step
-         // compute gamma, log-likelihood
-         compute_log_mv_norm(X, loggamma);
+		{
+			// E step
+			// compute gamma, log-likelihood
+			compute_log_mv_norm(X, loggamma);
 
-         L_prev = L;
-         compute_log_gamma_nk(logpi, loggamma, L);
+			L_prev = L;
+			compute_log_gamma_nk(logpi, loggamma, L);
 
-         // check for convergence
-         if ( fabs(L - L_prev) < TOLERANCE )
-         {
+			// check for convergence
+			if ( fabs(L - L_prev) < TOLERANCE )
+			{
 				Logger::log(LogLevel::Debug, "converged after %d iterations", t + 1);
-            break;
-         }
+				break;
+			}
 
-         // M step
-         // compute Gamma_k = sum(gamma_ik, i=1:N)
-         compute_log_gamma_k(loggamma, logGamma);
+			// M step
+			// compute Gamma_k = sum(gamma_ik, i=1:N)
+			compute_log_gamma_k(loggamma, logGamma);
 
-         float logGammaSum = compute_log_gamma_sum(logpi, logGamma);
+			float logGammaSum = compute_log_gamma_sum(logpi, logGamma);
 
-         // update parameters
-         update(logpi, loggamma, logGamma, logGammaSum, X);
-      }
+			// update parameters
+			update(logpi, loggamma, logGamma, logGammaSum, X);
+		}
 
 		// save outputs
 		_log_likelihood = L;

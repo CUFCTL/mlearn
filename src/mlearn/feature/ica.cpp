@@ -185,7 +185,7 @@ void ICALayer::print() const
  */
 float pow3(float x)
 {
-    return pow(x, 3);
+	return pow(x, 3);
 }
 
 
@@ -226,7 +226,7 @@ Matrix fpica_pow3 (const Matrix& w0, const Matrix& X)
  */
 float tanh_deriv(float x)
 {
-    return pow(1 / cosh(x), 2);
+	return pow(1 / cosh(x), 2);
 }
 
 

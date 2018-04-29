@@ -24,11 +24,11 @@ std::normal_distribution<float> Random::_N;
  */
 void Random::seed(unsigned int value)
 {
-    if ( value == 0 ) {
-        value = std::chrono::system_clock::now().time_since_epoch().count();
-    }
+	if ( value == 0 ) {
+		value = std::chrono::system_clock::now().time_since_epoch().count();
+	}
 
-    _rng.seed(value);
+	_rng.seed(value);
 }
 
 
@@ -41,7 +41,7 @@ void Random::seed(unsigned int value)
  */
 int Random::uniform_int(int a, int b)
 {
-    return _Ui(_rng) % (b - a) + a;
+	return _Ui(_rng) % (b - a) + a;
 }
 
 
@@ -54,7 +54,7 @@ int Random::uniform_int(int a, int b)
  */
 float Random::uniform_real(float a, float b)
 {
-    return _Ur(_rng) * (b - a) + a;
+	return _Ur(_rng) * (b - a) + a;
 }
 
 
@@ -67,7 +67,7 @@ float Random::uniform_real(float a, float b)
  */
 float Random::normal(float mu, float sigma)
 {
-    return mu + _N(_rng) * sigma;
+	return mu + _N(_rng) * sigma;
 }
 
 
