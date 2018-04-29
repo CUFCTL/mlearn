@@ -14,6 +14,30 @@ namespace ML {
 
 
 
+IODevice& operator<<(IODevice& file, const GMMLayer::Component& component)
+{
+	file << component.pi;
+	file << component.mu;
+	file << component.sigma;
+	file << component._sigma_inv;
+	file << component._normalizer;
+	return file;
+}
+
+
+
+IODevice& operator>>(IODevice& file, GMMLayer::Component& component)
+{
+	file >> component.pi;
+	file >> component.mu;
+	file >> component.sigma;
+	file >> component._sigma_inv;
+	file >> component._normalizer;
+	return file;
+}
+
+
+
 /**
  * Construct a GMM layer.
  *
@@ -457,6 +481,42 @@ std::vector<int> GMMLayer::predict(const std::vector<Matrix>& X)
 	compute_log_gamma_nk(logpi, loggamma, L);
 
 	return compute_labels(loggamma);
+}
+
+
+
+/**
+ * Save a GMM layer to a file.
+ *
+ * @param file
+ */
+void GMMLayer::save(IODevice& file) const
+{
+	file << _K;
+	file << _components;
+	file << _entropy;
+	file << _log_likelihood;
+	file << _num_parameters;
+	file << _num_samples;
+	file << _success;
+}
+
+
+
+/**
+ * Load a GMM layer from a file.
+ *
+ * @param file
+ */
+void GMMLayer::load(IODevice& file)
+{
+	file >> _K;
+	file >> _components;
+	file >> _entropy;
+	file >> _log_likelihood;
+	file >> _num_parameters;
+	file >> _num_samples;
+	file >> _success;
 }
 
 

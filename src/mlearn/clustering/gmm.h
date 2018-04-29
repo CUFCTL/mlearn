@@ -26,6 +26,9 @@ public:
 		void prepare();
 		void compute_log_mv_norm(const std::vector<Matrix>& X, Matrix& logP, int k);
 
+		friend IODevice& operator<<(IODevice& file, const Component& component);
+		friend IODevice& operator>>(IODevice& file, Component& component);
+
 		float pi;
 		Matrix mu;
 		Matrix sigma;
@@ -38,14 +41,16 @@ public:
 	void fit(const std::vector<Matrix>& X);
 	std::vector<int> predict(const std::vector<Matrix>& X);
 
+	void save(IODevice& file) const;
+	void load(IODevice& file);
+	void print() const;
+
 	float entropy() const { return _entropy; }
 	float log_likelihood() const { return _log_likelihood; }
 	int num_clusters() const { return _K; }
 	int num_parameters() const { return _num_parameters; }
 	int num_samples() const { return _num_samples; }
 	bool success() const { return _success; }
-
-	void print() const;
 
 private:
 	void kmeans(const std::vector<Matrix>& X);

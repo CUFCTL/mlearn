@@ -21,14 +21,16 @@ public:
 	void fit(const std::vector<Matrix>& X);
 	std::vector<int> predict(const std::vector<Matrix>& X);
 
+	void save(IODevice& file) const;
+	void load(IODevice& file);
+	void print() const;
+
 	float entropy() const { return 0; }
 	float log_likelihood() const { return _log_likelihood; }
 	int num_clusters() const { return _K; }
 	int num_parameters() const { return _num_parameters; }
 	int num_samples() const { return _num_samples; }
 	bool success() const { return true; }
-
-	void print() const;
 
 private:
 	int _K;

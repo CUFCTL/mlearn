@@ -158,7 +158,39 @@ std::vector<int> KMeansLayer::predict(const std::vector<Matrix>& X)
 
 
 /**
- * Print a k-means layer.
+ * Save a K-means layer to a file.
+ *
+ * @param file
+ */
+void KMeansLayer::save(IODevice& file) const
+{
+	file << _K;
+	file << _means;
+	file << _log_likelihood;
+	file << _num_parameters;
+	file << _num_samples;
+}
+
+
+
+/**
+ * Load a K-means layer from a file.
+ *
+ * @param file
+ */
+void KMeansLayer::load(IODevice& file)
+{
+	file >> _K;
+	file >> _means;
+	file >> _log_likelihood;
+	file >> _num_parameters;
+	file >> _num_samples;
+}
+
+
+
+/**
+ * Print a K-means layer.
  */
 void KMeansLayer::print() const
 {
