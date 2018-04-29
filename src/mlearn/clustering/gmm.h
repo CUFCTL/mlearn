@@ -24,7 +24,7 @@ public:
 
 		void initialize(float pi, const Matrix& mu);
 		void prepare();
-		void compute_log_mv_norm(const std::vector<Matrix>& X, float *logP);
+		void compute_log_mv_norm(const std::vector<Matrix>& X, Matrix& logP, int k);
 
 		float pi;
 		Matrix mu;
@@ -49,13 +49,13 @@ public:
 
 private:
 	void kmeans(const std::vector<Matrix>& X);
-	void compute_log_mv_norm(const std::vector<Matrix>& X, float *loggamma);
-	void compute_log_likelihood_gamma_nk(const float *logpi, int K, float *loggamma, int N, float *logL);
-	void compute_log_gamma_k(const float *loggamma, int N, int K, float *logGamma);
-	float compute_log_gamma_sum(const float *logpi, int K, const float *logGamma);
-	void update(float *logpi, int K, float *loggamma, float *logGamma, float logGammaSum, const std::vector<Matrix>& X);
-	std::vector<int> compute_labels(float *loggamma, int N, int K);
-	float compute_entropy(float *loggamma, int N, const std::vector<int>& labels);
+	void compute_log_mv_norm(const std::vector<Matrix>& X, Matrix& loggamma);
+	void compute_log_gamma_nk(const Matrix& logpi, Matrix& loggamma, float& logL);
+	void compute_log_gamma_k(const Matrix& loggamma, Matrix& logGamma);
+	float compute_log_gamma_sum(const Matrix& logpi, const Matrix& logGamma);
+	void update(Matrix& logpi, Matrix& loggamma, Matrix& logGamma, float logGammaSum, const std::vector<Matrix>& X);
+	std::vector<int> compute_labels(const Matrix& gamma);
+	float compute_entropy(const Matrix& gamma, const std::vector<int>& labels);
 
 	int _K;
 	std::vector<Component> _components;
