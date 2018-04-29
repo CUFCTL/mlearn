@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 	std::vector<Matrix> X_col = m_copy_columns(X);
 	model.fit(X_col);
 
-	std::vector<int> y_pred = model.best_layer()->output();
+	std::vector<int> y_pred = model.best_layer()->labels();
 
 	// print clustering results
 	Logger::log(LogLevel::Verbose, "Best clustering model:");

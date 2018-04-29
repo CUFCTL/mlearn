@@ -27,7 +27,7 @@ public:
 	virtual int num_clusters() const = 0;
 	virtual int num_parameters() const = 0;
 	virtual int num_samples() const = 0;
-	virtual const std::vector<int>& output() const = 0;
+	virtual const std::vector<int>& labels() const = 0;
 	virtual bool success() const = 0;
 };
 

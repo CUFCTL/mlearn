@@ -25,7 +25,7 @@ public:
 	int num_clusters() const { return _K; }
 	int num_parameters() const { return _num_parameters; }
 	int num_samples() const { return _num_samples; }
-	const std::vector<int>& output() const { return _labels; }
+	const std::vector<int>& labels() const { return _labels; }
 	bool success() const { return true; }
 
 	void print() const;
