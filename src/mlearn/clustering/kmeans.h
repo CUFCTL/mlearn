@@ -7,7 +7,6 @@
 #define KMEANS_H
 
 #include "mlearn/clustering/clustering.h"
-#include "mlearn/clustering/parameterset.h"
 
 
 
@@ -17,31 +16,26 @@ namespace ML {
 
 class KMeansLayer : public ClusteringLayer {
 public:
-	KMeansLayer(int k);
+	KMeansLayer(int K);
 
 	void fit(const std::vector<Matrix>& X);
 
-	float entropy() const { return _entropy; }
+	float entropy() const { return 0; }
 	float log_likelihood() const { return _log_likelihood; }
-	int num_clusters() const { return _k; }
+	int num_clusters() const { return _K; }
 	int num_parameters() const { return _num_parameters; }
 	int num_samples() const { return _num_samples; }
-	const std::vector<int>& output() const { return _output; }
-	bool success() const { return _success; }
+	const std::vector<int>& output() const { return _labels; }
+	bool success() const { return true; }
 
 	void print() const;
 
 private:
-	void E_step(const std::vector<Matrix>& X, const ParameterSet& theta, std::vector<int>& y);
-	void M_step(const std::vector<Matrix>& X, const std::vector<int>& y, ParameterSet& theta);
-
-	int _k;
-	float _entropy;
+	int _K;
 	float _log_likelihood;
 	int _num_parameters;
 	int _num_samples;
-	std::vector<int> _output;
-	bool _success;
+	std::vector<int> _labels;
 };
 
 
