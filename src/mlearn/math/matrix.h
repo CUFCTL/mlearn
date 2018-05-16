@@ -23,7 +23,7 @@ class Matrix {
 private:
 	int _rows;
 	int _cols;
-	Buffer<float> _buffer;
+	std::shared_ptr<Buffer<float>> _buffer;
 	bool _transposed;
 	Matrix *_T;
 
@@ -52,16 +52,14 @@ public:
 	friend IODevice& operator>>(IODevice& file, Matrix& M);
 
 	void print() const;
-	void gpu_read() { buffer().read(); }
-	void gpu_write() { buffer().write(); }
+	void gpu_read() { _buffer->read(); }
+	void gpu_write() { _buffer->write(); }
 
 	// getter functions
 	int rows() const { return _rows; }
 	int cols() const { return _cols; }
-	const Buffer<float>& buffer() const { return _transposed ? _T->_buffer : _buffer; }
-	Buffer<float>& buffer() { return _transposed ? _T->_buffer : _buffer; }
-	const float& elem(int i, int j=0) const { return buffer().host_data()[j * _rows + i]; }
-	float& elem(int i, int j=0) { return buffer().host_data()[j * _rows + i]; }
+	const float& elem(int i, int j=0) const { return _buffer->host_data()[j * _rows + i]; }
+	float& elem(int i, int j=0) { return _buffer->host_data()[j * _rows + i]; }
 	const Matrix& T() const { return *_T; }
 
 	float determinant() const;
