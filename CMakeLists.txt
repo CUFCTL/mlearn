@@ -14,7 +14,7 @@ include(FindCUDA)
 
 set(CUDA_NVCC_FLAGS "-Wno-deprecated-gpu-targets")
 
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++11 -fopenmp")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -pg -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wno-unused-result")
 

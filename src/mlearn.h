@@ -23,7 +23,6 @@
 #include "mlearn/data/imageiterator.h"
 
 #include "mlearn/feature/ica.h"
-#include "mlearn/feature/identity.h"
 #include "mlearn/feature/lda.h"
 #include "mlearn/feature/pca.h"
 
