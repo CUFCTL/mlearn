@@ -19,7 +19,7 @@ public:
 	Scaler(bool with_mean=true, bool with_std=true);
 
 	void fit(const Matrix& X);
-	void transform(Matrix& X);
+	Matrix transform(Matrix X) const;
 
 	void save(IODevice& file) const;
 	void load(IODevice& file);

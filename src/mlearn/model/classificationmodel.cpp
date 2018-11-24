@@ -105,16 +105,17 @@ void ClassificationModel::fit(const Dataset& dataset)
 
 	// scale data
 	_scaler.fit(X);
-	_scaler.transform(X);
+	X = _scaler.transform(X);
 
 	// perform feature extraction
 	if ( _feature )
 	{
 		_feature->fit(X, _train_set.labels(), _train_set.classes().size());
+		X = _feature->transform(X);
 	}
 
 	// fit classifier
-	_classifier->fit(_feature ? _feature->transform(X) : X, _train_set.labels(), _train_set.classes().size());
+	_classifier->fit(X, _train_set.labels(), _train_set.classes().size());
 
 	// record fit time
 	_stats.fit_time = Timer::pop();
@@ -141,10 +142,16 @@ std::vector<int> ClassificationModel::predict(const Dataset& dataset)
 	Matrix X = dataset.load_data();
 
 	// scale data
-	_scaler.transform(X);
+	X = _scaler.transform(X);
+
+	// perform feature extraction
+	if ( _feature )
+	{
+		X = _feature->transform(X);
+	}
 
 	// compute predicted labels
-	std::vector<int> y_pred = _classifier->predict(_feature ? _feature->transform(X) : X);
+	std::vector<int> y_pred = _classifier->predict(X);
 
 	// record prediction time
 	_stats.predict_time = Timer::pop();
