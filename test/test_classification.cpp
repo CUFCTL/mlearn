@@ -175,10 +175,24 @@ int main(int argc, char **argv)
 
 	// perform classification on test set
 	std::vector<int> y_pred = model.predict(test_set);
+	float error_rate = model.score(test_set, y_pred);
 
 	// print classification results
-	model.score(test_set, y_pred);
-	model.print_results(test_set, y_pred);
+	Logger::log(LogLevel::Verbose, "Results");
+
+	for ( size_t i = 0; i < test_set.entries().size(); i++ ) {
+		const std::string& name = test_set.entries()[i].name;
+		const std::string& label = test_set.classes()[y_pred[i]];
+
+		const char *s = (y_pred[i] != test_set.labels()[i])
+			? "(!)"
+			: "";
+
+		Logger::log(LogLevel::Verbose, "%-12s -> %-4s %s", name.c_str(), label.c_str(), s);
+	}
+
+	Logger::log(LogLevel::Verbose, "Error rate: %.3f", error_rate);
+	Logger::log(LogLevel::Verbose, "");
 
 	// print timing results
 	Timer::print();

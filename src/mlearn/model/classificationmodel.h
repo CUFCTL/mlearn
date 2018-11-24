@@ -29,11 +29,10 @@ public:
 	void print() const;
 
 	void fit(const Dataset& dataset);
-	std::vector<int> predict(const Dataset& dataset);
-	void score(const Dataset& dataset, const std::vector<int>& y_pred);
+	std::vector<int> predict(const Dataset& dataset) const;
+	float score(const Dataset& dataset, const std::vector<int>& y_pred) const;
 
 	void print_results(const Dataset& dataset, const std::vector<int>& y_pred) const;
-	void print_stats() const;
 
 private:
 	// layers
@@ -41,13 +40,6 @@ private:
 	Scaler _scaler;
 	FeatureLayer *_feature;
 	ClassifierLayer *_classifier;
-
-	// performance, accuracy stats
-	struct {
-		float error_rate;
-		float fit_time;
-		float predict_time;
-	} _stats;
 };
 
 

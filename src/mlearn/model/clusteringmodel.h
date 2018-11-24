@@ -26,24 +26,14 @@ public:
 	void print() const;
 
 	void fit(const std::vector<Matrix>& X);
-	std::vector<int> predict(const std::vector<Matrix>& X);
-	void score(const Dataset& dataset, const std::vector<int>& y_pred);
-
-	void print_results(const Dataset& dataset, const std::vector<int>& y_pred) const;
-	void print_stats() const;
+	std::vector<int> predict(const std::vector<Matrix>& X) const;
+	float score(const Dataset& dataset, const std::vector<int>& y_pred) const;
 
 private:
 	// layers
 	std::vector<ClusteringLayer *> _models;
 	CriterionLayer *_criterion;
 	ClusteringLayer *_clustering;
-
-	// performance, accuracy stats
-	struct {
-		float error_rate;
-		float fit_time;
-		float predict_time;
-	} _stats;
 };
 
 

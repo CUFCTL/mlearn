@@ -177,10 +177,22 @@ int main(int argc, char **argv)
 	model.fit(X_col);
 
 	std::vector<int> y_pred = model.predict(X_col);
+	float error_rate = model.score(dataset, y_pred);
 
 	// print clustering results
-	model.score(dataset, y_pred);
-	model.print_results(dataset, y_pred);
+	Logger::log(LogLevel::Verbose, "Results");
+
+	for ( size_t i = 0; i < dataset.entries().size(); i++ ) {
+		const DataEntry& entry = dataset.entries()[i];
+
+		Logger::log(LogLevel::Verbose, "%-4s (%s) -> %d",
+			entry.name.c_str(),
+			entry.label.c_str(),
+			y_pred[i]);
+	}
+
+	Logger::log(LogLevel::Verbose, "Error rate: %.3f", error_rate);
+	Logger::log(LogLevel::Verbose, "");
 
 	// print timing results
 	Timer::print();

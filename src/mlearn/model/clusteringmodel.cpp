@@ -27,11 +27,6 @@ ClusteringModel::ClusteringModel(const std::vector<ClusteringLayer *>& models, C
 	_models = models;
 	_criterion = criterion;
 	_clustering = clustering;
-
-	// initialize stats
-	_stats.error_rate = 0.0f;
-	_stats.fit_time = 0.0f;
-	_stats.predict_time = 0.0f;
 }
 
 
@@ -96,8 +91,7 @@ void ClusteringModel::fit(const std::vector<Matrix>& X)
 		layer->fit(X);
 	}
 
-	// record fit time
-	_stats.fit_time = Timer::pop();
+	Timer::pop();
 
 	// select model with lowest criterion value
 	_clustering = _criterion->select(_models);
@@ -110,15 +104,14 @@ void ClusteringModel::fit(const std::vector<Matrix>& X)
  *
  * @param X
  */
-std::vector<int> ClusteringModel::predict(const std::vector<Matrix>& X)
+std::vector<int> ClusteringModel::predict(const std::vector<Matrix>& X) const
 {
 	Timer::push("Prediction");
 
 	// predict labels
 	std::vector<int> y_pred = _clustering->predict(X);
 
-	// record prediction time
-	_stats.predict_time = Timer::pop();
+	Timer::pop();
 
 	return y_pred;
 }
@@ -131,7 +124,7 @@ std::vector<int> ClusteringModel::predict(const std::vector<Matrix>& X)
  * @param dataset
  * @param y_pred
  */
-void ClusteringModel::score(const Dataset& dataset, const std::vector<int>& y_pred)
+float ClusteringModel::score(const Dataset& dataset, const std::vector<int>& y_pred) const
 {
 	// compute purity
 	float purity = 0;
@@ -163,46 +156,7 @@ void ClusteringModel::score(const Dataset& dataset, const std::vector<int>& y_pr
 	purity /= n;
 
 	// compute error rate
-	_stats.error_rate = 1 - purity;
-}
-
-
-
-/**
- * Print prediction results of a model.
- *
- * @oaram dataset
- * @param y_pred
- */
-void ClusteringModel::print_results(const Dataset& dataset, const std::vector<int>& y_pred) const
-{
-	Logger::log(LogLevel::Verbose, "Results");
-
-	for ( size_t i = 0; i < dataset.entries().size(); i++ ) {
-		const DataEntry& entry = dataset.entries()[i];
-
-		Logger::log(LogLevel::Verbose, "%-4s (%s) -> %d",
-			entry.name.c_str(),
-			entry.label.c_str(),
-			y_pred[i]);
-	}
-
-	Logger::log(LogLevel::Verbose, "Error rate: %.3f", _stats.error_rate);
-	Logger::log(LogLevel::Verbose, "");
-}
-
-
-
-/**
- * Print a model's performance and accuracy statistics.
- */
-void ClusteringModel::print_stats() const
-{
-	std::cout
-		<< std::setw(12) << std::setprecision(3) << _stats.error_rate
-		<< std::setw(12) << std::setprecision(3) << _stats.fit_time
-		<< std::setw(12) << std::setprecision(3) << _stats.predict_time
-		<< "\n";
+	return 1 - purity;
 }
 
 
