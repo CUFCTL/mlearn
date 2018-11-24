@@ -15,7 +15,7 @@ using namespace mlearn;
 
 
 typedef struct {
-	std::string path_input;
+	std::string data_path;
 	std::string data_type;
 	std::string clustering;
 	int min_k;
@@ -33,7 +33,7 @@ void print_usage()
 		"Options:\n"
 		"  --gpu              enable GPU acceleration\n"
 		"  --loglevel LEVEL   log level (0=error, 1=warn, [2]=info, 3=verbose, 4=debug)\n"
-		"  --path PATH        path to dataset (default is Iris dataset)\n"
+		"  --dataset PATH     path to dataset ([data/iris.txt])\n"
 		"  --type TYPE        data type ([csv], image, genome)\n"
 		"  --clus CLUSTERING  clustering method ([kmeans], gmm)\n"
 		"  --min-k K          minimum number of clusters [1]\n"
@@ -46,7 +46,7 @@ void print_usage()
 args_t parse_args(int argc, char **argv)
 {
 	args_t args = {
-		"data/iris.train",
+		"data/iris.txt",
 		"csv",
 		"kmeans", 1, 5,
 		"bic",
@@ -74,7 +74,7 @@ args_t parse_args(int argc, char **argv)
 			Logger::LEVEL = (LogLevel) atoi(optarg);
 			break;
 		case 'p':
-			args.path_input = optarg;
+			args.data_path = optarg;
 			break;
 		case 'd':
 			args.data_type = optarg;
@@ -120,13 +120,13 @@ int main(int argc, char **argv)
 	DataIterator *data_iter;
 
 	if ( args.data_type == "image" ) {
-		data_iter = new ImageIterator(args.path_input);
+		data_iter = new ImageIterator(args.data_path);
 	}
 	else if ( args.data_type == "genome" ) {
-		data_iter = new GenomeIterator(args.path_input);
+		data_iter = new GenomeIterator(args.data_path);
 	}
 	else if ( args.data_type == "csv" ) {
-		data_iter = new CSVIterator(args.path_input);
+		data_iter = new CSVIterator(args.data_path);
 	}
 	else {
 		std::cerr << "error: type must be image | genome | csv\n";

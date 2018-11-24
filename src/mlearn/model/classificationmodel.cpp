@@ -40,7 +40,6 @@ void ClassificationModel::save(const std::string& path)
 {
 	IODevice file(path, std::ofstream::out);
 
-	file << _train_set;
 	file << _scaler;
 	if ( _feature ) file << *_feature;
 	file << *_classifier;
@@ -57,7 +56,6 @@ void ClassificationModel::load(const std::string& path)
 {
 	IODevice file(path, std::ifstream::in);
 
-	file >> _train_set;
 	file >> _scaler;
 	if ( _feature ) file >> *_feature;
 	file >> *_classifier;
@@ -83,38 +81,29 @@ void ClassificationModel::print() const
 /**
  * Fit the model to a training set.
  *
- * @param dataset
+ * @param X
+ * @param y
+ * @param c
  */
-void ClassificationModel::fit(const Dataset& dataset)
+void ClassificationModel::fit(const Matrix& X_, const std::vector<int>& y, int c)
 {
 	Timer::push("Training");
 
-	_train_set = dataset;
-
-	Logger::log(LogLevel::Verbose, "Training set: %d samples, %d classes",
-		dataset.entries().size(),
-		dataset.classes().size());
-
-	// load data
-	Matrix X = dataset.load_data();
-
 	// scale data
-	_scaler.fit(X);
-	X = _scaler.transform(X);
+	_scaler.fit(X_);
+	Matrix X = _scaler.transform(X_);
 
 	// perform feature extraction
 	if ( _feature )
 	{
-		_feature->fit(X, _train_set.labels(), _train_set.classes().size());
+		_feature->fit(X, y, c);
 		X = _feature->transform(X);
 	}
 
 	// fit classifier
-	_classifier->fit(X, _train_set.labels(), _train_set.classes().size());
+	_classifier->fit(X, y, c);
 
 	Timer::pop();
-
-	Logger::log(LogLevel::Verbose, "");
 }
 
 
@@ -122,21 +111,14 @@ void ClassificationModel::fit(const Dataset& dataset)
 /**
  * Use the model to predict on a dataset.
  *
- * @param dataset
+ * @param X
  */
-std::vector<int> ClassificationModel::predict(const Dataset& dataset) const
+std::vector<int> ClassificationModel::predict(const Matrix& X_) const
 {
 	Timer::push("Prediction");
 
-	Logger::log(LogLevel::Verbose, "Test set: %d samples, %d classes",
-		dataset.entries().size(),
-		dataset.classes().size());
-
-	// load data
-	Matrix X = dataset.load_data();
-
 	// scale data
-	X = _scaler.transform(X);
+	Matrix X = _scaler.transform(X_);
 
 	// perform feature extraction
 	if ( _feature )
@@ -149,8 +131,6 @@ std::vector<int> ClassificationModel::predict(const Dataset& dataset) const
 
 	Timer::pop();
 
-	Logger::log(LogLevel::Verbose, "");
-
 	return y_pred;
 }
 
@@ -159,20 +139,20 @@ std::vector<int> ClassificationModel::predict(const Dataset& dataset) const
 /**
  * Score a model against ground truth labels.
  *
- * @param dataset
+ * @param y_true
  * @param y_pred
  */
-float ClassificationModel::score(const Dataset& dataset, const std::vector<int>& y_pred) const
+float ClassificationModel::score(const std::vector<int>& y_true, const std::vector<int>& y_pred) const
 {
 	int num_errors = 0;
 
-	for ( size_t i = 0; i < dataset.labels().size(); i++ ) {
-		if ( y_pred[i] != dataset.labels()[i] ) {
+	for ( size_t i = 0; i < y_true.size(); i++ ) {
+		if ( y_pred[i] != y_true[i] ) {
 			num_errors++;
 		}
 	}
 
-	return (float) num_errors / dataset.entries().size();
+	return (float) num_errors / y_true.size();
 }
 
 

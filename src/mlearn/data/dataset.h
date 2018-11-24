@@ -21,6 +21,13 @@ namespace mlearn {
 
 class Dataset {
 public:
+	static void train_test_split(
+		const Matrix& X, const std::vector<int>& y,
+		float test_size,
+		Matrix& X_train, std::vector<int>& y_train,
+		Matrix& X_test, std::vector<int>& y_test
+	);
+
 	Dataset(DataIterator *iter);
 	Dataset() {};
 

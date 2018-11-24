@@ -4,6 +4,7 @@
  * Implementation of the dataset type.
  */
 #include "mlearn/data/dataset.h"
+#include "mlearn/math/random.h"
 #include "mlearn/util/logger.h"
 
 
@@ -26,6 +27,48 @@ IODevice& operator>>(IODevice& file, DataEntry& entry)
 	file >> entry.label;
 	file >> entry.name;
 	return file;
+}
+
+
+
+void Dataset::train_test_split(
+	const Matrix& X, const std::vector<int>& y,
+	float test_size,
+	Matrix& X_train, std::vector<int>& y_train,
+	Matrix& X_test, std::vector<int>& y_test)
+{
+	// generate a random shuffle
+	std::vector<int> indices(X.cols());
+
+	for ( int i = 0; i < X.cols(); i++ )
+	{
+		indices[i] = i;
+	}
+
+	Random::shuffle(indices);
+
+	// create train set and test set
+	int num_train = X.cols() * (1 - test_size);
+	int num_test = X.cols() - num_train;
+
+	X_train = Matrix(X.rows(), num_train);
+	y_train = std::vector<int>(num_train);
+	X_test = Matrix(X.rows(), num_test);
+	y_test = std::vector<int>(num_test);
+
+	for ( int i = 0; i < num_train; i++ )
+	{
+		X_train.assign_column(i, X, indices[i]);
+		y_train[i] = y[indices[i]];
+	}
+
+	for ( int i = num_train; i < X.cols(); i++ )
+	{
+		int j = i - num_train;
+
+		X_test.assign_column(j, X, indices[i]);
+		y_test[j] = y[indices[i]];
+	}
 }
 
 

@@ -719,7 +719,7 @@ void Matrix::assign_column(int i, const Matrix& B, int j)
 	assert(0 <= i && i < A._cols);
 	assert(0 <= j && j < B._cols);
 
-	memcpy(&A.elem(0, i), B._buffer->host_data(), B._rows * sizeof(float));
+	memcpy(&A.elem(0, i), &B.elem(0, j), B._rows * sizeof(float));
 
 	A.gpu_write();
 }

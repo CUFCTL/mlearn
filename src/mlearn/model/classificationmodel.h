@@ -22,21 +22,16 @@ public:
 	ClassificationModel(FeatureLayer *feature, ClassifierLayer *classifier);
 	~ClassificationModel() {}
 
-	const Dataset& train_set() const { return _train_set; }
-
 	void save(const std::string& path);
 	void load(const std::string& path);
 	void print() const;
 
-	void fit(const Dataset& dataset);
-	std::vector<int> predict(const Dataset& dataset) const;
-	float score(const Dataset& dataset, const std::vector<int>& y_pred) const;
-
-	void print_results(const Dataset& dataset, const std::vector<int>& y_pred) const;
+	void fit(const Matrix& X, const std::vector<int>& y, int c);
+	std::vector<int> predict(const Matrix& X) const;
+	float score(const std::vector<int>& y_true, const std::vector<int>& y_pred) const;
 
 private:
 	// layers
-	Dataset _train_set;
 	Scaler _scaler;
 	FeatureLayer *_feature;
 	ClassifierLayer *_classifier;
