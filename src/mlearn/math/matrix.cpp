@@ -10,8 +10,6 @@
 
 #include <cblas.h>
 #include <lapacke.h>
-#include <cublas_v2.h>
-#include <cusolverDn.h>
 
 #include "mlearn/cuda/device.h"
 #include "mlearn/math/matrix.h"

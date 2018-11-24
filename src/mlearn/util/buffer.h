@@ -34,7 +34,9 @@ public:
 	T * device_data() const { return _dev; }
 
 	void read();
+	void read(size_t size, size_t offset=0);
 	void write();
+	void write(size_t size, size_t offset=0);
 
 	Buffer<T>& operator=(Buffer<T>&& move);
 
@@ -94,11 +96,19 @@ Buffer<T>::~Buffer()
 template <class T>
 void Buffer<T>::read()
 {
+	read(_size);
+}
+
+
+
+template <class T>
+void Buffer<T>::read(size_t size, size_t offset)
+{
 	if ( !Device::instance() ) {
 		return;
 	}
 
-	CHECK_CUDA(cudaMemcpy(_host, _dev, _size * sizeof(T), cudaMemcpyDeviceToHost));
+	CHECK_CUDA(cudaMemcpy(&_host[offset], &_dev[offset], size * sizeof(T), cudaMemcpyDeviceToHost));
 }
 
 
@@ -106,11 +116,19 @@ void Buffer<T>::read()
 template <class T>
 void Buffer<T>::write()
 {
+	write(_size);
+}
+
+
+
+template <class T>
+void Buffer<T>::write(size_t size, size_t offset)
+{
 	if ( !Device::instance() ) {
 		return;
 	}
 
-	CHECK_CUDA(cudaMemcpy(_dev, _host, _size * sizeof(T), cudaMemcpyHostToDevice));
+	CHECK_CUDA(cudaMemcpy(&_dev[offset], &_host[offset], size * sizeof(T), cudaMemcpyHostToDevice));
 }
 
 

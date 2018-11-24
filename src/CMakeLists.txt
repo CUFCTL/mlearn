@@ -3,7 +3,10 @@
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 # build mlearn library
-file(GLOB_RECURSE mlearn_src ${CMAKE_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE mlearn_src
+	${CMAKE_SOURCE_DIR}/src/*.cpp
+	${CMAKE_SOURCE_DIR}/src/*.cu
+)
 
 cuda_add_library(mlearn SHARED ${mlearn_src})
 target_link_libraries(mlearn blas lapacke -L$ENV{CUDADIR}/lib64 cudart cublas cusolver)

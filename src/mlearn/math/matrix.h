@@ -58,6 +58,7 @@ public:
 	// getter functions
 	int rows() const { return _rows; }
 	int cols() const { return _cols; }
+	const Buffer<float>& buffer() const { return *_buffer; }
 	const float& elem(int i, int j=0) const { return _buffer->host_data()[j * _rows + i]; }
 	float& elem(int i, int j=0) { return _buffer->host_data()[j * _rows + i]; }
 	const Matrix& T() const { return *_T; }

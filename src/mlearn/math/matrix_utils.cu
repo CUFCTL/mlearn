@@ -1,16 +1,62 @@
 /**
- * @file math/matrix_utils.cpp
+ * @file math/matrix_utils.cu
  *
  * Library of helpful matrix functions.
  */
 #include <cassert>
 #include <cmath>
+#include "mlearn/cuda/device.h"
 #include "mlearn/math/matrix_utils.h"
 #include "mlearn/math/random.h"
 
 
 
 namespace mlearn {
+
+
+
+__global__
+void m_dist_COS_kernel(
+	const float *x,
+	const float *y,
+	int n,
+	float *x_dot_y,
+	float *abs_x,
+	float *abs_y,
+	float *similarity)
+{
+	int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+	if ( i >= n )
+	{
+		return;
+	}
+
+	// compute x * y, ||x|| and ||y||
+	x_dot_y[i] = x[i] * y[i];
+	abs_x[i] = x[i] * x[i];
+	abs_y[i] = y[i] * y[i];
+
+	__syncthreads();
+
+	for ( int p = 2; p <= n; p *= 2 )
+	{
+		if ( i % p == 0 )
+		{
+			x_dot_y[i] += x_dot_y[i + p/2];
+			abs_x[i] += abs_x[i + p/2];
+			abs_y[i] += abs_y[i + p/2];
+		}
+
+		__syncthreads();
+	}
+
+	// compute similarity
+	if ( i == 0 )
+	{
+		*similarity = x_dot_y[0] / sqrt(abs_x[0] * abs_y[0]);
+	}
+}
 
 
 
@@ -33,27 +79,83 @@ float m_dist_COS(const Matrix& A, int i, const Matrix& B, int j)
 	assert(A.rows() == B.rows());
 	assert(0 <= i && i < A.cols() && 0 <= j && j < B.cols());
 
-	// compute x * y
-	float x_dot_y = 0;
+	if ( Device::instance() )
+	{
+		// compute similarity
+		Buffer<float> x_dot_y(A.rows());
+		Buffer<float> abs_x(A.rows());
+		Buffer<float> abs_y(A.rows());
+		Buffer<float> similarity(1);
 
-	for ( int k = 0; k < A.rows(); k++ ) {
-		x_dot_y += A.elem(k, i) * B.elem(k, j);
+		const int BLOCK_SIZE = 256;
+		const int GRID_SIZE = (A.rows() + BLOCK_SIZE - 1) / BLOCK_SIZE;
+		m_dist_COS_kernel<<<GRID_SIZE, BLOCK_SIZE>>>(
+			&A.buffer().device_data()[i * A.rows()],
+			&B.buffer().device_data()[j * B.rows()],
+			A.rows(),
+			x_dot_y.device_data(),
+			abs_x.device_data(),
+			abs_y.device_data(),
+			similarity.device_data()
+		);
+		CHECK_CUDA(cudaGetLastError());
+
+		similarity.read();
+
+		// compute distance
+		return 1 - similarity.host_data()[0];
+	}
+	else
+	{
+		// compute x * y, ||x|| and ||y||
+		float x_dot_y = 0;
+		float abs_x = 0;
+		float abs_y = 0;
+
+		for ( int k = 0; k < A.rows(); k++ )
+		{
+			x_dot_y += A.elem(k, i) * B.elem(k, j);
+			abs_x += A.elem(k, i) * A.elem(k, i);
+			abs_y += B.elem(k, j) * B.elem(k, j);
+		}
+
+		// compute similarity
+		float similarity = x_dot_y / sqrt(abs_x * abs_y);
+
+		// compute distance
+		return 1 - similarity;
+	}
+}
+
+
+
+__global__
+void m_dist_L1_kernel(
+	const float *x,
+	const float *y,
+	int n,
+	float *dist)
+{
+	int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+	if ( i >= n )
+	{
+		return;
 	}
 
-	// compute ||x|| and ||y||
-	float abs_x = 0;
-	float abs_y = 0;
+	dist[i] = fabs(x[i] - y[i]);
 
-	for ( int k = 0; k < A.rows(); k++ ) {
-		abs_x += A.elem(k, i) * A.elem(k, i);
-		abs_y += B.elem(k, j) * B.elem(k, j);
+	__syncthreads();
+
+	for ( int p = 2; p <= n; p *= 2 )
+	{
+		if ( i % p == 0 )
+		{
+			dist[i] += dist[i + p/2];
+		}
+
+		__syncthreads();
 	}
-
-	// compute similarity
-	float similarity = x_dot_y / sqrt(abs_x * abs_y);
-
-	// compute scaled distance
-	return 1 - similarity;
 }
 
 
@@ -74,13 +176,65 @@ float m_dist_L1(const Matrix& A, int i, const Matrix& B, int j)
 	assert(A.rows() == B.rows());
 	assert(0 <= i && i < A.cols() && 0 <= j && j < B.cols());
 
-	float dist = 0;
+	if ( Device::instance() )
+	{
+		Buffer<float> dist(A.rows());
 
-	for ( int k = 0; k < A.rows(); k++ ) {
-		dist += fabs(A.elem(k, i) - B.elem(k, j));
+		const int BLOCK_SIZE = 256;
+		const int GRID_SIZE = (A.rows() + BLOCK_SIZE - 1) / BLOCK_SIZE;
+		m_dist_L1_kernel<<<GRID_SIZE, BLOCK_SIZE>>>(
+			&A.buffer().device_data()[i * A.rows()],
+			&B.buffer().device_data()[j * B.rows()],
+			A.rows(),
+			dist.device_data()
+		);
+		CHECK_CUDA(cudaGetLastError());
+
+		dist.read(1);
+
+		return dist.host_data()[0];
+	}
+	else
+	{
+		float dist = 0;
+
+		for ( int k = 0; k < A.rows(); k++ ) {
+			dist += fabs(A.elem(k, i) - B.elem(k, j));
+		}
+
+		return dist;
+	}
+}
+
+
+
+__global__
+void m_dist_L2_kernel(
+	const float *x,
+	const float *y,
+	int n,
+	float *dist)
+{
+	int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+	if ( i >= n )
+	{
+		return;
 	}
 
-	return dist;
+	dist[i] = (x[i] - y[i]) * (x[i] - y[i]);
+
+	__syncthreads();
+
+	for ( int p = 2; p <= n; p *= 2 )
+	{
+		if ( i % p == 0 )
+		{
+			dist[i] += dist[i + p/2];
+		}
+
+		__syncthreads();
+	}
 }
 
 
@@ -101,16 +255,37 @@ float m_dist_L2(const Matrix& A, int i, const Matrix& B, int j)
 	assert(A.rows() == B.rows());
 	assert(0 <= i && i < A.cols() && 0 <= j && j < B.cols());
 
-	float dist = 0;
+	if ( Device::instance() )
+	{
+		Buffer<float> dist(A.rows());
 
-	for ( int k = 0; k < A.rows(); k++ ) {
-		float diff = A.elem(k, i) - B.elem(k, j);
-		dist += diff * diff;
+		const int BLOCK_SIZE = 256;
+		const int GRID_SIZE = (A.rows() + BLOCK_SIZE - 1) / BLOCK_SIZE;
+		m_dist_L2_kernel<<<GRID_SIZE, BLOCK_SIZE>>>(
+			&A.buffer().device_data()[i * A.rows()],
+			&B.buffer().device_data()[j * B.rows()],
+			A.rows(),
+			dist.device_data()
+		);
+		CHECK_CUDA(cudaGetLastError());
+
+		dist.read(1);
+
+		return dist.host_data()[0];
 	}
+	else
+	{
+		float dist = 0;
 
-	dist = sqrt(dist);
+		for ( int k = 0; k < A.rows(); k++ ) {
+			float diff = A.elem(k, i) - B.elem(k, j);
+			dist += diff * diff;
+		}
 
-	return dist;
+		dist = sqrt(dist);
+
+		return dist;
+	}
 }
 
 
