@@ -53,7 +53,7 @@ void BayesLayer::fit(const Matrix& X, const std::vector<int>& y, int c)
  * @param mu
  * @param S_inv
  */
-float BayesLayer::prob(Matrix x, const Matrix& mu, const Matrix& S_inv)
+float BayesLayer::prob(Matrix x, const Matrix& mu, const Matrix& S_inv) const
 {
 	x -= mu;
 
@@ -68,7 +68,7 @@ float BayesLayer::prob(Matrix x, const Matrix& mu, const Matrix& S_inv)
  * @param X_test
  * @return predicted labels of the test observations
  */
-std::vector<int> BayesLayer::predict(const Matrix& X_test)
+std::vector<int> BayesLayer::predict(const Matrix& X_test) const
 {
 	// compute label for each test vector
 	std::vector<int> y_pred(X_test.cols());

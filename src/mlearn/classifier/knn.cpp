@@ -123,7 +123,7 @@ void KNNLayer::fit(const Matrix& X, const std::vector<int>& y, int c)
  *
  * @param X_test
  */
-std::vector<int> KNNLayer::predict(const Matrix& X_test)
+std::vector<int> KNNLayer::predict(const Matrix& X_test) const
 {
 	// determine distance function
 	dist_func_t dist = nullptr;

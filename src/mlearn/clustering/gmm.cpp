@@ -95,7 +95,7 @@ void GMMLayer::Component::prepare()
  * @param logP
  * @param k
  */
-void GMMLayer::Component::compute_log_prob(const std::vector<Matrix>& X, Matrix& logP, int k)
+void GMMLayer::Component::compute_log_prob(const std::vector<Matrix>& X, Matrix& logP, int k) const
 {
 	const int N = X.size();
 
@@ -171,7 +171,7 @@ void GMMLayer::kmeans(const std::vector<Matrix>& X)
 
 
 
-float GMMLayer::e_step(const std::vector<Matrix>& X, Matrix& gamma)
+float GMMLayer::e_step(const std::vector<Matrix>& X, Matrix& gamma) const
 {
 	const int N = X.size();
 
@@ -281,7 +281,7 @@ void GMMLayer::m_step(const std::vector<Matrix>& X, const Matrix& gamma)
 
 
 
-std::vector<int> GMMLayer::compute_labels(const Matrix& gamma)
+std::vector<int> GMMLayer::compute_labels(const Matrix& gamma) const
 {
 	const int N = gamma.cols();
 	std::vector<int> labels(N);
@@ -308,7 +308,7 @@ std::vector<int> GMMLayer::compute_labels(const Matrix& gamma)
 
 
 
-float GMMLayer::compute_entropy(const Matrix& gamma, const std::vector<int>& labels)
+float GMMLayer::compute_entropy(const Matrix& gamma, const std::vector<int>& labels) const
 {
 	const int N = gamma.cols();
 	float E = 0;
@@ -399,7 +399,7 @@ void GMMLayer::fit(const std::vector<Matrix>& X)
  *
  * @param X
  */
-std::vector<int> GMMLayer::predict(const std::vector<Matrix>& X)
+std::vector<int> GMMLayer::predict(const std::vector<Matrix>& X) const
 {
 	const int N = X.size();
 

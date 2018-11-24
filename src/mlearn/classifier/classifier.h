@@ -20,7 +20,7 @@ class ClassifierLayer : public Layer {
 public:
 	virtual ~ClassifierLayer() {}
 	virtual void fit(const Matrix& X, const std::vector<int>& y, int c) = 0;
-	virtual std::vector<int> predict(const Matrix& X_test) = 0;
+	virtual std::vector<int> predict(const Matrix& X_test) const = 0;
 };
 
 

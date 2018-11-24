@@ -19,7 +19,7 @@ public:
 	KMeansLayer(int K);
 
 	void fit(const std::vector<Matrix>& X);
-	std::vector<int> predict(const std::vector<Matrix>& X);
+	std::vector<int> predict(const std::vector<Matrix>& X) const;
 
 	void save(IODevice& file) const;
 	void load(IODevice& file);

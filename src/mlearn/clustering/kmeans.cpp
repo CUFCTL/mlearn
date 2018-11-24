@@ -128,7 +128,7 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
  *
  * @param X
  */
-std::vector<int> KMeansLayer::predict(const std::vector<Matrix>& X)
+std::vector<int> KMeansLayer::predict(const std::vector<Matrix>& X) const
 {
 	const int N = X.size();
 	std::vector<int> labels(N);
