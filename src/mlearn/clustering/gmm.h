@@ -24,7 +24,7 @@ public:
 
 		void initialize(float pi, const Matrix& mu);
 		void prepare();
-		void compute_log_mv_norm(const std::vector<Matrix>& X, Matrix& logP, int k);
+		void compute_log_prob(const std::vector<Matrix>& X, Matrix& logP, int k);
 
 		friend IODevice& operator<<(IODevice& file, const Component& component);
 		friend IODevice& operator>>(IODevice& file, Component& component);
@@ -54,12 +54,8 @@ public:
 
 private:
 	void kmeans(const std::vector<Matrix>& X);
-	void compute_log_pi(Matrix& logpi);
-	void compute_log_mv_norm(const std::vector<Matrix>& X, Matrix& loggamma);
-	void compute_log_gamma_nk(const Matrix& logpi, Matrix& loggamma, float& logL);
-	void compute_log_gamma_k(const Matrix& loggamma, Matrix& logGamma);
-	float compute_log_gamma_sum(const Matrix& logpi, const Matrix& logGamma);
-	void update(Matrix& logpi, Matrix& loggamma, Matrix& logGamma, float logGammaSum, const std::vector<Matrix>& X);
+	float e_step(const std::vector<Matrix>& X, Matrix& gamma);
+	void m_step(const std::vector<Matrix>& X, const Matrix& gamma);
 	std::vector<int> compute_labels(const Matrix& gamma);
 	float compute_entropy(const Matrix& gamma, const std::vector<int>& labels);
 
