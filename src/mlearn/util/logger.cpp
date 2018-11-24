@@ -8,7 +8,7 @@
 #include <ctime>
 #include "mlearn/util/logger.h"
 
-namespace ML {
+namespace mlearn {
 
 
 

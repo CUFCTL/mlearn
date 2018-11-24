@@ -3,8 +3,8 @@
  *
  * Definition of the DataIterator interface.
  */
-#ifndef ML_DATA_DATAITERATOR_H
-#define ML_DATA_DATAITERATOR_H
+#ifndef MLEARN_DATA_DATAITERATOR_H
+#define MLEARN_DATA_DATAITERATOR_H
 
 #include <string>
 #include <vector>
@@ -12,7 +12,7 @@
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

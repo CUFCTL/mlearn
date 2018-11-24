@@ -3,8 +3,8 @@
  *
  * Interface definitions for the clustering model.
  */
-#ifndef ML_MODEL_CLUSTERINGMODEL_H
-#define ML_MODEL_CLUSTERINGMODEL_H
+#ifndef MLEARN_MODEL_CLUSTERINGMODEL_H
+#define MLEARN_MODEL_CLUSTERINGMODEL_H
 
 #include "mlearn/clustering/clustering.h"
 #include "mlearn/criterion/criterion.h"
@@ -12,7 +12,7 @@
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

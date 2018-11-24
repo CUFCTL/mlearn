@@ -3,8 +3,8 @@
  *
  * Interface definitions for the dataset type.
  */
-#ifndef ML_DATA_DATASET_H
-#define ML_DATA_DATASET_H
+#ifndef MLEARN_DATA_DATASET_H
+#define MLEARN_DATA_DATASET_H
 
 #include <fstream>
 #include <string>
@@ -15,7 +15,7 @@
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

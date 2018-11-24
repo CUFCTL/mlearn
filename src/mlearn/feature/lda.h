@@ -3,14 +3,14 @@
  *
  * Interface definitions for the LDA feature layer.
  */
-#ifndef ML_FEATURE_LDA_H
-#define ML_FEATURE_LDA_H
+#ifndef MLEARN_FEATURE_LDA_H
+#define MLEARN_FEATURE_LDA_H
 
 #include "mlearn/feature/feature.h"
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

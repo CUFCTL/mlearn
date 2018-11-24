@@ -3,14 +3,14 @@
  *
  * Interface definitions for the scaler type.
  */
-#ifndef ML_PREPROCESSING_SCALER_H
-#define ML_PREPROCESSING_SCALER_H
+#ifndef MLEARN_PREPROCESSING_SCALER_H
+#define MLEARN_PREPROCESSING_SCALER_H
 
 #include "mlearn/layer/layer.h"
 #include "mlearn/math/matrix.h"
 
 
-namespace ML {
+namespace mlearn {
 
 
 

@@ -3,14 +3,14 @@
  *
  * Interface definitions for the random number generator.
  */
-#ifndef ML_MATH_RANDOM_H
-#define ML_MATH_RANDOM_H
+#ifndef MLEARN_MATH_RANDOM_H
+#define MLEARN_MATH_RANDOM_H
 
 #include <random>
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

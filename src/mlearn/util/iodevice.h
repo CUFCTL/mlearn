@@ -7,8 +7,8 @@
  * several common data types to a file, as well as printing
  * to a text stream.
  */
-#ifndef ML_UTIL_IODEVICE_H
-#define ML_UTIL_IODEVICE_H
+#ifndef MLEARN_UTIL_IODEVICE_H
+#define MLEARN_UTIL_IODEVICE_H
 
 #include <fstream>
 #include <iostream>
@@ -16,7 +16,7 @@
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

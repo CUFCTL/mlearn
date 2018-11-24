@@ -3,14 +3,14 @@
  *
  * Interface definitions for the ICL layer.
  */
-#ifndef ML_CRITERION_ICL_H
-#define ML_CRITERION_ICL_H
+#ifndef MLEARN_CRITERION_ICL_H
+#define MLEARN_CRITERION_ICL_H
 
 #include "mlearn/criterion/criterion.h"
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

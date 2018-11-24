@@ -3,14 +3,14 @@
  *
  * Interface definitions for the PCA feature layer.
  */
-#ifndef ML_FEATURE_PCA_H
-#define ML_FEATURE_PCA_H
+#ifndef MLEARN_FEATURE_PCA_H
+#define MLEARN_FEATURE_PCA_H
 
 #include "mlearn/feature/feature.h"
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

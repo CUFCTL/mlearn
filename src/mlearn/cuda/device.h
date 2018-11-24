@@ -3,8 +3,8 @@
  *
  * Interface definitions for the CUDA device type.
  */
-#ifndef ML_CUDA_DEVICE_H
-#define ML_CUDA_DEVICE_H
+#ifndef MLEARN_CUDA_DEVICE_H
+#define MLEARN_CUDA_DEVICE_H
 
 #include <cstdio>
 #include <cstdlib>
@@ -15,7 +15,7 @@
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

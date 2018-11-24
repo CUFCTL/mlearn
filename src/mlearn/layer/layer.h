@@ -3,15 +3,15 @@
  *
  * Interface definitions for the abstract layer type.
  */
-#ifndef ML_LAYER_LAYER_H
-#define ML_LAYER_LAYER_H
+#ifndef MLEARN_LAYER_LAYER_H
+#define MLEARN_LAYER_LAYER_H
 
 #include <vector>
 #include "mlearn/util/iodevice.h"
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

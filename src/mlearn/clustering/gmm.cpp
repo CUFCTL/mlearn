@@ -10,7 +10,7 @@
 #include "mlearn/util/logger.h"
 #include "mlearn/util/timer.h"
 
-namespace ML {
+namespace mlearn {
 
 
 

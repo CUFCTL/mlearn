@@ -3,8 +3,8 @@
  *
  * Interface definitions for the abstract feature layer.
  */
-#ifndef ML_FEATURE_FEATURE_H
-#define ML_FEATURE_FEATURE_H
+#ifndef MLEARN_FEATURE_FEATURE_H
+#define MLEARN_FEATURE_FEATURE_H
 
 #include <vector>
 #include "mlearn/layer/layer.h"
@@ -12,7 +12,7 @@
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

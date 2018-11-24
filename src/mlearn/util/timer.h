@@ -3,8 +3,8 @@
  *
  * Interface definitions for the timer.
  */
-#ifndef ML_UTIL_TIMER_H
-#define ML_UTIL_TIMER_H
+#ifndef MLEARN_UTIL_TIMER_H
+#define MLEARN_UTIL_TIMER_H
 
 #include <chrono>
 #include <string>
@@ -12,7 +12,7 @@
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

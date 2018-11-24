@@ -3,15 +3,15 @@
  *
  * Interface definitions for the matrix type.
  */
-#ifndef ML_MATH_MATRIX_H
-#define ML_MATH_MATRIX_H
+#ifndef MLEARN_MATH_MATRIX_H
+#define MLEARN_MATH_MATRIX_H
 
 #include "mlearn/util/buffer.h"
 #include "mlearn/util/iodevice.h"
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

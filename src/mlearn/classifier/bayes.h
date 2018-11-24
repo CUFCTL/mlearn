@@ -3,14 +3,14 @@
  *
  * Interface definitions for the naive Bayes classifier.
  */
-#ifndef ML_CLASSIFIER_BAYES_H
-#define ML_CLASSIFIER_BAYES_H
+#ifndef MLEARN_CLASSIFIER_BAYES_H
+#define MLEARN_CLASSIFIER_BAYES_H
 
 #include "mlearn/classifier/classifier.h"
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

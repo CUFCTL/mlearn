@@ -3,15 +3,15 @@
  *
  * Library of helpful matrix functions.
  */
-#ifndef ML_MATH_MATRIX_UTILS_H
-#define ML_MATH_MATRIX_UTILS_H
+#ifndef MLEARN_MATH_MATRIX_UTILS_H
+#define MLEARN_MATH_MATRIX_UTILS_H
 
 #include <vector>
 #include "mlearn/math/matrix.h"
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

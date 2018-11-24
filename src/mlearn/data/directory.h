@@ -3,15 +3,15 @@
  *
  * Interface definitions for the directory type.
  */
-#ifndef ML_DATA_DIRECTORY_H
-#define ML_DATA_DIRECTORY_H
+#ifndef MLEARN_DATA_DIRECTORY_H
+#define MLEARN_DATA_DIRECTORY_H
 
 #include <string>
 #include <vector>
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

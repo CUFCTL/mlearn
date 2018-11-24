@@ -3,8 +3,8 @@
  *
  * Interface definitions for the abstract clustering layer.
  */
-#ifndef ML_CLUSTERING_CLUSTERING_H
-#define ML_CLUSTERING_CLUSTERING_H
+#ifndef MLEARN_CLUSTERING_CLUSTERING_H
+#define MLEARN_CLUSTERING_CLUSTERING_H
 
 #include <vector>
 #include "mlearn/layer/layer.h"
@@ -12,7 +12,7 @@
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

@@ -3,15 +3,15 @@
  *
  * Interface definitions for the CSV iterator.
  */
-#ifndef ML_DATA_CSVITERATOR_H
-#define ML_DATA_CSVITERATOR_H
+#ifndef MLEARN_DATA_CSVITERATOR_H
+#define MLEARN_DATA_CSVITERATOR_H
 
 #include <memory>
 #include "mlearn/data/dataiterator.h"
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

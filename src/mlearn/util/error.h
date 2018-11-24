@@ -1,14 +1,14 @@
 /**
  * @file util/error.h
  */
-#ifndef ML_UTIL_ERROR_H
-#define ML_UTIL_ERROR_H
+#ifndef MLEARN_UTIL_ERROR_H
+#define MLEARN_UTIL_ERROR_H
 
 #include <stdexcept>
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

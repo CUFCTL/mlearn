@@ -3,12 +3,12 @@
  *
  * Interface definitions for the logger.
  */
-#ifndef ML_UTIL_LOGGER_H
-#define ML_UTIL_LOGGER_H
+#ifndef MLEARN_UTIL_LOGGER_H
+#define MLEARN_UTIL_LOGGER_H
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 

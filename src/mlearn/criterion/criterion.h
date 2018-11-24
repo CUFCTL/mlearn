@@ -3,8 +3,8 @@
  *
  * Interface definitions for the abstract criterion layer.
  */
-#ifndef ML_CRITERION_CRITERION_H
-#define ML_CRITERION_CRITERION_H
+#ifndef MLEARN_CRITERION_CRITERION_H
+#define MLEARN_CRITERION_CRITERION_H
 
 #include <vector>
 #include "mlearn/clustering/clustering.h"
@@ -12,7 +12,7 @@
 
 
 
-namespace ML {
+namespace mlearn {
 
 
 
