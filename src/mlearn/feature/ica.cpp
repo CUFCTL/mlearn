@@ -69,7 +69,7 @@ void ICALayer::fit(const Matrix& X, const std::vector<int>& y, int c)
 	pca.fit(mixedsig, y, c);
 
 	Matrix D = pca.D();
-	D.elem_apply(sqrt);
+	D.elem_apply(sqrtf);
 	D = D.inverse();
 
 	Matrix W_z = D * pca.W().T();
@@ -250,7 +250,7 @@ Matrix fpica_tanh(const Matrix& w0, const Matrix& X)
 	Matrix w_temp1 = X.T() * w0;
 	Matrix w_temp2 = w_temp1;
 
-	w_temp1.elem_apply(tanh);
+	w_temp1.elem_apply(tanhf);
 	w_temp2.elem_apply(tanh_deriv);
 
 	Matrix w = X * w_temp1;

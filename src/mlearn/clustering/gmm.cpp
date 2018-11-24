@@ -223,7 +223,7 @@ float GMMLayer::e_step(const std::vector<Matrix>& X, Matrix& gamma)
 	}
 
 	// compute gamma
-	gamma.elem_apply(exp);
+	gamma.elem_apply(expf);
 
 	return logL;
 }
