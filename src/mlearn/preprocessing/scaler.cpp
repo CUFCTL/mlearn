@@ -28,7 +28,22 @@ void Scaler::fit(const Matrix& X)
 	}
 
 	// compute row-wise stddev of X
-	// TODO
+	if ( _with_std )
+	{
+		_std = Matrix::zeros(X.rows(), 1);
+
+		for ( int i = 0; i < X.rows(); i++ )
+		{
+			for ( int j = 0; j < X.cols(); j++ )
+			{
+				float temp = X.elem(i, j) - _mean.elem(i);
+				_std.elem(i) += temp * temp;
+			}
+		}
+
+		_std /= X.cols();
+		_std.elem_apply(sqrtf);
+	}
 }
 
 
@@ -42,7 +57,16 @@ void Scaler::transform(Matrix& X)
 	}
 
 	// scale X by row-wise stddev
-	// TODO
+	if ( _with_std )
+	{
+		for ( int i = 0; i < X.rows(); i++ )
+		{
+			for ( int j = 0; j < X.cols(); j++ )
+			{
+				X.elem(i, j) /= _std.elem(i);
+			}
+		}
+	}
 }
 
 
