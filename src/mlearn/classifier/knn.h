@@ -6,7 +6,7 @@
 #ifndef MLEARN_CLASSIFIER_KNN_H
 #define MLEARN_CLASSIFIER_KNN_H
 
-#include "mlearn/classifier/classifier.h"
+#include "mlearn/layer/estimator.h"
 
 
 
@@ -23,13 +23,14 @@ enum class KNNDist {
 
 
 
-class KNNLayer : public ClassifierLayer {
+class KNNLayer : public EstimatorLayer {
 public:
 	KNNLayer(int k, KNNDist dist);
 	KNNLayer() : KNNLayer(1, KNNDist::L1) {}
 
+	void fit(const Matrix& X) {}
 	void fit(const Matrix& X, const std::vector<int>& y, int c);
-	std::vector<int> predict(const Matrix& X_test) const;
+	std::vector<int> predict(const Matrix& X) const;
 
 	void save(IODevice& file) const;
 	void load(IODevice& file);

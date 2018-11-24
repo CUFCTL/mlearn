@@ -44,10 +44,8 @@ ICALayer::ICALayer(int n1, int n2, ICANonl nonl, int max_iter, float eps)
  * consists of observations in columns.
  *
  * @param X
- * @param y
- * @param c
  */
-void ICALayer::fit(const Matrix& X, const std::vector<int>& y, int c)
+void ICALayer::fit(const Matrix& X)
 {
 	Timer::push("ICA");
 
@@ -66,7 +64,7 @@ void ICALayer::fit(const Matrix& X, const std::vector<int>& y, int c)
 	// compute whitening matrix W_z = inv(sqrt(D)) * W_pca'
 	PCALayer pca(_n1);
 
-	pca.fit(mixedsig, y, c);
+	pca.fit(mixedsig);
 
 	Matrix D = pca.D();
 	D.elem_apply(sqrtf);
@@ -110,7 +108,7 @@ void ICALayer::fit(const Matrix& X, const std::vector<int>& y, int c)
  *
  * @param X
  */
-Matrix ICALayer::transform(const Matrix& X)
+Matrix ICALayer::transform(const Matrix& X) const
 {
 	return _W.T() * X;
 }

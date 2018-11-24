@@ -6,7 +6,7 @@
 #ifndef MLEARN_FEATURE_PCA_H
 #define MLEARN_FEATURE_PCA_H
 
-#include "mlearn/feature/feature.h"
+#include "mlearn/layer/transformer.h"
 
 
 
@@ -14,7 +14,7 @@ namespace mlearn {
 
 
 
-class PCALayer : public FeatureLayer {
+class PCALayer : public TransformerLayer {
 public:
 	PCALayer(int n1);
 	PCALayer() : PCALayer(-1) {}
@@ -22,8 +22,9 @@ public:
 	const Matrix& W() const { return _W; }
 	const Matrix& D() const { return _D; }
 
-	void fit(const Matrix& X, const std::vector<int>& y, int c);
-	Matrix transform(const Matrix& X);
+	void fit(const Matrix& X);
+	void fit(const Matrix& X, const std::vector<int>& y, int c) { fit(X); }
+	Matrix transform(const Matrix& X) const;
 
 	void save(IODevice& file) const;
 	void load(IODevice& file);

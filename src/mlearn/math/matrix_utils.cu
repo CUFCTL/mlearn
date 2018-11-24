@@ -329,28 +329,6 @@ std::vector<Matrix> m_copy_columns(const Matrix& X)
 
 
 /**
- * Select k random columns from a matrix X.
- *
- * @param X
- * @param k
- */
-std::vector<Matrix> m_random_sample(const std::vector<Matrix>& X, int k)
-{
-	std::vector<Matrix> samples;
-	samples.reserve(k);
-
-	for ( int i = 0; i < k; i++ ) {
-		int j = Random::uniform_int(0, X.size());
-
-		samples.push_back(X[j]);
-	}
-
-	return samples;
-}
-
-
-
-/**
  * Subtract a vector mu from each vector in X.
  *
  * @param X

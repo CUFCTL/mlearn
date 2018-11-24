@@ -34,10 +34,8 @@ PCALayer::PCALayer(int n1)
  * the covariance matrix.
  *
  * @param X
- * @param y
- * @param c
  */
-void PCALayer::fit(const Matrix& X, const std::vector<int>& y, int c)
+void PCALayer::fit(const Matrix& X)
 {
 	// if n1 = -1, use default value
 	int n1 = (_n1 == -1)
@@ -90,7 +88,7 @@ void PCALayer::fit(const Matrix& X, const std::vector<int>& y, int c)
  *
  * @param X
  */
-Matrix PCALayer::transform(const Matrix& X)
+Matrix PCALayer::transform(const Matrix& X) const
 {
 	return _W.T() * X;
 }

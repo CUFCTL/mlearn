@@ -121,9 +121,9 @@ void KNNLayer::fit(const Matrix& X, const std::vector<int>& y, int c)
 /**
  * Classify an observation using k-nearest neighbors.
  *
- * @param X_test
+ * @param X
  */
-std::vector<int> KNNLayer::predict(const Matrix& X_test) const
+std::vector<int> KNNLayer::predict(const Matrix& X) const
 {
 	// determine distance function
 	dist_func_t dist = nullptr;
@@ -138,9 +138,9 @@ std::vector<int> KNNLayer::predict(const Matrix& X_test) const
 		dist = m_dist_L2;
 	}
 
-	std::vector<int> y_pred(X_test.cols());
+	std::vector<int> y_pred(X.cols());
 
-	for ( int i = 0; i < X_test.cols(); i++ ) {
+	for ( int i = 0; i < X.cols(); i++ ) {
 		// compute distance between X_test_i and each X_i
 		std::vector<neighbor_t> neighbors;
 		neighbors.reserve(_X.cols());
@@ -148,7 +148,7 @@ std::vector<int> KNNLayer::predict(const Matrix& X_test) const
 		for ( int j = 0; j < _X.cols(); j++ ) {
 			neighbor_t n;
 			n.label = _y[j];
-			n.dist = dist(X_test, i, _X, j);
+			n.dist = dist(X, i, _X, j);
 
 			neighbors.push_back(n);
 		}

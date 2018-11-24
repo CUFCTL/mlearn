@@ -21,7 +21,7 @@ namespace mlearn {
  * @param feature
  * @param classifier
  */
-ClassificationModel::ClassificationModel(FeatureLayer *feature, ClassifierLayer *classifier)
+ClassificationModel::ClassificationModel(TransformerLayer *feature, EstimatorLayer *classifier)
 {
 	// initialize layers
 	_scaler = Scaler(true, false);

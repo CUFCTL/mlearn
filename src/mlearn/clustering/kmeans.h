@@ -18,8 +18,9 @@ class KMeansLayer : public ClusteringLayer {
 public:
 	KMeansLayer(int K);
 
-	void fit(const std::vector<Matrix>& X);
-	std::vector<int> predict(const std::vector<Matrix>& X) const;
+	void fit(const Matrix& X);
+	void fit(const Matrix& X, const std::vector<int>& y, int c) { fit(X); }
+	std::vector<int> predict(const Matrix& X) const;
 
 	void save(IODevice& file) const;
 	void load(IODevice& file);

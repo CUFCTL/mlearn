@@ -82,7 +82,7 @@ void ClusteringModel::print() const
  *
  * @param X
  */
-void ClusteringModel::fit(const std::vector<Matrix>& X)
+void ClusteringModel::fit(const Matrix& X)
 {
 	Timer::push("Clustering");
 
@@ -104,7 +104,7 @@ void ClusteringModel::fit(const std::vector<Matrix>& X)
  *
  * @param X
  */
-std::vector<int> ClusteringModel::predict(const std::vector<Matrix>& X) const
+std::vector<int> ClusteringModel::predict(const Matrix& X) const
 {
 	Timer::push("Prediction");
 

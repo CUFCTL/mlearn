@@ -65,20 +65,20 @@ float BayesLayer::prob(Matrix x, const Matrix& mu, const Matrix& S_inv) const
 /**
  * Classify an observation using naive Bayes.
  *
- * @param X_test
+ * @param X
  * @return predicted labels of the test observations
  */
-std::vector<int> BayesLayer::predict(const Matrix& X_test) const
+std::vector<int> BayesLayer::predict(const Matrix& X) const
 {
 	// compute label for each test vector
-	std::vector<int> y_pred(X_test.cols());
+	std::vector<int> y_pred(X.cols());
 
-	for ( int i = 0; i < X_test.cols(); i++ ) {
+	for ( int i = 0; i < X.cols(); i++ ) {
 		std::vector<float> probs(_mu.size());
 
 		// compute the Bayes probability for each class
 		for ( size_t j = 0; j < probs.size(); j++ ) {
-			probs[j] = prob(X_test(i), _mu[j], _S_inv[j]);
+			probs[j] = prob(X(i), _mu[j], _S_inv[j]);
 		}
 
 		// select the class with the highest probability

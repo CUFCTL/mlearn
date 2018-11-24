@@ -99,7 +99,7 @@ void LDALayer::fit(const Matrix& X, const std::vector<int>& y, int c)
  *
  * @param X
  */
-Matrix LDALayer::transform(const Matrix& X)
+Matrix LDALayer::transform(const Matrix& X) const
 {
 	return _W.T() * X;
 }

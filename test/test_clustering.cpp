@@ -173,10 +173,9 @@ int main(int argc, char **argv)
 
 	// perform clustering on input data
 	Matrix X = dataset.load_data();
-	std::vector<Matrix> X_col = m_copy_columns(X);
-	model.fit(X_col);
+	model.fit(X);
 
-	std::vector<int> y_pred = model.predict(X_col);
+	std::vector<int> y_pred = model.predict(X);
 	float error_rate = model.score(dataset, y_pred);
 
 	// print clustering results

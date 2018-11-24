@@ -6,7 +6,7 @@
 #ifndef MLEARN_FEATURE_ICA_H
 #define MLEARN_FEATURE_ICA_H
 
-#include "mlearn/feature/feature.h"
+#include "mlearn/layer/transformer.h"
 
 
 
@@ -23,13 +23,14 @@ enum class ICANonl {
 
 
 
-class ICALayer : public FeatureLayer {
+class ICALayer : public TransformerLayer {
 public:
 	ICALayer(int n1, int n2, ICANonl nonl, int max_iter, float eps);
 	ICALayer() : ICALayer(-1, -1, ICANonl::pow3, 1000, 0.0001f) {}
 
-	void fit(const Matrix& X, const std::vector<int>& y, int c);
-	Matrix transform(const Matrix& X);
+	void fit(const Matrix& X);
+	void fit(const Matrix& X, const std::vector<int>& y, int c) { fit(X); }
+	Matrix transform(const Matrix& X) const;
 
 	void save(IODevice& file) const;
 	void load(IODevice& file);

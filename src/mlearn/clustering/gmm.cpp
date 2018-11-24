@@ -95,14 +95,14 @@ void GMMLayer::Component::prepare()
  * @param logP
  * @param k
  */
-void GMMLayer::Component::compute_log_prob(const std::vector<Matrix>& X, Matrix& logP, int k) const
+void GMMLayer::Component::compute_log_prob(const Matrix& X, Matrix& logP, int k) const
 {
-	const int N = X.size();
+	const int N = X.cols();
 
 	for ( int i = 0; i < N; i++ )
 	{
 		// compute xm = (x_i - mu)
-		Matrix xm = X[i];
+		Matrix xm = X(i);
 		xm -= mu;
 
 		// compute log(P(x_i|k)) = normalizer - 0.5 * xm^T * S^-1 * xm
@@ -112,9 +112,9 @@ void GMMLayer::Component::compute_log_prob(const std::vector<Matrix>& X, Matrix&
 
 
 
-void GMMLayer::kmeans(const std::vector<Matrix>& X)
+void GMMLayer::kmeans(const Matrix& X)
 {
-	const int N = X.size();
+	const int N = X.cols();
 	const int MAX_ITERATIONS = 20;
 	const float TOLERANCE = 1e-3;
 	float diff = 0;
@@ -138,7 +138,7 @@ void GMMLayer::kmeans(const std::vector<Matrix>& X)
 
 			for ( int k = 0; k < _K; k++ )
 			{
-				float dist = m_dist_L2(X[i], 0, _components[k].mu, 0);
+				float dist = m_dist_L2(X, i, _components[k].mu, 0);
 				if ( min_dist > dist )
 				{
 					min_dist = dist;
@@ -146,7 +146,7 @@ void GMMLayer::kmeans(const std::vector<Matrix>& X)
 				}
 			}
 
-			MP[min_k] += X[i];
+			MP[min_k] += X(i);
 			counts[min_k]++;
 		}
 
@@ -171,9 +171,9 @@ void GMMLayer::kmeans(const std::vector<Matrix>& X)
 
 
 
-float GMMLayer::e_step(const std::vector<Matrix>& X, Matrix& gamma) const
+float GMMLayer::e_step(const Matrix& X, Matrix& gamma) const
 {
-	const int N = X.size();
+	const int N = X.cols();
 
 	// compute logpi
 	Matrix logpi(_K, 1);
@@ -230,9 +230,9 @@ float GMMLayer::e_step(const std::vector<Matrix>& X, Matrix& gamma) const
 
 
 
-void GMMLayer::m_step(const std::vector<Matrix>& X, const Matrix& gamma)
+void GMMLayer::m_step(const Matrix& X, const Matrix& gamma)
 {
-	const int N = X.size();
+	const int N = X.cols();
 
 	for ( int k = 0; k < _K; k++ )
 	{
@@ -253,7 +253,7 @@ void GMMLayer::m_step(const std::vector<Matrix>& X, const Matrix& gamma)
 
 		for ( int i = 0; i < N; i++ )
 		{
-			mu.axpy(gamma.elem(k, i), X[i]);
+			mu.axpy(gamma.elem(k, i), X(i));
 		}
 
 		mu /= n_k;
@@ -265,7 +265,7 @@ void GMMLayer::m_step(const std::vector<Matrix>& X, const Matrix& gamma)
 		for ( int i = 0; i < N; i++ )
 		{
 			// compute xm = (x - mu)
-			Matrix xm = X[i];
+			Matrix xm = X(i);
 			xm -= mu;
 
 			// compute S_i = gamma_ki * (x - mu) (x - mu)^T
@@ -328,12 +328,12 @@ float GMMLayer::compute_entropy(const Matrix& gamma, const std::vector<int>& lab
  *
  * @param X
  */
-void GMMLayer::fit(const std::vector<Matrix>& X)
+void GMMLayer::fit(const Matrix& X)
 {
 	Timer::push("Gaussian mixture model");
 
-	int N = X.size();
-	int D = X[0].rows();
+	int N = X.cols();
+	int D = X.rows();
 
 	// initialize components
 	_components.resize(_K);
@@ -343,7 +343,7 @@ void GMMLayer::fit(const std::vector<Matrix>& X)
 		// use uniform mixture proportion and randomly sampled mean
 		int i = rand() % N;
 
-		_components[k].initialize(1.0f / _K, X[i]);
+		_components[k].initialize(1.0f / _K, X(i));
 		_components[k].prepare();
 	}
 
@@ -399,9 +399,9 @@ void GMMLayer::fit(const std::vector<Matrix>& X)
  *
  * @param X
  */
-std::vector<int> GMMLayer::predict(const std::vector<Matrix>& X) const
+std::vector<int> GMMLayer::predict(const Matrix& X) const
 {
-	const int N = X.size();
+	const int N = X.cols();
 
 	Matrix gamma(_K, N);
 	e_step(X, gamma);

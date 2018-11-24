@@ -142,7 +142,7 @@ int main(int argc, char **argv)
 	Dataset::train_test_split(X, y, 0.2, X_train, y_train, X_test, y_test);
 
 	// construct feature layer
-	std::unique_ptr<FeatureLayer> feature;
+	std::unique_ptr<TransformerLayer> feature;
 
 	if ( args.feature == "identity" )
 	{
@@ -167,7 +167,7 @@ int main(int argc, char **argv)
 	}
 
 	// construct classifier layer
-	std::unique_ptr<ClassifierLayer> classifier;
+	std::unique_ptr<EstimatorLayer> classifier;
 
 	if ( args.classifier == "knn" )
 	{

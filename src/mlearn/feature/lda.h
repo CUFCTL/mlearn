@@ -6,7 +6,7 @@
 #ifndef MLEARN_FEATURE_LDA_H
 #define MLEARN_FEATURE_LDA_H
 
-#include "mlearn/feature/feature.h"
+#include "mlearn/layer/transformer.h"
 
 
 
@@ -14,13 +14,14 @@ namespace mlearn {
 
 
 
-class LDALayer : public FeatureLayer {
+class LDALayer : public TransformerLayer {
 public:
 	LDALayer(int n1, int n2);
 	LDALayer() : LDALayer(-1, -1) {}
 
+	void fit(const Matrix& X) {}
 	void fit(const Matrix& X, const std::vector<int>& y, int c);
-	Matrix transform(const Matrix& X);
+	Matrix transform(const Matrix& X) const;
 
 	void save(IODevice& file) const;
 	void load(IODevice& file);

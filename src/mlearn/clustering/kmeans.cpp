@@ -5,6 +5,7 @@
  */
 #include "mlearn/clustering/kmeans.h"
 #include "mlearn/math/matrix_utils.h"
+#include "mlearn/math/random.h"
 #include "mlearn/util/logger.h"
 #include "mlearn/util/timer.h"
 
@@ -31,15 +32,21 @@ KMeansLayer::KMeansLayer(int K)
  *
  * @param X
  */
-void KMeansLayer::fit(const std::vector<Matrix>& X)
+void KMeansLayer::fit(const Matrix& X)
 {
 	Timer::push("K-means");
 
-	int N = X.size();
-	int D = X[0].rows();
+	int N = X.cols();
+	int D = X.rows();
 
 	// initialize means randomly from X
-	_means = m_random_sample(X, _K);
+	_means.reserve(_K);
+
+	for ( int i = 0; i < _K; i++ ) {
+		int j = Random::uniform_int(0, X.cols());
+
+		_means.push_back(X(j));
+	}
 
 	// iterate k means until convergence
 	std::vector<int> y(N);
@@ -56,7 +63,7 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 
 			for ( int k = 0; k < _K; k++ )
 			{
-				float dist = m_dist_L2(X[i], 0, _means[k], 0);
+				float dist = m_dist_L2(X, i, _means[k], 0);
 
 				if ( dist < min_dist )
 				{
@@ -89,7 +96,7 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 			{
 				if ( y[i] == k )
 				{
-					_means[k] += X[i];
+					_means[k] += X(i);
 					n_k++;
 				}
 			}
@@ -106,7 +113,7 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
 		{
 			if ( y[i] == k )
 			{
-				float dist = m_dist_L2(X[i], 0, _means[k], 0);
+				float dist = m_dist_L2(X, i, _means[k], 0);
 
 				S += dist * dist;
 			}
@@ -128,9 +135,9 @@ void KMeansLayer::fit(const std::vector<Matrix>& X)
  *
  * @param X
  */
-std::vector<int> KMeansLayer::predict(const std::vector<Matrix>& X) const
+std::vector<int> KMeansLayer::predict(const Matrix& X) const
 {
-	const int N = X.size();
+	const int N = X.cols();
 	std::vector<int> labels(N);
 
 	for ( int i = 0; i < N; i++ )
@@ -140,7 +147,7 @@ std::vector<int> KMeansLayer::predict(const std::vector<Matrix>& X) const
 
 		for ( int k = 0; k < _K; k++ )
 		{
-			float dist = m_dist_L2(X[i], 0, _means[k], 0);
+			float dist = m_dist_L2(X, i, _means[k], 0);
 
 			if ( dist < min_dist )
 			{

@@ -25,8 +25,8 @@ public:
 	void load(const std::string& path);
 	void print() const;
 
-	void fit(const std::vector<Matrix>& X);
-	std::vector<int> predict(const std::vector<Matrix>& X) const;
+	void fit(const Matrix& X);
+	std::vector<int> predict(const Matrix& X) const;
 	float score(const Dataset& dataset, const std::vector<int>& y_pred) const;
 
 private:

@@ -6,9 +6,9 @@
 #ifndef MLEARN_MODEL_CLASSIFICATIONMODEL_H
 #define MLEARN_MODEL_CLASSIFICATIONMODEL_H
 
-#include "mlearn/classifier/classifier.h"
 #include "mlearn/data/dataset.h"
-#include "mlearn/feature/feature.h"
+#include "mlearn/layer/estimator.h"
+#include "mlearn/layer/transformer.h"
 #include "mlearn/preprocessing/scaler.h"
 
 
@@ -19,7 +19,7 @@ namespace mlearn {
 
 class ClassificationModel {
 public:
-	ClassificationModel(FeatureLayer *feature, ClassifierLayer *classifier);
+	ClassificationModel(TransformerLayer *feature, EstimatorLayer *classifier);
 	~ClassificationModel() {}
 
 	void save(const std::string& path);
@@ -33,8 +33,8 @@ public:
 private:
 	// layers
 	Scaler _scaler;
-	FeatureLayer *_feature;
-	ClassifierLayer *_classifier;
+	TransformerLayer *_feature;
+	EstimatorLayer *_classifier;
 };
 
 

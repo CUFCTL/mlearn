@@ -48,8 +48,10 @@ void Scaler::fit(const Matrix& X)
 
 
 
-Matrix Scaler::transform(Matrix X) const
+Matrix Scaler::transform(const Matrix& X_) const
 {
+	Matrix X(X_);
+
 	// subtract row-wise mean from X
 	if ( _with_mean )
 	{

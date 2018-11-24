@@ -24,7 +24,7 @@ public:
 
 		void initialize(float pi, const Matrix& mu);
 		void prepare();
-		void compute_log_prob(const std::vector<Matrix>& X, Matrix& logP, int k) const;
+		void compute_log_prob(const Matrix& X, Matrix& logP, int k) const;
 
 		friend IODevice& operator<<(IODevice& file, const Component& component);
 		friend IODevice& operator>>(IODevice& file, Component& component);
@@ -38,8 +38,9 @@ public:
 		float _normalizer;
 	};
 
-	void fit(const std::vector<Matrix>& X);
-	std::vector<int> predict(const std::vector<Matrix>& X) const;
+	void fit(const Matrix& X);
+	void fit(const Matrix& X, const std::vector<int>& y, int c) { fit(X); }
+	std::vector<int> predict(const Matrix& X) const;
 
 	void save(IODevice& file) const;
 	void load(IODevice& file);
@@ -53,9 +54,9 @@ public:
 	bool success() const { return _success; }
 
 private:
-	void kmeans(const std::vector<Matrix>& X);
-	float e_step(const std::vector<Matrix>& X, Matrix& gamma) const;
-	void m_step(const std::vector<Matrix>& X, const Matrix& gamma);
+	void kmeans(const Matrix& X);
+	float e_step(const Matrix& X, Matrix& gamma) const;
+	void m_step(const Matrix& X, const Matrix& gamma);
 	std::vector<int> compute_labels(const Matrix& gamma) const;
 	float compute_entropy(const Matrix& gamma, const std::vector<int>& labels) const;
 
