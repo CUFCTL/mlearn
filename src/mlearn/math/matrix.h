@@ -6,7 +6,7 @@
 #ifndef MLEARN_MATH_MATRIX_H
 #define MLEARN_MATH_MATRIX_H
 
-#include "mlearn/util/buffer.h"
+#include "mlearn/cuda/buffer.h"
 #include "mlearn/util/iodevice.h"
 
 

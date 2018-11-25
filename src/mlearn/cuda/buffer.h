@@ -1,10 +1,10 @@
 /**
- * @file util/buffer.h
+ * @file cuda/buffer.h
  *
  * Interface definitions for the buffer type.
  */
-#ifndef MLEARN_UTIL_BUFFER_H
-#define MLEARN_UTIL_BUFFER_H
+#ifndef MLEARN_CUDA_BUFFER_H
+#define MLEARN_CUDA_BUFFER_H
 
 #include <cuda_runtime.h>
 #include "mlearn/cuda/device.h"
@@ -104,7 +104,8 @@ void Buffer<T>::read()
 template <class T>
 void Buffer<T>::read(size_t size, size_t offset)
 {
-	if ( !Device::instance() ) {
+	if ( !Device::instance() )
+	{
 		return;
 	}
 
@@ -124,11 +125,12 @@ void Buffer<T>::write()
 template <class T>
 void Buffer<T>::write(size_t size, size_t offset)
 {
-	if ( !Device::instance() ) {
+	if ( !Device::instance() )
+	{
 		return;
 	}
 
-	CHECK_CUDA(cudaMemcpy(&_dev[offset], &_host[offset], size * sizeof(T), cudaMemcpyHostToDevice));
+	CHECK_CUDA(cudaMemcpyAsync(&_dev[offset], &_host[offset], size * sizeof(T), cudaMemcpyHostToDevice));
 }
 
 
