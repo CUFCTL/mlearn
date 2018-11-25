@@ -1,12 +1,11 @@
 /**
  * @file test_classification.cpp
  *
- * Test suite for the classification model.
+ * Test suite for the classifier pipeline.
  */
 #include <cstdlib>
 #include <getopt.h>
 #include <iostream>
-#include <memory>
 #include <mlearn.h>
 
 
@@ -141,24 +140,26 @@ int main(int argc, char **argv)
 
 	Dataset::train_test_split(X, y, 0.2, X_train, y_train, X_test, y_test);
 
-	// construct feature layer
-	std::unique_ptr<TransformerLayer> feature;
+	// construct transformer layers
+	std::vector<TransformerLayer*> transforms;
+
+	transforms.push_back(new Scaler(true, false));
 
 	if ( args.feature == "identity" )
 	{
-		feature.reset();
+		// do nothing
 	}
 	else if ( args.feature == "pca" )
 	{
-		feature.reset(new PCALayer());
+		transforms.push_back(new PCALayer());
 	}
 	else if ( args.feature == "lda" )
 	{
-		feature.reset(new LDALayer());
+		transforms.push_back(new LDALayer());
 	}
 	else if ( args.feature == "ica" )
 	{
-		feature.reset(new ICALayer());
+		transforms.push_back(new ICALayer());
 	}
 	else
 	{
@@ -167,15 +168,15 @@ int main(int argc, char **argv)
 	}
 
 	// construct classifier layer
-	std::unique_ptr<EstimatorLayer> classifier;
+	EstimatorLayer* classifier;
 
 	if ( args.classifier == "knn" )
 	{
-		classifier.reset(new KNNLayer());
+		classifier = new KNNLayer();
 	}
 	else if ( args.classifier == "bayes" )
 	{
-		classifier.reset(new BayesLayer());
+		classifier = new BayesLayer();
 	}
 	else
 	{
@@ -183,35 +184,32 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	// create classification model
-	ClassificationModel model(feature.get(), classifier.get());
+	// create classifier pipeline
+	Pipeline pipeline(transforms, classifier);
 
-	model.print();
+	pipeline.print();
 
-	// fit model to training set
-	model.fit(X_train, y_train, dataset.classes().size());
+	// fit pipeline to training set
+	pipeline.fit(X_train, y_train, dataset.classes().size());
 
-	// perform classification on test set
-	std::vector<int> y_pred = model.predict(X_test);
+	// evaluate pipeline on test set
+	float accuracy = pipeline.score(X_test, y_test);
 
-	// compute test accuracy
-	float error_rate = model.score(y_test, y_pred);
-
-	Logger::log(LogLevel::Verbose, "Test error: %.3f", error_rate);
+	Logger::log(LogLevel::Verbose, "Test accuracy: %.3f", accuracy);
 	Logger::log(LogLevel::Verbose, "");
 
 	// print classification results on entire dataset
 	Logger::log(LogLevel::Verbose, "Results");
 
-	std::vector<int> y_pred_all = model.predict(X);
+	std::vector<int> y_pred = pipeline.predict(X);
 
-	for ( size_t i = 0; i < y_pred_all.size(); i++ )
+	for ( size_t i = 0; i < y_pred.size(); i++ )
 	{
 		const std::string& name = dataset.entries()[i].name;
 		const std::string& label_true = dataset.classes()[y[i]];
-		const std::string& label_pred = dataset.classes()[y_pred_all[i]];
+		const std::string& label_pred = dataset.classes()[y_pred[i]];
 
-		const char *s = (y_pred_all[i] != y[i])
+		const char *s = (y_pred[i] != y[i])
 			? "(!)"
 			: "";
 

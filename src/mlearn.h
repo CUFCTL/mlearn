@@ -26,12 +26,15 @@
 #include "mlearn/feature/lda.h"
 #include "mlearn/feature/pca.h"
 
+#include "mlearn/layer/pipeline.h"
+
 #include "mlearn/math/matrix.h"
 #include "mlearn/math/matrix_utils.h"
 #include "mlearn/math/random.h"
 
-#include "mlearn/model/classificationmodel.h"
 #include "mlearn/model/clusteringmodel.h"
+
+#include "mlearn/preprocessing/scaler.h"
 
 #include "mlearn/util/logger.h"
 #include "mlearn/util/timer.h"
