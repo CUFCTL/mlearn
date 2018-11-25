@@ -18,7 +18,7 @@ namespace mlearn {
 class Directory {
 public:
 	Directory(const std::string& path);
-	~Directory() {};
+	~Directory() {}
 
 	const std::string& path() const { return _path; }
 	const std::vector<std::string>& entries() const { return _entries; }

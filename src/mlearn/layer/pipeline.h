@@ -15,15 +15,16 @@ namespace mlearn {
 
 
 
-class Pipeline {
+class Pipeline : public EstimatorLayer {
 public:
 	Pipeline(std::vector<TransformerLayer *> transforms, EstimatorLayer *estimator);
 	~Pipeline() {}
 
-	void save(const std::string& path);
-	void load(const std::string& path);
+	void save(IODevice& file) const;
+	void load(IODevice& file);
 	void print() const;
 
+	void fit(const Matrix& X);
 	void fit(const Matrix& X, const std::vector<int>& y, int c);
 	std::vector<int> predict(const Matrix& X) const;
 	float score(const Matrix& X, const std::vector<int>& y) const;

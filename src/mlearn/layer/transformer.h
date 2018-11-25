@@ -17,7 +17,7 @@ namespace mlearn {
 
 class TransformerLayer : public Layer {
 public:
-	virtual ~TransformerLayer() {};
+	virtual ~TransformerLayer() {}
 
 	virtual void fit(const Matrix& X) = 0;
 	virtual void fit(const Matrix& X, const std::vector<int>& y, int c) = 0;

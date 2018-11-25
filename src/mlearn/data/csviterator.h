@@ -18,7 +18,7 @@ namespace mlearn {
 class CSVIterator : public DataIterator {
 public:
 	CSVIterator(const std::string& filename);
-	~CSVIterator() {};
+	~CSVIterator() {}
 
 	int num_samples() const { return _entries.size(); }
 	int sample_size() const { return _size; }

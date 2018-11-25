@@ -20,9 +20,9 @@ namespace mlearn {
  *
  * @param K
  */
-KMeansLayer::KMeansLayer(int K)
+KMeansLayer::KMeansLayer(int K):
+	_K(K)
 {
-	_K = K;
 }
 
 
@@ -42,7 +42,8 @@ void KMeansLayer::fit(const Matrix& X)
 	// initialize means randomly from X
 	_means.reserve(_K);
 
-	for ( int i = 0; i < _K; i++ ) {
+	for ( int i = 0; i < _K; i++ )
+	{
 		int j = Random::uniform_int(0, X.cols());
 
 		_means.push_back(X(j));
@@ -203,6 +204,30 @@ void KMeansLayer::print() const
 {
 	Logger::log(LogLevel::Verbose, "K-means");
 	Logger::log(LogLevel::Verbose, "  %-20s  %10d", "K", _K);
+}
+
+
+
+/**
+ * Compute the Akaike information criterion of a GMM.
+ *
+ *   AIC = 2 * k - 2 * ln(L)
+ */
+float KMeansLayer::aic() const
+{
+	return 2 * _num_parameters - 2 * _log_likelihood;
+}
+
+
+
+/**
+ * Compute the Bayesian information criterion of a GMM.
+ *
+ *   BIC = ln(n) * k - 2 * ln(L)
+ */
+float KMeansLayer::bic() const
+{
+	return log(_num_samples) * _num_parameters - 2 * _log_likelihood;
 }
 
 

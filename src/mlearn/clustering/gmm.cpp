@@ -43,10 +43,9 @@ IODevice& operator>>(IODevice& file, GMMLayer::Component& component)
  *
  * @param K
  */
-GMMLayer::GMMLayer(int K)
+GMMLayer::GMMLayer(int K):
+	_K(K)
 {
-	_K = K;
-	_success = false;
 }
 
 
@@ -383,10 +382,10 @@ void GMMLayer::fit(const Matrix& X)
 		_num_parameters = _K * (1 + D + D * D);
 		_num_samples = N;
 		_entropy = compute_entropy(gamma, compute_labels(gamma));
-		_success = true;
 	}
-	catch ( std::runtime_error& e ) {
-		_success = false;
+	catch ( std::runtime_error& e )
+	{
+		_log_likelihood = -INFINITY;
 	}
 
 	Timer::pop();
@@ -424,7 +423,6 @@ void GMMLayer::save(IODevice& file) const
 	file << _log_likelihood;
 	file << _num_parameters;
 	file << _num_samples;
-	file << _success;
 }
 
 
@@ -442,7 +440,6 @@ void GMMLayer::load(IODevice& file)
 	file >> _log_likelihood;
 	file >> _num_parameters;
 	file >> _num_samples;
-	file >> _success;
 }
 
 
@@ -454,6 +451,42 @@ void GMMLayer::print() const
 {
 	Logger::log(LogLevel::Verbose, "Gaussian mixture model");
 	Logger::log(LogLevel::Verbose, "  %-20s  %10d", "K", _K);
+}
+
+
+
+/**
+ * Compute the Akaike information criterion of a GMM.
+ *
+ *   AIC = 2 * k - 2 * ln(L)
+ */
+float GMMLayer::aic() const
+{
+	return 2 * _num_parameters - 2 * _log_likelihood;
+}
+
+
+
+/**
+ * Compute the Bayesian information criterion of a GMM.
+ *
+ *   BIC = ln(n) * k - 2 * ln(L)
+ */
+float GMMLayer::bic() const
+{
+	return log(_num_samples) * _num_parameters - 2 * _log_likelihood;
+}
+
+
+
+/**
+ * Compute the Integrated Completed Likelihood of a GMM.
+ *
+ *   ICL = ln(n) * k - 2 * ln(L) - 2 * E
+ */
+float GMMLayer::icl() const
+{
+	return log(_num_samples) * _num_parameters - 2 * _log_likelihood - 2 * _entropy;
 }
 
 

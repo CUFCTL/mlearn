@@ -33,7 +33,7 @@ void print_usage()
 		"  --gpu              enable GPU acceleration\n"
 		"  --loglevel LEVEL   log level (0=error, 1=warn, [2]=info, 3=verbose, 4=debug)\n"
 		"  --dataset PATH     path to dataset [data/iris.txt]\n"
-		"  --type TYPE        data type ([csv], image, genome)\n"
+		"  --type TYPE        data type ([csv], genome, image)\n"
 		"  --feat FEATURE     feature extraction method ([identity], pca, lda, ica)\n"
 		"  --clas CLASSIFIER  classification method ([knn], bayes)\n";
 }
@@ -103,21 +103,21 @@ int main(int argc, char **argv)
 	// construct data iterator
 	std::unique_ptr<DataIterator> data_iter;
 
-	if ( args.data_type == "image" )
+	if ( args.data_type == "csv" )
 	{
-		data_iter.reset(new ImageIterator(args.data_path));
+		data_iter.reset(new CSVIterator(args.data_path));
 	}
 	else if ( args.data_type == "genome" )
 	{
 		data_iter.reset(new GenomeIterator(args.data_path));
 	}
-	else if ( args.data_type == "csv" )
+	else if ( args.data_type == "image" )
 	{
-		data_iter.reset(new CSVIterator(args.data_path));
+		data_iter.reset(new ImageIterator(args.data_path));
 	}
 	else
 	{
-		std::cerr << "error: type must be csv | image | genome\n";
+		std::cerr << "error: type must be csv | genome | image\n";
 		exit(1);
 	}
 

@@ -29,7 +29,7 @@ public:
 	);
 
 	Dataset(DataIterator *iter);
-	Dataset() {};
+	Dataset() {}
 
 	const std::string& path() const { return _path; }
 	const std::vector<std::string>& classes() const { return _classes; }

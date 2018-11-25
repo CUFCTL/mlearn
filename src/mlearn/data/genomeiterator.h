@@ -18,7 +18,7 @@ namespace mlearn {
 class GenomeIterator : public DataIterator {
 public:
 	GenomeIterator(const std::string& path);
-	~GenomeIterator() {};
+	~GenomeIterator() {}
 
 	int num_samples() const { return _entries.size(); }
 	int sample_size() const { return _num_genes; }

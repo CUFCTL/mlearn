@@ -26,19 +26,17 @@ public:
 	void load(IODevice& file);
 	void print() const;
 
-	float entropy() const { return 0; }
-	float log_likelihood() const { return _log_likelihood; }
 	int num_clusters() const { return _K; }
-	int num_parameters() const { return _num_parameters; }
-	int num_samples() const { return _num_samples; }
-	bool success() const { return true; }
+	float aic() const;
+	float bic() const;
+	float icl() const { return bic(); }
 
 private:
 	int _K;
 	std::vector<Matrix> _means;
-	float _log_likelihood;
-	int _num_parameters;
-	int _num_samples;
+	float _log_likelihood {-INFINITY};
+	int _num_parameters {0};
+	int _num_samples {0};
 };
 
 

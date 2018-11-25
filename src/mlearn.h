@@ -12,8 +12,7 @@
 #include "mlearn/clustering/gmm.h"
 #include "mlearn/clustering/kmeans.h"
 
-#include "mlearn/criterion/bic.h"
-#include "mlearn/criterion/icl.h"
+#include "mlearn/criterion/criterion.h"
 
 #include "mlearn/cuda/device.h"
 
@@ -31,8 +30,6 @@
 #include "mlearn/math/matrix.h"
 #include "mlearn/math/matrix_utils.h"
 #include "mlearn/math/random.h"
-
-#include "mlearn/model/clusteringmodel.h"
 
 #include "mlearn/preprocessing/scaler.h"
 

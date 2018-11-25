@@ -20,12 +20,12 @@ class ClusteringLayer : public EstimatorLayer {
 public:
 	virtual ~ClusteringLayer() {}
 
-	virtual float entropy() const = 0;
-	virtual float log_likelihood() const = 0;
+	float score(const Matrix& X, const std::vector<int>& y) const;
+
 	virtual int num_clusters() const = 0;
-	virtual int num_parameters() const = 0;
-	virtual int num_samples() const = 0;
-	virtual bool success() const = 0;
+	virtual float aic() const = 0;
+	virtual float bic() const = 0;
+	virtual float icl() const = 0;
 };
 
 

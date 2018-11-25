@@ -32,12 +32,10 @@ Pipeline::Pipeline(std::vector<TransformerLayer *> transforms, EstimatorLayer *e
 /**
  * Save a pipeline to a file.
  *
- * @param path
+ * @param file
  */
-void Pipeline::save(const std::string& path)
+void Pipeline::save(IODevice& file) const
 {
-	IODevice file(path, std::ofstream::out);
-
 	for ( auto transform : _transforms )
 	{
 		file << *transform;
@@ -50,12 +48,10 @@ void Pipeline::save(const std::string& path)
 /**
  * Load a pipeline from a file.
  *
- * @param path
+ * @param file
  */
-void Pipeline::load(const std::string& path)
+void Pipeline::load(IODevice& file)
 {
-	IODevice file(path, std::ifstream::in);
-
 	for ( auto transform : _transforms )
 	{
 		file >> *transform;
@@ -79,6 +75,33 @@ void Pipeline::print() const
 	_estimator->print();
 
 	Logger::log(LogLevel::Verbose, "");
+}
+
+
+
+/**
+ * Fit the pipeline to a dataset.
+ *
+ * @param X
+ */
+void Pipeline::fit(const Matrix& X_)
+{
+	Timer::push("Training");
+
+	// fit each transformer
+	Matrix X(std::move(X_));
+
+	for ( auto transform : _transforms )
+	{
+		transform->fit(X);
+		X = transform->transform(X);
+
+	}
+
+	// fit estimator
+	_estimator->fit(X);
+
+	Timer::pop();
 }
 
 
@@ -145,21 +168,18 @@ std::vector<int> Pipeline::predict(const Matrix& X_) const
  * @param X
  * @param y
  */
-float Pipeline::score(const Matrix& X, const std::vector<int>& y) const
+float Pipeline::score(const Matrix& X_, const std::vector<int>& y) const
 {
-	// compute predicted labels
-	std::vector<int> y_pred = predict(X);
+	// perform feature extraction
+	Matrix X(std::move(X_));
 
-	// compute accuracy of labels against ground truth
-	int num_correct = 0;
-
-	for ( size_t i = 0; i < y.size(); i++ ) {
-		if ( y_pred[i] == y[i] ) {
-			num_correct++;
-		}
+	for ( auto transform : _transforms )
+	{
+		X = transform->transform(X);
 	}
 
-	return (float) num_correct / y.size();
+	// score estimator
+	return _estimator->score(X, y);
 }
 
 

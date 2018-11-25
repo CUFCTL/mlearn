@@ -17,7 +17,7 @@ namespace mlearn {
 
 class Layer {
 public:
-	virtual ~Layer() {};
+	virtual ~Layer() {}
 
 	virtual void save(IODevice& file) const = 0;
 	virtual void load(IODevice& file) = 0;

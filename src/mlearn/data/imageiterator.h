@@ -18,7 +18,7 @@ namespace mlearn {
 class ImageIterator : public DataIterator {
 public:
 	ImageIterator(const std::string& path);
-	~ImageIterator() {};
+	~ImageIterator() {}
 
 	int num_samples() const { return _entries.size(); }
 	int sample_size() const { return _channels * _width * _height; }

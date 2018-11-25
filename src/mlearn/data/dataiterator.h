@@ -25,7 +25,7 @@ typedef struct {
 
 class DataIterator {
 public:
-	virtual ~DataIterator() {};
+	virtual ~DataIterator() {}
 
 	virtual int num_samples() const = 0;
 	virtual int sample_size() const = 0;

@@ -23,7 +23,7 @@ namespace mlearn {
 class IODevice : public std::fstream {
 public:
 	IODevice(const std::string& filename, std::ios_base::openmode mode)
-		: std::fstream(filename, mode) {};
+		: std::fstream(filename, mode) {}
 
 	IODevice& operator<<(bool val);
 	IODevice& operator<<(float val);
