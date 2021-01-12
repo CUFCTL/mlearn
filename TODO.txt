@@ -1,0 +1,16 @@
+misc
+- compare performance of evd vs svd for PCA
+- replace asserts with CHECK_ERROR
+- create matrix "view" using offset / strides / lda / shared_ptr
+
+GPU optimizations
+- implement custom CUDA kernels
+- use CUDA stream in Device and Buffer
+
+match scikit-learn
+- add train/test splitting
+- move model scoring metrics into separate classes
+
+layers
+- Transformer / Estimator classes
+- create Model class which chains layer classes
